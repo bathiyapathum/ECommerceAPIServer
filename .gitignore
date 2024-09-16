@@ -1,0 +1,13 @@
+# Ignore Visual Studio files
+.vs/
+*.user
+*.suo
+*.cache
+*.log
+
+# Ignore environment variables files
+.env
+
+# Ignore build outputs
+bin/
+obj/

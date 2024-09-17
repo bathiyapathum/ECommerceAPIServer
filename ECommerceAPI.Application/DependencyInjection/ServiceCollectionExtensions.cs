@@ -9,6 +9,10 @@ using System.Text;
 using System.Threading.Tasks;
 using ECommerceAPI.Application.Features;
 using ECommerceAPI.Application.Interfaces;
+using AutoMapper;
+using ECommerceAPI.Application.DTOs;
+using ECommerceAPI.Core.Entities;
+using ECommerceAPI.Application.Mappings;
 
 namespace ECommerceAPI.Application.DependencyInjection
 {
@@ -23,8 +27,15 @@ namespace ECommerceAPI.Application.DependencyInjection
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
             // Register other application services, e.g., AutoMapper
+
+            services.AddAutoMapper(cfg =>
+            {
+                cfg.AddProfile<AutoMapperProfile>(); 
+            }, Assembly.GetExecutingAssembly());
+
+
             services.AddScoped<IProductService, ProductService>();
-            services.AddAutoMapper(Assembly.GetExecutingAssembly());
+            services.AddScoped<IUserService, UserService>();
 
             // Add additional services if needed
             // Example: services.AddScoped<IYourService, YourServiceImplementation>();
@@ -32,4 +43,6 @@ namespace ECommerceAPI.Application.DependencyInjection
             return services;
         }
     }
+
+
 }

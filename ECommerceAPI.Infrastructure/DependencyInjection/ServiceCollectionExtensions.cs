@@ -35,6 +35,7 @@ namespace ECommerceAPI.Infrastructure.DependencyInjection
             services.AddSingleton<IMongoClient>(s => new MongoClient(mongoConnectionString));
             services.AddSingleton(s => s.GetRequiredService<IMongoClient>().GetDatabase(databaseName));
             services.AddTransient<ProductRepository>();
+            services.AddTransient<UserRepository>();
 
             return services;
         }

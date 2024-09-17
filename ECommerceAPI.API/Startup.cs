@@ -35,6 +35,7 @@ namespace ECommerceAPI.API
             services.AddControllers();
             //services.AddScoped<IProductService, ProductService>();
             services.AddApplicationServices();
+            //services.AddAutoMapper(typeof(AutoMapperProfile));
             services.AddInfrastructureServices(Configuration.GetConnectionString("MongoDbConnection"), "EcomDb");
 
             services.AddSwaggerGen(c =>

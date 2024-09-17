@@ -8,7 +8,7 @@ using ECommerceAPI.Application.DTOs;
 namespace ECommerceAPI.API.Controllers
 {
     [ApiController]
-    [Route("hi/[controller]")]
+    [Route("hi/fdfr/[controller]")]
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;

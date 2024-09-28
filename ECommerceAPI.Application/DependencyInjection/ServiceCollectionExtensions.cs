@@ -27,7 +27,6 @@ namespace ECommerceAPI.Application.DependencyInjection
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
             // Register other application services, e.g., AutoMapper
-
             services.AddAutoMapper(cfg =>
             {
                 cfg.AddProfile<AutoMapperProfile>(); 
@@ -38,7 +37,7 @@ namespace ECommerceAPI.Application.DependencyInjection
             services.AddScoped<IUserService, UserService>();
 
             // Add additional services if needed
-            // Example: services.AddScoped<IYourService, YourServiceImplementation>();
+            //Example: services.AddScoped<IYourService, YourServiceImplementation>();
 
             return services;
         }

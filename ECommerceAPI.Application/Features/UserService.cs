@@ -1,11 +1,6 @@
-﻿using ECommerceAPI.Application.DTOs;
-using ECommerceAPI.Application.Interfaces;
+﻿using ECommerceAPI.Application.Interfaces;
 using ECommerceAPI.Core.Entities;
-using ECommerceAPI.Infrastructure.Persistance;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using ECommerceAPI.Infrastructure.Repositories;
 using System.Threading.Tasks;
 
 namespace ECommerceAPI.Application.Features

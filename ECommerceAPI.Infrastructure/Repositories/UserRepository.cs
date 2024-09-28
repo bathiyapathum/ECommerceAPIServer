@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ECommerceAPI.Infrastructure.Persistance
+namespace ECommerceAPI.Infrastructure.Repositories
 {
     public class UserRepository
     {

@@ -73,6 +73,44 @@ namespace ECommerceAPI.Application.Features
             await _userRepository.CreateUserAsync(user);
         }
 
+        public Task<UserLogin> UserLoginAsync(LoginReqDTO userCred)
+        {
+            User user = _userRepository.GetUserbyEmailAsync(userCred.Email).Result;
+
+            if (user == null) {
+                throw new DataException("Invalid email or password");
+            }
+
+            if (!BCrypt.Net.BCrypt.Verify(userCred.Password, user.PasswordHash))
+            {
+                throw new DataException("Invalid  password");
+            }
+
+            UserLogin a = new UserLogin
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Role = (UserRoleLogin)user.Role,
+                CreatedDate = user.CreatedDate,
+                IsActive = user.IsActive,
+                ProfilePicture = user.ProfilePicture,
+                Addresss = new AddressLogin
+                {
+                    Street = user.Addresss.Street,
+                    City = user.Addresss.City,
+                    State = user.Addresss.State,
+                    Country = user.Addresss.Country,
+                    ZipCode = user.Addresss.ZipCode
+
+                },
+                PhoneNumber = user.PhoneNumber
+            };
+
+            return Task.FromResult(a);
+
+        }
+
 
     }
 }

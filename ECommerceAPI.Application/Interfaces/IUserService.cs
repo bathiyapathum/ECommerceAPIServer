@@ -14,6 +14,6 @@ namespace ECommerceAPI.Application.Interfaces
 
         Task CreateUserAsync(SignupReqDTO user);
 
-        //Task<User> GetUserByEmailAsync(string email);
+        Task<UserLogin> UserLoginAsync(LoginReqDTO userCred);
     }
 }

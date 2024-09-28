@@ -1,9 +1,13 @@
 ﻿using AutoMapper;
 using ECommerceAPI.Application.DTOs;
+using ECommerceAPI.Application.Features;
 using ECommerceAPI.Application.Interfaces;
 using ECommerceAPI.Core.Entities;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 using System.Threading.Tasks;
+using System;
 
 namespace ECommerceAPI.API.Controllers
 {
@@ -31,18 +35,19 @@ namespace ECommerceAPI.API.Controllers
             if (userExists)
                 return BadRequest("User already exists");
 
-            var user = _mapper.Map<User>(request);
-            //var user = _mapper.Map<SignupReqDTO>(request);
-
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
-
-            var createdUser = await _userService.CreateUserAsync(user);
-
-            if(createdUser != null) {
-                return Ok("User created successfully");
+            try
+            {
+                await _userService.CreateUserAsync(request);
+                return CreatedAtAction(nameof(Signup), new { id = request }, request);
             }
-
-            return StatusCode(500, "Something Went wrong...");
+            catch(DataException ex)
+            {
+                return BadRequest($"Validation error: {ex.Message}");
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
 
         }
 

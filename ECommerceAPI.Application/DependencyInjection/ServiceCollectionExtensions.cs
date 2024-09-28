@@ -13,6 +13,7 @@ using AutoMapper;
 using ECommerceAPI.Application.DTOs;
 using ECommerceAPI.Core.Entities;
 using ECommerceAPI.Application.Mappings;
+using ECommerceAPI.Application.Common;
 
 namespace ECommerceAPI.Application.DependencyInjection
 {
@@ -35,6 +36,7 @@ namespace ECommerceAPI.Application.DependencyInjection
 
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IValidations, ValidationsImpl>();    
 
             // Add additional services if needed
             //Example: services.AddScoped<IYourService, YourServiceImplementation>();

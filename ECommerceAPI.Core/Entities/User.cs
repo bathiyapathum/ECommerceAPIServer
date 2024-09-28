@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using Google.Cloud.Firestore;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,45 +8,83 @@ using System.Threading.Tasks;
 
 namespace ECommerceAPI.Core.Entities
 {
+    [FirestoreData]
     public class User
     {
-        [BsonId]
-        [BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
+        //[BsonId]
+        //[BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
+        //public string Id { get; set; }
+        [FirestoreDocumentId]
         public string Id { get; set; }
 
-        [BsonElement("email")]
+        [FirestoreProperty("email")]
         public string Email { get; set; }
 
-        [BsonElement("firstName")]
+        [FirestoreProperty("firstName")]
         public string FirstName { get; set; }
 
-        [BsonElement("lastName")]
+        [FirestoreProperty("lastName")]
         public string LastName { get; set; }
 
-        [BsonElement("passwordHash")]
+        [FirestoreProperty("passwordHash")]
         public string PasswordHash { get; set; }
+        public string Re_PasswordHash { get; set; }
 
-        [BsonElement("role")]
-        public string Role { get; set; }
+        [FirestoreProperty("role")]
+        public UserRole Role { get; set; } = UserRole.Customer;
 
-        [BsonElement("createdOn")]
-        public DateTime CreatedOn { get; set; } = DateTime.Now;
+        [FirestoreProperty("createdOn")]
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
-        [BsonElement("updatedOn")]
-        public DateTime UpdatedOn { get; set; } = DateTime.Now;
+        [FirestoreProperty("updatedOn")]
+        public DateTime UpdatedDate { get; set; } = DateTime.UtcNow;
 
-        [BsonElement("isActive")]
-        public bool IsActive { get; set; } = true;
+        [FirestoreProperty("isActive")]
+        public bool IsActive { get; set; } = false;
 
-        [BsonElement("emailConfirmed")]
+        [FirestoreProperty("emailConfirmed")]
         public bool EmailConfirmed { get; set; } = false;
 
-        [BsonElement("lastLogin")]
-        public DateTime LastLogin { get; set; } = DateTime.Now;
+        [FirestoreProperty("lastLogin")]
+        public DateTime LastLogin { get; set; } = DateTime.UtcNow;
 
-        [BsonIgnore]
-        public string password { get; set; }
+        [FirestoreProperty("profilePicture")]
+        public string ProfilePicture { get; set; }
+
+        [FirestoreProperty("address")]
+        public Address Addresss { get; set; }
+
+        [FirestoreProperty("phoneNumber")]
+        public string PhoneNumber { get; set; }
+
+        public string Password { get; set; }
 
 
+    }
+
+    public enum UserRole
+    {
+        Admin = 1,
+        Customer = 2, 
+        CSR = 3
+    }
+
+    [FirestoreData]
+    public class Address
+    {
+        [FirestoreProperty("street")]
+        public string Street { get; set; }
+
+        [FirestoreProperty("city")]
+        public string City { get; set; }
+
+        [FirestoreProperty("state")]
+        public string State { get; set; }
+
+        [FirestoreProperty("country")]
+        public string Country { get; set; }
+
+        [FirestoreProperty("zipCode")]
+        public string ZipCode { get; set; }
     }
 }

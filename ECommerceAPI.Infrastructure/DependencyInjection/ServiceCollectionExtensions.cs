@@ -5,6 +5,7 @@ using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
 using ECommerceAPI.Infrastructure.Repositories;
 using ECommerceAPI.Infrastructure.Persistance;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
 namespace ECommerceAPI.Infrastructure.DependencyInjection
 {

@@ -5,9 +5,12 @@
 *.cache
 *.log
 
+
 # Ignore environment variables files
 .env
 
 # Ignore build outputs
 bin/
 obj/
+**/appsettings.json
+/ECommerceAPI.API/ecommerceead-c19d4-firebase-adminsdk-rb67u-08dd4d782c.json

@@ -1,5 +1,4 @@
 ﻿using Google.Cloud.Firestore;
-using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +8,8 @@ using System.Threading.Tasks;
 namespace ECommerceAPI.Core.Entities
 {
     [FirestoreData]
-    public class User
+    public class UserLogin
     {
-        //[BsonId]
-        //[BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
-        //public string Id { get; set; }
         [FirestoreDocumentId]
         public string Id { get; set; }
 
@@ -26,12 +22,12 @@ namespace ECommerceAPI.Core.Entities
         [FirestoreProperty("lastName")]
         public string LastName { get; set; }
 
-        [FirestoreProperty("passwordHash")]
-        public string PasswordHash { get; set; }
-        public string Re_PasswordHash { get; set; }
+        //[FirestoreProperty("passwordHash")]
+        //public string PasswordHash { get; set; }
+        //public string Re_PasswordHash { get; set; }
 
         [FirestoreProperty("role")]
-        public UserRole Role { get; set; } = UserRole.Customer;
+        public UserRoleLogin Role { get; set; } = UserRoleLogin.Customer;
 
         [FirestoreProperty("createdOn")]
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
@@ -52,25 +48,22 @@ namespace ECommerceAPI.Core.Entities
         public string ProfilePicture { get; set; }
 
         [FirestoreProperty("address")]
-        public Address Addresss { get; set; }
+        public AddressLogin Addresss { get; set; }
 
         [FirestoreProperty("phoneNumber")]
         public string PhoneNumber { get; set; }
 
-        public string Password { get; set; }
-
-
     }
 
-    public enum UserRole
+    public enum UserRoleLogin
     {
         Admin = 1,
-        Customer = 2, 
+        Customer = 2,
         CSR = 3
     }
 
     [FirestoreData]
-    public class Address
+    public class AddressLogin
     {
         [FirestoreProperty("street")]
         public string Street { get; set; }
@@ -87,4 +80,5 @@ namespace ECommerceAPI.Core.Entities
         [FirestoreProperty("zipCode")]
         public string ZipCode { get; set; }
     }
+
 }

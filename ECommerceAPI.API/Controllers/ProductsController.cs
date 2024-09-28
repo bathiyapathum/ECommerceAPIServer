@@ -21,7 +21,14 @@ namespace ECommerceAPI.API.Controllers
         public async Task<IActionResult> Create([FromBody] ProductDTO productDTO)
         {
             await _productService.CreateAsync(productDTO);
-            return CreatedAtAction(nameof(Create), new { id = productDTO }, productDTO); ;
+            return CreatedAtAction(nameof(Create), new { id = productDTO }, productDTO); 
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Creates([FromBody] ProductDTO productDTO)
+        {
+            await _productService.CreateAsync(productDTO);
+            return CreatedAtAction(nameof(Create), new { id = productDTO }, productDTO); 
         }
 
         //[HttpGet]

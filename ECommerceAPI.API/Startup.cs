@@ -1,20 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using ECommerceAPI.Application.DependencyInjection;
 using ECommerceAPI.Infrastructure.DependencyInjection;
-using ECommerceAPI.Application.Interfaces;
-using ECommerceAPI.Application.Features;
+
 
 
 namespace ECommerceAPI.API
@@ -33,10 +25,13 @@ namespace ECommerceAPI.API
         {
 
             services.AddControllers();
-            //services.AddScoped<IProductService, ProductService>();
             services.AddApplicationServices();
-            //services.AddAutoMapper(typeof(AutoMapperProfile));
-            services.AddInfrastructureServices(Configuration.GetConnectionString("MongoDbConnection"), "EcomDb");
+            string mongoConnectionString = Configuration.GetConnectionString("MongoDbConnection");
+            string databaseName = Configuration["MongoDB:DatabaseName"];
+            string firebaseCredentialsPath = Configuration["Firebase:CredentialsPath"];
+
+            services.AddInfrastructureServices(mongoConnectionString, "EcomDb", firebaseCredentialsPath);
+
 
             services.AddSwaggerGen(c =>
             {

@@ -1,18 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
-using ECommerceAPI.Infrastructure.Persistance;
+﻿using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
+using Google.Cloud.Firestore;
+using ECommerceAPI.Infrastructure.Repositories;
+using ECommerceAPI.Infrastructure.Persistance;
 
 namespace ECommerceAPI.Infrastructure.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
+
+        public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, string mongoConnectionString, string databaseName, string firebaseCredentalsPath)
+        {
+            services.AddSingleton<IMongoClient>(s => new MongoClient(mongoConnectionString));
+            services.AddSingleton(s => s.GetRequiredService<IMongoClient>().GetDatabase(databaseName));
+
+            FirebaseApp.Create(new AppOptions
+            {
+                Credential = GoogleCredential.FromFile(firebaseCredentalsPath)
+            });
+
+            //FirestoreDb firestoreDb = FirestoreDb.Create("ecommerceead-c19d4");
+            services.AddSingleton(FirestoreDb.Create("ecommerceead-c19d4"));
+            //services.AddSingleton(firestoreDb);
+
+            services.AddTransient<ProductRepository>();
+            services.AddTransient<ApplicationDbContext>();
+            services.AddTransient<UserRepository>();
+
+            return services;
+        }
         //public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         //{
         //    // Register the database context with dependency injection
@@ -30,14 +48,6 @@ namespace ECommerceAPI.Infrastructure.DependencyInjection
         //    return services;
         //}
 
-        public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, string mongoConnectionString, string databaseName)
-        {
-            services.AddSingleton<IMongoClient>(s => new MongoClient(mongoConnectionString));
-            services.AddSingleton(s => s.GetRequiredService<IMongoClient>().GetDatabase(databaseName));
-            services.AddTransient<ProductRepository>();
-            services.AddTransient<UserRepository>();
 
-            return services;
-        }
     }
 }

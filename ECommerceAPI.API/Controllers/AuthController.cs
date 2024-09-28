@@ -45,5 +45,20 @@ namespace ECommerceAPI.API.Controllers
             return StatusCode(500, "Something Went wrong...");
 
         }
+
+        //[HttpPost("login")]
+        //public async Task<IActionResult> Login([FromBody] LoginReqDTO request)
+        //{
+        //    if(!ModelState.IsValid)
+        //        return BadRequest(ModelState);
+
+        //    var userExists = await _userService.CheckUserExists(request.Email);
+
+        //    if(!userExists)
+        //        return BadRequest("Invalid User Name or Email");
+
+        //    var user = await _userService.GetUserByEmailAsync(request.Email);
+
+        //}
     }
 }

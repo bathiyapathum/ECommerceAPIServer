@@ -2,8 +2,11 @@
 using ECommerceAPI.Application.Interfaces;
 using ECommerceAPI.Core.Entities;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using ECommerceAPI.Infrastructure.Repositories;
+using System.Collections.Generic;
+using System.Data;
 
 
 namespace ECommerceAPI.Application.Features
@@ -19,16 +22,59 @@ namespace ECommerceAPI.Application.Features
 
         public async Task CreateAsync(ProductDTO productDTO)
         {
-            var products = new Product
+            try
             {
-                Id = Guid.NewGuid().ToString(),
-                Name = productDTO.Name,
-                Price = productDTO.Price,
-                Description = productDTO.Description,
-                Stock = productDTO.Stock
+                var products = new Product
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = productDTO.Name,
+                    Price = productDTO.Price,
+                    Description = productDTO.Description,
+                    StockQuantity = productDTO.StockQuantity,
+                    ImageUrl = productDTO.ImageUrl,
+                    CreatedAt = productDTO.CreatedAt,
+                    UpdatedAt = productDTO.UpdatedAt,
+                    CategoryId = productDTO.CategoryId
+                };
+                await _productRepository.CreateAsync(products);
+            }
+            catch(Exception ex) {
+                throw new Exception(ex.Message);
+            }
 
-            };
-            await _productRepository.CreateAsync(products);
+        }
+
+        public async Task<List<ProductDTO>> GetAllAsync()
+        {
+            try
+            {
+                List<Product> products = await _productRepository.GetAllAsync();
+
+                if(products == null)
+                {
+                    throw new DataException("Invalid email or password");
+                }
+
+                List<ProductDTO> productsDTO = products.Select(products => new ProductDTO
+                {
+                    Name = products.Name,
+                    Price = products.Price,
+                    Description = products.Description,
+                    StockQuantity = products.StockQuantity,
+                    ImageUrl = products.ImageUrl,
+                    CreatedAt = products.CreatedAt,
+                    UpdatedAt = products.UpdatedAt,
+                    CategoryId = products.CategoryId
+                }).ToList();
+
+                return productsDTO;
+
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            
         }
 
     }

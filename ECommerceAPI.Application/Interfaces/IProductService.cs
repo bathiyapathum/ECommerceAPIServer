@@ -9,7 +9,7 @@ namespace ECommerceAPI.Application.Interfaces
 {
     public interface IProductService
     {
-        //Task<List<ProductDTO>> GetAllAsync();
+        Task<List<ProductDTO>> GetAllAsync();
         //Task<ProductDTO> GetByIdAsync(Guid id);
         Task CreateAsync(ProductDTO product);
         //Task UpdateAsync(Guid id, ProductDTO product);

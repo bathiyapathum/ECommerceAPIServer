@@ -52,9 +52,31 @@ namespace ECommerceAPI.Application.Features
             throw new NotImplementedException();
         }
 
-        public Task<Order> GetOrderAsync(string orderId)
+        public async Task<List<Order>> GetAllOrdersAsync()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var orders = await _orderRepository.GetAllAsync();
+                return orders;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Order> GetOrderAsync(string orderId)
+        {
+            try
+            {
+                var order = await _orderRepository.GetOrderbyIdAsync(orderId);
+                return order;
+                
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public Task<IEnumerable<Order>> GetOrdersByCustomerAsync(string customerId)

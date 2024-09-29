@@ -30,8 +30,15 @@ namespace ECommerceAPI.Core.Entities
         public string PasswordHash { get; set; }
         public string Re_PasswordHash { get; set; }
 
+        private UserRole _role;
         [FirestoreProperty("role")]
-        public UserRole Role { get; set; } = UserRole.Customer;
+        public UserRole Role 
+        { 
+            get => _role; 
+            set => _role = IsValidUserRole(value) ? value : UserRole.Customer; 
+        } 
+
+
 
         [FirestoreProperty("createdOn")]
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
@@ -59,6 +66,11 @@ namespace ECommerceAPI.Core.Entities
 
         public string Password { get; set; }
 
+        private bool IsValidUserRole(UserRole role)
+        {
+            return Enum.IsDefined(typeof(UserRole), role);
+        }
+
 
     }
 
@@ -66,7 +78,8 @@ namespace ECommerceAPI.Core.Entities
     {
         Admin = 1,
         Customer = 2, 
-        CSR = 3
+        CSR = 3,
+        vendor = 4
     }
 
     [FirestoreData]

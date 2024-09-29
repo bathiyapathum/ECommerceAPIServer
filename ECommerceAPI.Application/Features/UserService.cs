@@ -85,9 +85,58 @@ namespace ECommerceAPI.Application.Features
             }
             catch(Exception ex) {
                 throw new Exception(ex.Message);
-            }
+            }           
+        }
 
-            
+        public async Task CreateUserAsync(SignupReqDTO signupReqDTO, DTOs.UserRole role)
+        {
+            try
+            {
+                List<string> inputErrors = _validations.ValidateUserInputs(signupReqDTO);
+
+                if (inputErrors.Count > 0)
+                {
+                    throw new DataException(string.Join(",", inputErrors));
+                }
+
+                List<string> roleErrors = _validations.ValidateUserRole(signupReqDTO, role);
+
+                if (roleErrors.Count > 0)
+                {
+                    throw new DataException(string.Join(",", roleErrors));
+                }
+
+                var user = new User
+                {
+                    Password = signupReqDTO.Password,
+                    Email = signupReqDTO.Email,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(signupReqDTO.Password),
+                    Re_PasswordHash = BCrypt.Net.BCrypt.HashPassword(signupReqDTO.Re_Password),
+                    FirstName = signupReqDTO.FirstName,
+                    LastName = signupReqDTO.LastName,
+                    Role = (Core.Entities.UserRole)signupReqDTO.Role,
+                    CreatedDate = signupReqDTO.CreatedDate,
+                    IsActive = false,
+                    ProfilePicture = signupReqDTO.ProfilePicture,
+                    Addresss = new Core.Entities.Address
+                    {
+                        Street = signupReqDTO.Addresss.Street,
+                        City = signupReqDTO.Addresss.City,
+                        State = signupReqDTO.Addresss.State,
+                        Country = signupReqDTO.Addresss.Country,
+                        ZipCode = signupReqDTO.Addresss.ZipCode
+
+                    },
+                    PhoneNumber = signupReqDTO.PhoneNumber
+
+                };
+
+                await _userRepository.CreateUserAsync(user);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public Task<UserLogin> UserLoginAsync(LoginReqDTO userCred)

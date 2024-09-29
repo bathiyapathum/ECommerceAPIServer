@@ -38,6 +38,7 @@ namespace ECommerceAPI.Application.DependencyInjection
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IValidations, ValidationsImpl>(); 
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IOrderService, OrderService>();
 
             // Add additional services if needed
             //Example: services.AddScoped<IYourService, YourServiceImplementation>();

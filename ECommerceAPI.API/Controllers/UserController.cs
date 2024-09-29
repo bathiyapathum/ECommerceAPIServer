@@ -9,6 +9,8 @@ using System.Data;
 using System.Threading.Tasks;
 using System;
 using Microsoft.AspNetCore.Authorization;
+using System.Linq;
+using System.Security.Claims;
 
 namespace ECommerceAPI.API.Controllers
 {
@@ -69,7 +71,20 @@ namespace ECommerceAPI.API.Controllers
                 if (userExists)
                     return BadRequest("User already exists");
 
-                await _userService.CreateUserAsync(request);
+                var loggedInUserRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (string.IsNullOrEmpty(loggedInUserRole))
+                {
+                    return Unauthorized("User role is not defined.");
+                }
+
+                if (!Enum.TryParse(loggedInUserRole, out Application.DTOs.UserRole userRole))
+                {
+                    return BadRequest("Invalid user role.");
+                }
+
+
+                await _userService.CreateUserAsync(request, userRole);
                 return CreatedAtAction(nameof(Signup), new { id = request }, request);
             }
             catch(DataException ex)
@@ -81,7 +96,6 @@ namespace ECommerceAPI.API.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
-
         }
 
 

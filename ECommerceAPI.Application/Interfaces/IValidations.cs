@@ -10,6 +10,7 @@ namespace ECommerceAPI.Application.Interfaces
     public interface IValidations
     {
         public List<string> ValidateUserInputs(SignupReqDTO signupReqDTO);
+        public List<string> ValidateUserRole(SignupReqDTO signupReqDTO, DTOs.UserRole role);
         public bool IsValidEmail(string email);
     }
 }

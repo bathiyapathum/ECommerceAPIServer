@@ -11,9 +11,8 @@ namespace ECommerceAPI.Application.Interfaces
     public interface IUserService
     {
         Task<bool> CheckUserExists(string email);
-
         Task CreateUserAsync(SignupReqDTO user);
-
+        Task CreateUserAsync(SignupReqDTO user, DTOs.UserRole role);
         Task<UserLogin> UserLoginAsync(LoginReqDTO userCred);
     }
 }

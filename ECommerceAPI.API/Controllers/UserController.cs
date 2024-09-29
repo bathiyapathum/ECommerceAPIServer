@@ -8,18 +8,19 @@ using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.Threading.Tasks;
 using System;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ECommerceAPI.API.Controllers
 {
     [ApiController]
     [Route("api/v1")]
-    public class AuthController : ControllerBase
+    public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
         private readonly IAuthService _authService;
 
-        public AuthController(IUserService userService, IMapper mapper, IAuthService authService)
+        public UserController(IUserService userService, IMapper mapper, IAuthService authService)
         {
             _userService = userService;
             _mapper = mapper;
@@ -53,6 +54,36 @@ namespace ECommerceAPI.API.Controllers
             }
 
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("CreateUser")]
+        public async Task<IActionResult> RegisterNewUser([FromBody] SignupReqDTO request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var userExists = await _userService.CheckUserExists(request.Email);
+
+                if (userExists)
+                    return BadRequest("User already exists");
+
+                await _userService.CreateUserAsync(request);
+                return CreatedAtAction(nameof(Signup), new { id = request }, request);
+            }
+            catch(DataException ex)
+            {
+                return BadRequest($"Validation error: {ex.Message}");
+
+            }
+            catch(Exception ex) 
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+        }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginReqDTO request)

@@ -44,7 +44,10 @@ namespace ECommerceAPI.API
                 };
             });
 
-            services.AddAuthorization();
+            services.AddAuthorization(option =>
+            {
+                option.AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"));
+            });
 
             services.AddControllers();
             services.AddApplicationServices();

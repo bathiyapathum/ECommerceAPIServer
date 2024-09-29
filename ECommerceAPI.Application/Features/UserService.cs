@@ -2,6 +2,7 @@
 using ECommerceAPI.Application.Interfaces;
 using ECommerceAPI.Core.Entities;
 using ECommerceAPI.Infrastructure.Repositories;
+using System;
 using FirebaseAdmin.Auth.Hash;
 using Google.Type;
 using System.Collections.Generic;
@@ -25,89 +26,114 @@ namespace ECommerceAPI.Application.Features
 
         public async Task<bool> CheckUserExists(string email)
         {
-            var users = await _userRepository.GetUserbyEmailAsync(email);
-            if(users != null)
+            try
             {
-                return true;
-            }
+                var users = await _userRepository.GetUserbyEmailAsync(email);
+                if (users != null)
+                {
+                    return true;
+                }
+                return false;
 
-            return false; 
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }   
+
+
         }
 
         public async Task CreateUserAsync(SignupReqDTO signupReqDTO)
         {
-            List<string>  errors =_validations.ValidateUserInputs(signupReqDTO);
-
-            if(errors.Count > 0)
+            try
             {
-                throw new DataException(string.Join(",", errors));
+                List<string> errors = _validations.ValidateUserInputs(signupReqDTO);
+
+                if (errors.Count > 0)
+                {
+                    throw new DataException(string.Join(",", errors));
+                }
+
+                var user = new User
+                {
+                    Password = signupReqDTO.Password,
+                    Email = signupReqDTO.Email,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(signupReqDTO.Password),
+                    Re_PasswordHash = BCrypt.Net.BCrypt.HashPassword(signupReqDTO.Re_Password),
+                    FirstName = signupReqDTO.FirstName,
+                    LastName = signupReqDTO.LastName,
+                    Role = (Core.Entities.UserRole)signupReqDTO.Role,
+                    CreatedDate = signupReqDTO.CreatedDate,
+                    IsActive = signupReqDTO.IsActive,
+                    ProfilePicture = signupReqDTO.ProfilePicture,
+                    Addresss = new Core.Entities.Address
+                    {
+                        Street = signupReqDTO.Addresss.Street,
+                        City = signupReqDTO.Addresss.City,
+                        State = signupReqDTO.Addresss.State,
+                        Country = signupReqDTO.Addresss.Country,
+                        ZipCode = signupReqDTO.Addresss.ZipCode
+
+                    },
+                    PhoneNumber = signupReqDTO.PhoneNumber
+
+                };
+
+                await _userRepository.CreateUserAsync(user);
+            }
+            catch(Exception ex) {
+                throw new Exception(ex.Message);
             }
 
-
-
-            var user = new User
-            {
-                Password = signupReqDTO.Password,
-                Email = signupReqDTO.Email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(signupReqDTO.Password),
-                Re_PasswordHash = BCrypt.Net.BCrypt.HashPassword(signupReqDTO.Re_Password),
-                FirstName = signupReqDTO.FirstName,
-                LastName = signupReqDTO.LastName,
-                Role = (Core.Entities.UserRole)signupReqDTO.Role,
-                CreatedDate = signupReqDTO.CreatedDate,
-                IsActive = signupReqDTO.IsActive,
-                ProfilePicture = signupReqDTO.ProfilePicture,
-                Addresss = new Core.Entities.Address
-                {
-                    Street = signupReqDTO.Addresss.Street,
-                    City = signupReqDTO.Addresss.City,
-                    State = signupReqDTO.Addresss.State,
-                    Country = signupReqDTO.Addresss.Country,
-                    ZipCode = signupReqDTO.Addresss.ZipCode
-
-                },
-                PhoneNumber = signupReqDTO.PhoneNumber
-
-            };
-
-            await _userRepository.CreateUserAsync(user);
+            
         }
 
         public Task<UserLogin> UserLoginAsync(LoginReqDTO userCred)
         {
-            User user = _userRepository.GetUserbyEmailAsync(userCred.Email).Result;
-
-            if (user == null) {
-                throw new DataException("Invalid email or password");
-            }
-
-            if (!BCrypt.Net.BCrypt.Verify(userCred.Password, user.PasswordHash))
+            try
             {
-                throw new DataException("Invalid  password");
-            }
+                User user = _userRepository.GetUserbyEmailAsync(userCred.Email).Result;
 
-            UserLogin a = new UserLogin
-            {
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                Role = (UserRoleLogin)user.Role,
-                CreatedDate = user.CreatedDate,
-                IsActive = user.IsActive,
-                ProfilePicture = user.ProfilePicture,
-                Addresss = new AddressLogin
+                if (user == null)
                 {
-                    Street = user.Addresss.Street,
-                    City = user.Addresss.City,
-                    State = user.Addresss.State,
-                    Country = user.Addresss.Country,
-                    ZipCode = user.Addresss.ZipCode
+                    throw new DataException("Invalid email or password");
+                }
 
-                },
-                PhoneNumber = user.PhoneNumber
-            };
+                if (!BCrypt.Net.BCrypt.Verify(userCred.Password, user.PasswordHash))
+                {
+                    throw new DataException("Invalid  password");
+                }
 
-            return Task.FromResult(a);
+                UserLogin a = new UserLogin
+                {
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    Role = (UserRoleLogin)user.Role,
+                    CreatedDate = user.CreatedDate,
+                    IsActive = user.IsActive,
+                    ProfilePicture = user.ProfilePicture,
+                    Addresss = new AddressLogin
+                    {
+                        Street = user.Addresss.Street,
+                        City = user.Addresss.City,
+                        State = user.Addresss.State,
+                        Country = user.Addresss.Country,
+                        ZipCode = user.Addresss.ZipCode
+
+                    },
+                    PhoneNumber = user.PhoneNumber
+                };
+
+                return Task.FromResult(a);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }   
+           
 
         }
 

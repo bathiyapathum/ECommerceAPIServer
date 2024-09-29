@@ -7,7 +7,7 @@ using ECommerceAPI.Application.DTOs;
 namespace ECommerceAPI.API.Controllers
 {
     [ApiController]
-    [Route("hi/fdfr/[controller]")]
+    [Route("api/v1/[controller]")]
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;
@@ -24,19 +24,13 @@ namespace ECommerceAPI.API.Controllers
             return CreatedAtAction(nameof(Create), new { id = productDTO }, productDTO); 
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Creates([FromBody] ProductDTO productDTO)
-        {
-            await _productService.CreateAsync(productDTO);
-            return CreatedAtAction(nameof(Create), new { id = productDTO }, productDTO); 
-        }
 
-        //[HttpGet]
-        //public async Task<IActionResult> GetAll()
-        //{
-        //    var products = await _productService.GetAllAsync();
-        //    return Ok(products);
-        //}
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var products = await _productService.GetAllAsync();
+            return Ok(products);
+        }
 
         //[HttpGet("{id}")]
         //public async Task<IActionResult> GetById(Guid id)

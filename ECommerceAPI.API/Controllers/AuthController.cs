@@ -29,16 +29,17 @@ namespace ECommerceAPI.API.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> Signup([FromBody] SignupReqDTO request)
         {
-            if(!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var userExists = await _userService.CheckUserExists(request.Email);
-
-            if (userExists)
-                return BadRequest("User already exists");
-
             try
             {
+                if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+                var userExists = await _userService.CheckUserExists(request.Email);
+
+                if (userExists)
+                    return BadRequest("User already exists");
+
+
                 await _userService.CreateUserAsync(request);
                 return CreatedAtAction(nameof(Signup), new { id = request }, request);
             }

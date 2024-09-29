@@ -14,8 +14,14 @@ namespace ECommerceAPI.Application.DTOs
         public string Password { get; set; }
         public string Re_Password { get; set; }
         public string PhoneNumber { get; set; } = string.Empty;
-        public Address Addresss { get; set; } 
-        public UserRole Role { get; set; } = UserRole.Customer;
+        public Address Addresss { get; set; }
+
+        private UserRole _role;
+        public UserRole Role
+        {
+            get => _role;
+            set => _role = IsValidUserRole(value) ? value : UserRole.Customer;
+        }
         //public string Status { get; set; } = string.Empty;
         //public string CreatedBy { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
@@ -26,14 +32,19 @@ namespace ECommerceAPI.Application.DTOs
         public string ProfilePicture { get; set; } = string.Empty;
 
         //public string HashedPassword { get; set; }
+        private bool IsValidUserRole(UserRole role)
+        {
+            return Enum.IsDefined(typeof(UserRole), role);
+        }
 
     }
 
     public enum UserRole
     {
         Admin = 1,
-        Customer = 2, // Default value
-        CSR = 3
+        Customer = 2, 
+        CSR = 3,
+        Vendor = 4
     }
 
     public class Address

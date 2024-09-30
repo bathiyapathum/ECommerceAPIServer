@@ -4,6 +4,7 @@ using ECommerceAPI.Core.Entities;
 using ECommerceAPI.Infrastructure.Repositories;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -47,9 +48,17 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
-        public Task DeleteOrderAsync(string orderId)
+        public async Task DeleteOrderAsync(string orderId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                await _orderRepository.DeleteOrderAsync(orderId);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<List<Order>> GetAllOrdersAsync()
@@ -84,9 +93,23 @@ namespace ECommerceAPI.Application.Features
             throw new NotImplementedException();
         }
 
-        public Task UpdateOrderDetailsAsync(OrderDTO orderDTO)
+        public async Task UpdateOrderDetailsAsync(string orderId ,OrderDTO orderDTO)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var order = new Dictionary<string, object>
+                {
+                    {"items" , orderDTO.Items },
+                    {"status" , orderDTO.Status }
+                };
+                await _orderRepository.UpdateOrderAsync(orderId, order);
+                
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public Task UpdateOrderStatusAsync(string orderId, string status)

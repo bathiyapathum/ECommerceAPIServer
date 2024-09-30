@@ -2,6 +2,7 @@
 using ECommerceAPI.Application.Features;
 using ECommerceAPI.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace ECommerceAPI.API.Controllers
@@ -36,6 +37,37 @@ namespace ECommerceAPI.API.Controllers
         {
             var order = await _orderService.GetOrderAsync(orderId);
             return Ok(order);
+        }
+
+        //Order update method implementation
+
+        [HttpPatch]
+        public async Task<IActionResult> UpdateOrder([FromBody] OrderDTO orderDTO, [FromQuery] string orderId)
+        {
+            try
+            {
+                await _orderService.UpdateOrderDetailsAsync(orderId,orderDTO);
+                return Ok();
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteOrder([FromQuery] string orderId)
+        {
+            try
+            {
+                await _orderService.DeleteOrderAsync(orderId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using ECommerceAPI.Application.DTOs;
-using ECommerceAPI.Core.Entities;
+using ECommerceAPI.Application.DTOs.UserDTO;
+using ECommerceAPI.Core.Entities.UserEntity;
 
 
 namespace ECommerceAPI.Application.Mappings

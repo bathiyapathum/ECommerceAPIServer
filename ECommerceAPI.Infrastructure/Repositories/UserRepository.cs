@@ -1,5 +1,6 @@
-﻿using ECommerceAPI.Core.Entities;
+﻿using ECommerceAPI.Core.Entities.UserEntity;
 using ECommerceAPI.Infrastructure.Persistance;
+using FirebaseAdmin.Auth.Hash;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -43,6 +44,41 @@ namespace ECommerceAPI.Infrastructure.Repositories
             //await _users.InsertOneAsync(user);
 
             await _context._firestoreDb.Collection("Users").Document(user.Id= Guid.NewGuid().ToString()).SetAsync(user);
+        }
+
+        public async Task<User> GetUserByIdAsync(string id)
+        {
+            var documentSnapShot = await _context._firestoreDb.Collection("Users")
+                .Document(id)
+                .GetSnapshotAsync();
+
+            if(!documentSnapShot.Exists)
+            {
+                return null;
+            }
+
+            return documentSnapShot.ConvertTo<User>();
+        }
+
+        public async Task<bool> UpdateUserAsync(User userforChangePassword, ChangePassword changePasswordReqDTO)
+        {
+            try
+            {
+                await _context._firestoreDb.Collection("Users")
+                .Document(userforChangePassword.Id)
+                .UpdateAsync(new Dictionary<string, object>
+                {
+                    { "passwordHash", changePasswordReqDTO.NewPassword},
+                    { "updateTime", DateTime.UtcNow},
+                    {"isActive", true }
+                });
+                return true;
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }   
+
         }
     }
 }

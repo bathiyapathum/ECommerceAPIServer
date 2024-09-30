@@ -1,4 +1,4 @@
-﻿using ECommerceAPI.Core.Entities;
+﻿using ECommerceAPI.Core.Entities.ProductEntity;
 using ECommerceAPI.Infrastructure.Persistance;
 using System.Collections.Generic;
 using System.Linq;

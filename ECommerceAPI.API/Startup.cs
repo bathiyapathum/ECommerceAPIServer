@@ -47,6 +47,7 @@ namespace ECommerceAPI.API
             services.AddAuthorization(option =>
             {
                 option.AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"));
+                option.AddPolicy("AccountActivatePolicy", policy => policy.RequireRole("Vendor","CSR"));
             });
 
             services.AddControllers();

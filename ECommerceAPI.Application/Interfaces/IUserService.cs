@@ -14,5 +14,7 @@ namespace ECommerceAPI.Application.Interfaces
         Task CreateUserAsync(SignupReqDTO user);
         Task CreateUserAsync(SignupReqDTO user, DTOs.UserRole role);
         Task<UserLogin> UserLoginAsync(LoginReqDTO userCred);
+        Task<UserLogin> GetUserByIdAsync(string userId);
+        Task<bool> ActivateUser(ChangePasswordReqDTO changePasswordReqDTO);
     }
 }

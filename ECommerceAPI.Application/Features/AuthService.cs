@@ -39,6 +39,7 @@ namespace ECommerceAPI.Application.Features
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.Name, user.FirstName + " " + user.LastName),
                 new Claim(ClaimTypes.Role, user.Role.ToString())
+
             };
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));

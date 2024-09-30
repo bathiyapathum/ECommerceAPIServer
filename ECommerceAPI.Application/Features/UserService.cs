@@ -157,6 +157,7 @@ namespace ECommerceAPI.Application.Features
 
                 UserLogin a = new UserLogin
                 {
+                    Id = user.Id,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     Email = user.Email,
@@ -181,11 +182,84 @@ namespace ECommerceAPI.Application.Features
             catch(Exception ex)
             {
                 throw new Exception(ex.Message);
-            }   
-           
-
+            }         
         }
 
+        public Task<UserLogin> GetUserByIdAsync(string userId)
+        {
+            try
+            {
+                User userforChangePassword = _userRepository.GetUserByIdAsync(userId).Result;
+
+                if (userforChangePassword == null)
+                {
+                    throw new DataException("Invalid User Id");
+                }
+                
+                UserLogin a = new UserLogin
+                {
+                    FirstName = userforChangePassword.FirstName,
+                    LastName = userforChangePassword.LastName,
+                    Email = userforChangePassword.Email,
+                    Role = (UserRoleLogin)userforChangePassword.Role,
+                    CreatedDate = userforChangePassword.CreatedDate,
+                    IsActive = userforChangePassword.IsActive,
+                    ProfilePicture = userforChangePassword.ProfilePicture,
+                    Addresss = new AddressLogin
+                    {
+                        Street = userforChangePassword.Addresss.Street,
+                        City = userforChangePassword.Addresss.City,
+                        State = userforChangePassword.Addresss.State,
+                        Country = userforChangePassword.Addresss.Country,
+                        ZipCode = userforChangePassword.Addresss.ZipCode
+
+                    },
+                    PhoneNumber = userforChangePassword.PhoneNumber
+                };
+
+                return Task.FromResult(a);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public Task<bool> ActivateUser(ChangePasswordReqDTO changePasswordReqDTO)
+        {
+            try
+            {
+                User userforChangePassword = _userRepository.GetUserByIdAsync(changePasswordReqDTO.UserId).Result;
+
+                if (userforChangePassword == null)
+                {
+                    throw new DataException("Invalid User Id");
+                }
+
+                if(userforChangePassword.IsActive == true)
+                {
+                    throw new DataException("User is already activated");
+                }
+
+                string hashedNewPassword = BCrypt.Net.BCrypt.HashPassword(changePasswordReqDTO.NewPassword);
+
+                ChangePassword changePassword = new ChangePassword
+                {
+                    UserId = changePasswordReqDTO.UserId,
+                    OldPassword = changePasswordReqDTO.OldPassword,
+                    NewPassword = hashedNewPassword
+                };
+
+                Task<bool> isSuccess = _userRepository.UpdateUserAsync(userforChangePassword, changePassword);
+
+                return isSuccess;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Task.FromResult(true);
+        }
 
     }
 }

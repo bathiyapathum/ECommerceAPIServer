@@ -59,7 +59,8 @@ namespace ECommerceAPI.Core.Entities
     {
         Admin = 1,
         Customer = 2,
-        CSR = 3
+        CSR = 3,
+        Vendor = 4
     }
 
     [FirestoreData]

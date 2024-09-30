@@ -58,7 +58,7 @@ namespace ECommerceAPI.API.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("CreateUser")]
+        [HttpPost("create-by-admin")]
         public async Task<IActionResult> RegisterNewUser([FromBody] SignupReqDTO request)
         {
             try
@@ -105,6 +105,8 @@ namespace ECommerceAPI.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+
+
             var userExists = await _userService.CheckUserExists(request.Email);
 
             if (!userExists)
@@ -123,6 +125,36 @@ namespace ECommerceAPI.API.Controllers
 
             }
             catch(DataException ex)
+            {
+                return BadRequest($"Validation error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [Authorize(Policy = "AccountActivatePolicy")]
+        //[Authorize(Roles = "Vendor")]
+        [HttpPost("activate-user")]
+        public async Task<IActionResult> ActivateUser([FromBody] ChangePasswordReqDTO changePasswordReqDTO)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var loggedInUserRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (string.IsNullOrEmpty(loggedInUserRole))
+                {
+                    return Unauthorized("User role is not defined.");
+                }
+
+                await _userService.ActivateUser(changePasswordReqDTO);
+                return Ok("User activated successfully");
+            }
+            catch (DataException ex)
             {
                 return BadRequest($"Validation error: {ex.Message}");
             }

@@ -37,6 +37,22 @@ namespace ECommerceAPI.Infrastructure.Repositories
             await _context.FirestoreDatabase.Collection("VendorProducts").Document(product.ProductId).SetAsync(product);
         }
 
+        // Fetching all products across all vendors
+        public async Task<List<VendorProduct>> GetAllProductsAsync()
+        {
+            var productsQuery = await _context.FirestoreDatabase
+                .Collection("VendorProducts")
+                .GetSnapshotAsync();
+
+            var allProducts = new List<VendorProduct>();
+            foreach (var doc in productsQuery.Documents)
+            {
+                allProducts.Add(doc.ConvertTo<VendorProduct>());
+            }
+
+            return allProducts;
+        }
+
         // Get a vendor product by its ID
         public async Task<VendorProduct> GetVendorProductByIdAsync(string productId)
         {

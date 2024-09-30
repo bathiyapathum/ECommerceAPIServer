@@ -48,5 +48,17 @@ namespace ECommerceAPI.API.Controllers
             var products = await _productService.GetAllVendorProductsAsync(vendorId);
             return Ok(products);
         }
+
+        //getting all products across all vendors
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllProducts()
+        {
+            var products = await _productService.GetAllProductsAsync();
+            if (products == null || products.Count == 0)
+            {
+                return NotFound("No products found.");
+            }
+            return Ok(products);
+        }
     }
 }

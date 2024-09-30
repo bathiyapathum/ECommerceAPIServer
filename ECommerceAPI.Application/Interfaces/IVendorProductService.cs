@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace ECommerceAPI.Application.Interfaces
 {
+    // IVendorProductService interface
     public interface IVendorProductService
     {
         Task CreateVendorProductAsync(VendorProductDTO productDTO);

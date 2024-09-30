@@ -1,6 +1,6 @@
-﻿using ECommerceAPI.Application.DTOs;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Collections.Generic;
+using ECommerceAPI.Application.DTOs.ProductDTO;
 
 namespace ECommerceAPI.Application.Interfaces
 {

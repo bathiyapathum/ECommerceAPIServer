@@ -1,7 +1,7 @@
 ﻿using Google.Cloud.Firestore;
 using System;
 
-namespace ECommerceAPI.Core.Entities
+namespace ECommerceAPI.Core.Entities.ProductEntity
 {
     [FirestoreData]
     public class VendorProduct

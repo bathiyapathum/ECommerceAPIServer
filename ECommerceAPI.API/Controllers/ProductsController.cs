@@ -1,8 +1,7 @@
 ﻿using ECommerceAPI.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-
-using ECommerceAPI.Application.DTOs;
+using ECommerceAPI.Application.DTOs.ProductDTO;
 
 namespace ECommerceAPI.API.Controllers
 {

@@ -1,4 +1,4 @@
-﻿using ECommerceAPI.Application.DTOs;
+﻿using ECommerceAPI.Application.DTOs.ProductDTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Google.Cloud.Firestore;
 
-namespace ECommerceAPI.Core.Entities
+namespace ECommerceAPI.Core.Entities.OrderEntity
 {
     [FirestoreData]
     public class Order
@@ -33,7 +33,7 @@ namespace ECommerceAPI.Core.Entities
     }
 
     [FirestoreData]
-    public class OrderItem 
+    public class OrderItem
     {
         [FirestoreProperty]
         public string ProductId { get; set; }

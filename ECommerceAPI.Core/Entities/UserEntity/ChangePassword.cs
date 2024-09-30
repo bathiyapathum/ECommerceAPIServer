@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ECommerceAPI.Core.Entities
+namespace ECommerceAPI.Core.Entities.UserEntity
 {
     [FirestoreData]
     public class ChangePassword

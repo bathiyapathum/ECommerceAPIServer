@@ -1,5 +1,4 @@
-﻿using ECommerceAPI.Application.DTOs;
-using ECommerceAPI.Application.Interfaces;
+﻿using ECommerceAPI.Application.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -8,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ECommerceAPI.Application.Features;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using ECommerceAPI.Application.DTOs.UserDTO;
 
 namespace ECommerceAPI.Application.Common
 {

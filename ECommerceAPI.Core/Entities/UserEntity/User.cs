@@ -1,15 +1,19 @@
 ﻿using Google.Cloud.Firestore;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ECommerceAPI.Core.Entities
+namespace ECommerceAPI.Core.Entities.UserEntity
 {
     [FirestoreData]
-    public class UserLogin
+    public class User
     {
+        //[BsonId]
+        //[BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
+        //public string Id { get; set; }
         [FirestoreDocumentId]
         public string Id { get; set; }
 
@@ -22,12 +26,19 @@ namespace ECommerceAPI.Core.Entities
         [FirestoreProperty("lastName")]
         public string LastName { get; set; }
 
-        //[FirestoreProperty("passwordHash")]
-        //public string PasswordHash { get; set; }
-        //public string Re_PasswordHash { get; set; }
+        [FirestoreProperty("passwordHash")]
+        public string PasswordHash { get; set; }
+        public string Re_PasswordHash { get; set; }
 
+        private UserRole _role;
         [FirestoreProperty("role")]
-        public UserRoleLogin Role { get; set; } = UserRoleLogin.Customer;
+        public UserRole Role
+        {
+            get => _role;
+            set => _role = IsValidUserRole(value) ? value : UserRole.Customer;
+        }
+
+
 
         [FirestoreProperty("createdOn")]
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
@@ -48,23 +59,31 @@ namespace ECommerceAPI.Core.Entities
         public string ProfilePicture { get; set; }
 
         [FirestoreProperty("address")]
-        public AddressLogin Addresss { get; set; }
+        public Address Addresss { get; set; }
 
         [FirestoreProperty("phoneNumber")]
         public string PhoneNumber { get; set; }
 
+        public string Password { get; set; }
+
+        private bool IsValidUserRole(UserRole role)
+        {
+            return Enum.IsDefined(typeof(UserRole), role);
+        }
+
+
     }
 
-    public enum UserRoleLogin
+    public enum UserRole
     {
         Admin = 1,
         Customer = 2,
         CSR = 3,
-        Vendor = 4
+        vendor = 4
     }
 
     [FirestoreData]
-    public class AddressLogin
+    public class Address
     {
         [FirestoreProperty("street")]
         public string Street { get; set; }
@@ -81,5 +100,4 @@ namespace ECommerceAPI.Core.Entities
         [FirestoreProperty("zipCode")]
         public string ZipCode { get; set; }
     }
-
 }

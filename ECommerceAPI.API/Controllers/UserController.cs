@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using ECommerceAPI.Application.DTOs;
 using ECommerceAPI.Application.Features;
 using ECommerceAPI.Application.Interfaces;
 using ECommerceAPI.Core.Entities;
@@ -11,6 +10,7 @@ using System;
 using Microsoft.AspNetCore.Authorization;
 using System.Linq;
 using System.Security.Claims;
+using ECommerceAPI.Application.DTOs.UserDTO;
 
 namespace ECommerceAPI.API.Controllers
 {
@@ -78,7 +78,7 @@ namespace ECommerceAPI.API.Controllers
                     return Unauthorized("User role is not defined.");
                 }
 
-                if (!Enum.TryParse(loggedInUserRole, out Application.DTOs.UserRole userRole))
+                if (!Enum.TryParse(loggedInUserRole, out Application.DTOs.UserDTO.UserRole userRole))
                 {
                     return BadRequest("Invalid user role.");
                 }
@@ -163,5 +163,8 @@ namespace ECommerceAPI.API.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        //[HttpPost("deactivate-user")]
+
     }
 }

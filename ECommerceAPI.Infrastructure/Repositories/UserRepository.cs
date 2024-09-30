@@ -1,4 +1,4 @@
-﻿using ECommerceAPI.Core.Entities;
+﻿using ECommerceAPI.Core.Entities.UserEntity;
 using ECommerceAPI.Infrastructure.Persistance;
 using FirebaseAdmin.Auth.Hash;
 using MongoDB.Driver;

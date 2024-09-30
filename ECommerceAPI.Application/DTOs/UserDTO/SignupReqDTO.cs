@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ECommerceAPI.Application.DTOs
+namespace ECommerceAPI.Application.DTOs.UserDTO
 {
     public class SignupReqDTO
     {
@@ -42,7 +42,7 @@ namespace ECommerceAPI.Application.DTOs
     public enum UserRole
     {
         Admin = 1,
-        Customer = 2, 
+        Customer = 2,
         CSR = 3,
         Vendor = 4
     }

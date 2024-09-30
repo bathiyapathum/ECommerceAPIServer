@@ -13,5 +13,6 @@ namespace ECommerceAPI.Application.DTOs
         public string VendorId { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public string StockStatus { get; set; }  // New field for StockStatus
     }
 }

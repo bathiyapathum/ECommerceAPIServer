@@ -30,11 +30,13 @@ namespace ECommerceAPI.Application.Features
                 VendorId = productDTO.VendorId,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
+                StockStatus = productDTO.StockQuantity == 0 ? VendorStockStatus.OutOfStock.ToString() :
+                              productDTO.StockQuantity < 5 ? VendorStockStatus.LowStock.ToString() : VendorStockStatus.Available.ToString()
             };
 
             await _productRepository.AddVendorProductAsync(product);
 
-            // At this point, product.ProductId will be populated with the Firebase ID
+            // The ProductId field will now be populated with the Firebase ID after adding the document
         }
 
         // Update an existing vendor product
@@ -51,6 +53,10 @@ namespace ECommerceAPI.Application.Features
                 product.VendorId = productDTO.VendorId;
                 product.UpdatedAt = DateTime.UtcNow;
 
+                // Automatically update stock status based on new quantity
+                product.StockStatus = product.StockQuantity == 0 ? VendorStockStatus.OutOfStock.ToString() :
+                                      product.StockQuantity < 5 ? VendorStockStatus.LowStock.ToString() : VendorStockStatus.Available.ToString();
+
                 await _productRepository.UpdateVendorProductAsync(product);
             }
         }
@@ -61,7 +67,7 @@ namespace ECommerceAPI.Application.Features
             var product = await _productRepository.GetVendorProductByIdAsync(productId);
             if (product != null)
             {
-                if (product.StockStatus != VendorStockStatus.Pending)
+                if (product.StockStatus != VendorStockStatus.Pending.ToString())
                 {
                     await _productRepository.DeleteVendorProductAsync(productId);
                 }
@@ -86,7 +92,8 @@ namespace ECommerceAPI.Application.Features
                     Category = product.Category,
                     VendorId = product.VendorId,
                     CreatedAt = product.CreatedAt,
-                    UpdatedAt = product.UpdatedAt
+                    UpdatedAt = product.UpdatedAt,
+                    StockStatus = product.StockStatus // Add StockStatus to the DTO
                 });
             }
 
@@ -100,6 +107,10 @@ namespace ECommerceAPI.Application.Features
             if (product != null)
             {
                 product.StockQuantity += quantityChange;
+
+                // Automatically update stock status based on new quantity
+                product.StockStatus = product.StockQuantity == 0 ? VendorStockStatus.OutOfStock.ToString() :
+                                      product.StockQuantity < 5 ? VendorStockStatus.LowStock.ToString() : VendorStockStatus.Available.ToString();
 
                 if (product.StockQuantity < 5)
                 {

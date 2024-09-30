@@ -27,7 +27,7 @@ namespace ECommerceAPI.Application.DependencyInjection
             }, Assembly.GetExecutingAssembly());
 
             // Register services (including the newly added VendorProductService)
-            services.AddScoped<IProductService, ProductService>();
+           
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IValidations, ValidationsImpl>();
             services.AddScoped<IAuthService, AuthService>();

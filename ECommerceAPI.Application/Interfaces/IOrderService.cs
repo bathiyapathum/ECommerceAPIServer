@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ECommerceAPI.Application.DTOs;
-using ECommerceAPI.Core.Entities;
+using ECommerceAPI.Application.DTOs.OrderDTO;
+using ECommerceAPI.Core.Entities.OrderEntity;
 
 namespace ECommerceAPI.Application.Interfaces
 {

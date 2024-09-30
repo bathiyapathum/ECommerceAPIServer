@@ -1,11 +1,11 @@
-﻿using ECommerceAPI.Core.Entities;
+﻿using ECommerceAPI.Core.Entities.OrderEntity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ECommerceAPI.Application.DTOs
+namespace ECommerceAPI.Application.DTOs.OrderDTO
 {
     public class OrderDTO
     {

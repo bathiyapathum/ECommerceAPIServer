@@ -1,6 +1,4 @@
-﻿using ECommerceAPI.Application.DTOs;
-using ECommerceAPI.Application.Interfaces;
-using ECommerceAPI.Core.Entities;
+﻿using ECommerceAPI.Application.Interfaces;
 using ECommerceAPI.Infrastructure.Repositories;
 using System;
 using FirebaseAdmin.Auth.Hash;
@@ -10,6 +8,8 @@ using System.Data;
 using System.Threading.Tasks;
 using static Google.Rpc.Context.AttributeContext.Types;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
+using ECommerceAPI.Application.DTOs.UserDTO;
+using ECommerceAPI.Core.Entities.UserEntity;
 
 namespace ECommerceAPI.Application.Features
 {
@@ -64,11 +64,11 @@ namespace ECommerceAPI.Application.Features
                     Re_PasswordHash = BCrypt.Net.BCrypt.HashPassword(signupReqDTO.Re_Password),
                     FirstName = signupReqDTO.FirstName,
                     LastName = signupReqDTO.LastName,
-                    Role = (Core.Entities.UserRole)signupReqDTO.Role,
+                    Role = (Core.Entities.UserEntity.UserRole)signupReqDTO.Role,
                     CreatedDate = signupReqDTO.CreatedDate,
                     IsActive = signupReqDTO.IsActive,
                     ProfilePicture = signupReqDTO.ProfilePicture,
-                    Addresss = new Core.Entities.Address
+                    Addresss = new Core.Entities.UserEntity.Address
                     {
                         Street = signupReqDTO.Addresss.Street,
                         City = signupReqDTO.Addresss.City,
@@ -88,7 +88,7 @@ namespace ECommerceAPI.Application.Features
             }           
         }
 
-        public async Task CreateUserAsync(SignupReqDTO signupReqDTO, DTOs.UserRole role)
+        public async Task CreateUserAsync(SignupReqDTO signupReqDTO, DTOs.UserDTO.UserRole role)
         {
             try
             {
@@ -114,11 +114,11 @@ namespace ECommerceAPI.Application.Features
                     Re_PasswordHash = BCrypt.Net.BCrypt.HashPassword(signupReqDTO.Re_Password),
                     FirstName = signupReqDTO.FirstName,
                     LastName = signupReqDTO.LastName,
-                    Role = (Core.Entities.UserRole)signupReqDTO.Role,
+                    Role = (Core.Entities.UserEntity.UserRole)signupReqDTO.Role,
                     CreatedDate = signupReqDTO.CreatedDate,
                     IsActive = false,
                     ProfilePicture = signupReqDTO.ProfilePicture,
-                    Addresss = new Core.Entities.Address
+                    Addresss = new Core.Entities.UserEntity.Address
                     {
                         Street = signupReqDTO.Addresss.Street,
                         City = signupReqDTO.Addresss.City,

@@ -17,6 +17,7 @@ namespace ECommerceAPI.API.Controllers
             _productService = productService;
         }
 
+        // Create a new vendor product
         [HttpPost("create")]
         public async Task<IActionResult> CreateVendorProduct([FromBody] VendorProductDTO productDTO)
         {
@@ -24,6 +25,7 @@ namespace ECommerceAPI.API.Controllers
             return CreatedAtAction(nameof(CreateVendorProduct), new { id = productDTO.ProductId }, productDTO);
         }
 
+        // Update an existing vendor product
         [HttpPut("update/{productId}")]
         public async Task<IActionResult> UpdateVendorProduct(string productId, [FromBody] VendorProductDTO productDTO)
         {
@@ -31,6 +33,7 @@ namespace ECommerceAPI.API.Controllers
             return NoContent();
         }
 
+        // Delete a vendor product
         [HttpDelete("delete/{productId}")]
         public async Task<IActionResult> DeleteVendorProduct(string productId)
         {
@@ -38,6 +41,7 @@ namespace ECommerceAPI.API.Controllers
             return NoContent();
         }
 
+        // Get all vendor products by vendorId
         [HttpGet("{vendorId}")]
         public async Task<IActionResult> GetVendorProducts(string vendorId)
         {

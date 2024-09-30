@@ -28,6 +28,7 @@ namespace ECommerceAPI.Application.Features
                 StockQuantity = productDTO.StockQuantity,
                 Category = productDTO.Category,
                 VendorId = productDTO.VendorId,
+                ImageUrl = productDTO.ImageUrl, // Added ImageUrl field
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 StockStatus = productDTO.StockQuantity == 0 ? VendorStockStatus.OutOfStock.ToString() :
@@ -51,6 +52,7 @@ namespace ECommerceAPI.Application.Features
                 product.StockQuantity = productDTO.StockQuantity;
                 product.Category = productDTO.Category;
                 product.VendorId = productDTO.VendorId;
+                product.ImageUrl = productDTO.ImageUrl; // Added ImageUrl field
                 product.UpdatedAt = DateTime.UtcNow;
 
                 // Automatically update stock status based on new quantity
@@ -93,7 +95,8 @@ namespace ECommerceAPI.Application.Features
                     VendorId = product.VendorId,
                     CreatedAt = product.CreatedAt,
                     UpdatedAt = product.UpdatedAt,
-                    StockStatus = product.StockStatus // Add StockStatus to the DTO
+                    StockStatus = product.StockStatus, // Add StockStatus to the DTO
+                    ImageUrl = product.ImageUrl // Add ImageUrl to the DTO
                 });
             }
 

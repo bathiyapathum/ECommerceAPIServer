@@ -36,6 +36,9 @@ namespace ECommerceAPI.Core.Entities
         // Store StockStatus as string
         [FirestoreProperty("stockStatus")]
         public string StockStatus { get; set; } = VendorStockStatus.Available.ToString();
+
+        [FirestoreProperty("imageUrl")]
+        public string ImageUrl { get; set; }
     }
 
     public enum VendorStockStatus

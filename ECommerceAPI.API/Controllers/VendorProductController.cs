@@ -1,4 +1,4 @@
-﻿using ECommerceAPI.Application.DTOs;
+﻿using ECommerceAPI.Application.DTOs.ProductDTO;
 using ECommerceAPI.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;

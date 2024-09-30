@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ECommerceAPI.Application.DTOs
+namespace ECommerceAPI.Application.DTOs.ProductDTO
 {
     public class VendorProductDTO
     {

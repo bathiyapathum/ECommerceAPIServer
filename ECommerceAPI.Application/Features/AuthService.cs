@@ -4,9 +4,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using ECommerceAPI.Core.Entities;
 using Microsoft.Extensions.Configuration;
 using ECommerceAPI.Application.Interfaces;
+using ECommerceAPI.Core.Entities.UserEntity;
 
 namespace ECommerceAPI.Application.Features
 {
@@ -39,6 +39,7 @@ namespace ECommerceAPI.Application.Features
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.Name, user.FirstName + " " + user.LastName),
                 new Claim(ClaimTypes.Role, user.Role.ToString())
+
             };
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));

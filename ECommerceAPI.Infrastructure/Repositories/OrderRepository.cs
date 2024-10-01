@@ -1,4 +1,4 @@
-﻿using ECommerceAPI.Core.Entities;
+﻿using ECommerceAPI.Core.Entities.OrderEntity;
 using ECommerceAPI.Infrastructure.Persistance;
 using Google.Cloud.Firestore;
 using System;

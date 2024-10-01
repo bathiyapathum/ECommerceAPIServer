@@ -1,6 +1,6 @@
-﻿using ECommerceAPI.Application.DTOs;
+﻿using ECommerceAPI.Application.DTOs.OrderDTO;
 using ECommerceAPI.Application.Interfaces;
-using ECommerceAPI.Core.Entities;
+using ECommerceAPI.Core.Entities.OrderEntity;
 using ECommerceAPI.Infrastructure.Repositories;
 using System;
 using System.Collections.Generic;

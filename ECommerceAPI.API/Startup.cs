@@ -10,8 +10,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-
-
 namespace ECommerceAPI.API
 {
     public class Startup
@@ -26,6 +24,17 @@ namespace ECommerceAPI.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Add CORS policy
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllOrigins", builder =>
+                {
+                    builder.AllowAnyOrigin()
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                });
+            });
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -47,9 +56,11 @@ namespace ECommerceAPI.API
             services.AddAuthorization(option =>
             {
                 option.AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"));
+                option.AddPolicy("AccountActivatePolicy", policy => policy.RequireRole("Vendor","CSR"));
             });
 
             services.AddControllers();
+
             services.AddApplicationServices();
             string mongoConnectionString = Configuration.GetConnectionString("MongoDbConnection");
             string databaseName = Configuration["MongoDB:DatabaseName"];
@@ -57,13 +68,10 @@ namespace ECommerceAPI.API
 
             services.AddInfrastructureServices(mongoConnectionString, "EcomDb", firebaseCredentialsPath);
 
-
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ECommerceAPI.API", Version = "v1" });
             });
-            services.AddApplicationServices();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -75,13 +83,14 @@ namespace ECommerceAPI.API
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ECommerceAPI.API v1"));
             }
-            app.UseSwagger();
-            app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ECommerceAPI.API v1"));
+
+            // Apply CORS policy
+            app.UseCors("AllowAllOrigins");
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
             app.UseAuthentication();
             app.UseAuthorization();
 

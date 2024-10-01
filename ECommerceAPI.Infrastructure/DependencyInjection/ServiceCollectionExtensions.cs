@@ -25,8 +25,7 @@ namespace ECommerceAPI.Infrastructure.DependencyInjection
             //FirestoreDb firestoreDb = FirestoreDb.Create("ecommerceead-c19d4");
             services.AddSingleton(FirestoreDb.Create("ecommerceead-c19d4"));
             //services.AddSingleton(firestoreDb);
-
-            services.AddTransient<ProductRepository>();
+            services.AddTransient<VendorProductRepository>();
             services.AddTransient<ApplicationDbContext>();
             services.AddTransient<UserRepository>();
             services.AddTransient<OrderRepository>();

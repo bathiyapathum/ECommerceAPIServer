@@ -57,7 +57,7 @@ namespace ECommerceAPI.Infrastructure.Repositories
         public async Task<VendorProduct> GetVendorProductByIdAsync(string productId)
         {
             var productDoc = await _context.FirestoreDatabase.Collection("VendorProducts").Document(productId).GetSnapshotAsync();
-            return productDoc.ConvertTo<VendorProduct>();
+            return productDoc.Exists ? productDoc.ConvertTo<VendorProduct>() : null;
         }
 
         // Delete a vendor product by its ID

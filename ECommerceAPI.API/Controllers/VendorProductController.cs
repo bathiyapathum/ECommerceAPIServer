@@ -49,7 +49,19 @@ namespace ECommerceAPI.API.Controllers
             return Ok(products);
         }
 
-        //getting all products across all vendors
+        // Get a specific vendor product by productId
+        [HttpGet("product/{productId}")]
+        public async Task<IActionResult> GetVendorProductById(string productId)
+        {
+            var product = await _productService.GetVendorProductByIdAsync(productId);
+            if (product == null)
+            {
+                return NotFound("Product not found.");
+            }
+            return Ok(product);
+        }
+
+        // Get all products across all vendors
         [HttpGet("all")]
         public async Task<IActionResult> GetAllProducts()
         {

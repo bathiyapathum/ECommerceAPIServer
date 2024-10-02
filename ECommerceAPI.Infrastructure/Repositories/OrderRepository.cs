@@ -81,6 +81,31 @@ namespace ECommerceAPI.Infrastructure.Repositories
             }
         }
 
+        public async Task CancelOrderAsync(string orderId, string note, string canceledBy)
+        {
+            // Retrieve the document by orderId and delete it
+            var documentRef = _context.FirestoreDatabase.Collection("Orders").Document(orderId);
+
+            var snapshot = await documentRef.GetSnapshotAsync();
+            if (snapshot.Exists)
+            {
+                var order = new Dictionary<string, object>
+                {                    
+                    {"status" , "Canceled" },
+                    {"note" , note },
+                    {"canceledBy" , canceledBy },
+
+                };
+                // Cancel Order
+                await documentRef.UpdateAsync(order);
+            }
+            else
+            {
+                throw new Exception("Order not found.");
+            }
+
+        }
+
 
     }
 }

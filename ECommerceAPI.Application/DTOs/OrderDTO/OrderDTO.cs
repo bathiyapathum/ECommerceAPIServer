@@ -12,6 +12,8 @@ namespace ECommerceAPI.Application.DTOs.OrderDTO
         public string CustomerId { get; set; }
         public List<OrderItem> Items { get; set; }
         public string Status { get; set; }
+        public string Note { get; set; }
+        public string CanceledBy { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime DispatchedAt { get; set; }
         public DateTime DeliveredAt { get; set; }

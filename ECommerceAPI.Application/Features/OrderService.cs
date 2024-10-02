@@ -1,4 +1,5 @@
-﻿using ECommerceAPI.Application.DTOs.OrderDTO;
+﻿using ECommerceAPI.Application.DTOs.NotificationDTO;
+using ECommerceAPI.Application.DTOs.OrderDTO;
 using ECommerceAPI.Application.Interfaces;
 using ECommerceAPI.Core.Entities.OrderEntity;
 using ECommerceAPI.Infrastructure.Repositories;
@@ -14,14 +15,35 @@ namespace ECommerceAPI.Application.Features
     internal class OrderService : IOrderService
     {
         private readonly  OrderRepository _orderRepository;
+        private readonly  NotificationRepository _notificationRepository;
 
-        public OrderService(OrderRepository orderRepository)
+        public OrderService(OrderRepository orderRepository, NotificationRepository notificationRepository)
         {
-            _orderRepository = orderRepository;        
+            _orderRepository = orderRepository;
+            _notificationRepository = notificationRepository;
         }
 
-        public Task CancelOrderAsync(string orderId)
+        public async Task CancelOrderAsync(string orderId, string note, string canceledBy)
         {
+            try
+            {
+                await _orderRepository.CancelOrderAsync(orderId, note, canceledBy);
+                Order order =await GetOrderAsync(orderId);
+                NotificationService notificationService = new(_notificationRepository);
+                NotificationDTO notification = new()
+                {
+                    IsRead = false,
+                    Message = "Your order "+orderId+" Canceled.",
+                    Reason = note,
+                    UserId= order.CustomerId                                        
+                };
+                await notificationService.SendNotification(notification);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            
             throw new NotImplementedException();
         }
 

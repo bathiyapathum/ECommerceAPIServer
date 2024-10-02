@@ -20,7 +20,13 @@ namespace ECommerceAPI.Core.Entities.OrderEntity
         public List<OrderItem> Items { get; set; }
 
         [FirestoreProperty("status")]
-        public string Status { get; set; } // Processing, Delivered, Canceled, etc.
+        public string Status { get; set; }
+
+        [FirestoreProperty("note")]
+        public string Note { get; set; }
+
+        [FirestoreProperty("canceledBy")]
+        public string CanceledBy { get; set; }// Processing, Delivered, Canceled, etc.
 
         [FirestoreProperty("createdAt")]
         public DateTime CreatedAt { get; set; }

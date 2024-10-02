@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace ECommerceAPI.Core.Enums
 {
-    public class FileName
+    public enum FileName
     {
+       
     }
 }

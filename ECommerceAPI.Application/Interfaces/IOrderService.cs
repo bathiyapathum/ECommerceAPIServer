@@ -17,6 +17,6 @@ namespace ECommerceAPI.Application.Interfaces
         Task UpdateOrderStatusAsync(string orderId, string status);
         Task UpdateOrderDetailsAsync(string orderId, OrderDTO orderDTO);
         Task DeleteOrderAsync(string orderId);
-        Task CancelOrderAsync(string orderId);
+        Task CancelOrderAsync(string orderId, string note, string canceledBy);
     }
 }

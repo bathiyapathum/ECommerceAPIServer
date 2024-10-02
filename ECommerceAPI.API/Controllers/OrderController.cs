@@ -56,6 +56,24 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
+        [HttpPatch("cancel")]
+        public async Task<IActionResult> CancelOrder([FromBody] OrderDTO orderDTO, [FromQuery] string orderId)
+        {
+            try
+            {
+                string note = orderDTO.Note;
+                string canceledBy = orderDTO.CanceledBy;
+
+                await _orderService.CancelOrderAsync(orderId, note, canceledBy);
+                return Ok();
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpDelete]
         public async Task<IActionResult> DeleteOrder([FromQuery] string orderId)
         {

@@ -20,6 +20,10 @@ namespace ECommerceAPI.Application.Features
         // Create a new vendor product
         public async Task CreateVendorProductAsync(VendorProductDTO productDTO)
         {
+            // Ensure default values if not provided
+            string productType = string.IsNullOrEmpty(productDTO.Type) ? "Anyone" : productDTO.Type;
+            string productSize = string.IsNullOrEmpty(productDTO.Size) ? "Default" : productDTO.Size;
+
             var product = new VendorProduct
             {
                 Name = productDTO.Name,
@@ -28,11 +32,13 @@ namespace ECommerceAPI.Application.Features
                 StockQuantity = productDTO.StockQuantity,
                 Category = productDTO.Category,
                 VendorId = productDTO.VendorId,
-                ImageUrl = productDTO.ImageUrl, // Added ImageUrl field
+                ImageUrl = productDTO.ImageUrl,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 StockStatus = productDTO.StockQuantity == 0 ? VendorStockStatus.OutOfStock.ToString() :
-                              productDTO.StockQuantity < 5 ? VendorStockStatus.LowStock.ToString() : VendorStockStatus.Available.ToString()
+                              productDTO.StockQuantity < 5 ? VendorStockStatus.LowStock.ToString() : VendorStockStatus.Available.ToString(),
+                Type = productType, // Set default or provided value
+                Size = productSize  // Set default or provided value
             };
 
             await _productRepository.AddVendorProductAsync(product);
@@ -46,13 +52,17 @@ namespace ECommerceAPI.Application.Features
             var product = await _productRepository.GetVendorProductByIdAsync(productId);
             if (product != null)
             {
+                // Check if Type and Size are provided, otherwise retain the existing or set to default
+                product.Type = string.IsNullOrEmpty(productDTO.Type) ? product.Type ?? "Anyone" : productDTO.Type;
+                product.Size = string.IsNullOrEmpty(productDTO.Size) ? product.Size ?? "Default" : productDTO.Size;
+
                 product.Name = productDTO.Name;
                 product.Description = productDTO.Description;
                 product.Price = productDTO.Price;
                 product.StockQuantity = productDTO.StockQuantity;
                 product.Category = productDTO.Category;
                 product.VendorId = productDTO.VendorId;
-                product.ImageUrl = productDTO.ImageUrl; // Added ImageUrl field
+                product.ImageUrl = productDTO.ImageUrl;
                 product.UpdatedAt = DateTime.UtcNow;
 
                 // Automatically update stock status based on new quantity
@@ -96,7 +106,9 @@ namespace ECommerceAPI.Application.Features
                     CreatedAt = product.CreatedAt,
                     UpdatedAt = product.UpdatedAt,
                     StockStatus = product.StockStatus,
-                    ImageUrl = product.ImageUrl
+                    ImageUrl = product.ImageUrl,
+                    Type = product.Type, // Include Type in the DTO
+                    Size = product.Size  // Include Size in the DTO
                 });
             }
 
@@ -122,8 +134,10 @@ namespace ECommerceAPI.Application.Features
                     VendorId = product.VendorId,
                     CreatedAt = product.CreatedAt,
                     UpdatedAt = product.UpdatedAt,
-                    StockStatus = product.StockStatus, // Add StockStatus to the DTO
-                    ImageUrl = product.ImageUrl // Add ImageUrl to the DTO
+                    StockStatus = product.StockStatus,
+                    ImageUrl = product.ImageUrl,
+                    Type = product.Type, // Include Type in the DTO
+                    Size = product.Size  // Include Size in the DTO
                 });
             }
 
@@ -148,7 +162,9 @@ namespace ECommerceAPI.Application.Features
                 CreatedAt = product.CreatedAt,
                 UpdatedAt = product.UpdatedAt,
                 StockStatus = product.StockStatus,
-                ImageUrl = product.ImageUrl
+                ImageUrl = product.ImageUrl,
+                Type = product.Type, // Include Type in the DTO
+                Size = product.Size  // Include Size in the DTO
             };
         }
 

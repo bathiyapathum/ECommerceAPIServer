@@ -39,6 +39,12 @@ namespace ECommerceAPI.Core.Entities.ProductEntity
 
         [FirestoreProperty("imageUrl")]
         public string ImageUrl { get; set; }
+
+        [FirestoreProperty("type")]
+        public string Type { get; set; } = "Anyone"; // Default value
+
+        [FirestoreProperty("size")]
+        public string Size { get; set; } = "Default"; // Default value
     }
 
     public enum VendorStockStatus

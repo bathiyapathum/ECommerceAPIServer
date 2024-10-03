@@ -76,6 +76,33 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
+        // Retrieve all products from all vendors
+        public async Task<List<VendorProductDTO>> GetAllProductsAsync()
+        {
+            var products = await _productRepository.GetAllProductsAsync();
+            var productDTOs = new List<VendorProductDTO>();
+
+            foreach (var product in products)
+            {
+                productDTOs.Add(new VendorProductDTO
+                {
+                    ProductId = product.ProductId,
+                    Name = product.Name,
+                    Description = product.Description,
+                    Price = product.Price,
+                    StockQuantity = product.StockQuantity,
+                    Category = product.Category,
+                    VendorId = product.VendorId,
+                    CreatedAt = product.CreatedAt,
+                    UpdatedAt = product.UpdatedAt,
+                    StockStatus = product.StockStatus,
+                    ImageUrl = product.ImageUrl
+                });
+            }
+
+            return productDTOs;
+        }
+
         // Get all vendor products for a specific vendor
         public async Task<List<VendorProductDTO>> GetAllVendorProductsAsync(string vendorId)
         {
@@ -101,6 +128,28 @@ namespace ECommerceAPI.Application.Features
             }
 
             return productDTOs;
+        }
+
+        // Get a specific vendor product by productId
+        public async Task<VendorProductDTO> GetVendorProductByIdAsync(string productId)
+        {
+            var product = await _productRepository.GetVendorProductByIdAsync(productId);
+            if (product == null) return null;
+
+            return new VendorProductDTO
+            {
+                ProductId = product.ProductId,
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                StockQuantity = product.StockQuantity,
+                Category = product.Category,
+                VendorId = product.VendorId,
+                CreatedAt = product.CreatedAt,
+                UpdatedAt = product.UpdatedAt,
+                StockStatus = product.StockStatus,
+                ImageUrl = product.ImageUrl
+            };
         }
 
         // Manage stock levels and notify vendor if stock is low

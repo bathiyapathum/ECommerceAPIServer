@@ -52,17 +52,18 @@ namespace ECommerceAPI.Application.Features
             var product = await _productRepository.GetVendorProductByIdAsync(productId);
             if (product != null)
             {
-                // Check if Type and Size are provided, otherwise retain the existing or set to default
-                product.Type = string.IsNullOrEmpty(productDTO.Type) ? product.Type ?? "Anyone" : productDTO.Type;
-                product.Size = string.IsNullOrEmpty(productDTO.Size) ? product.Size ?? "Default" : productDTO.Size;
+                // Ensure vendorId is retained and not overwritten
+                product.VendorId = product.VendorId ?? productDTO.VendorId;
 
+                product.ProductId = productId;
                 product.Name = productDTO.Name;
                 product.Description = productDTO.Description;
                 product.Price = productDTO.Price;
                 product.StockQuantity = productDTO.StockQuantity;
                 product.Category = productDTO.Category;
-                product.VendorId = productDTO.VendorId;
                 product.ImageUrl = productDTO.ImageUrl;
+                product.Type = string.IsNullOrEmpty(productDTO.Type) ? product.Type : productDTO.Type;
+                product.Size = string.IsNullOrEmpty(productDTO.Size) ? product.Size : productDTO.Size;
                 product.UpdatedAt = DateTime.UtcNow;
 
                 // Automatically update stock status based on new quantity
@@ -72,6 +73,7 @@ namespace ECommerceAPI.Application.Features
                 await _productRepository.UpdateVendorProductAsync(product);
             }
         }
+
 
         // Delete a vendor product if it is not in pending state
         public async Task DeleteVendorProductAsync(string productId)

@@ -30,6 +30,12 @@ namespace ECommerceAPI.Core.Entities.OrderEntity
 
         [FirestoreProperty("price")]
         public string Price { get; set; }
+        
+        [FirestoreProperty("size")]
+        public string Size { get; set; }
+        
+        [FirestoreProperty("imageUrl")]
+        public string ImageUrl { get; set; }
 
         [FirestoreProperty("isCanceled")]
         public bool IsCanceled { get; set; } = false;
@@ -39,6 +45,9 @@ namespace ECommerceAPI.Core.Entities.OrderEntity
 
         [FirestoreProperty("status")]
         public string Status { get; set; } = "Hidden";
+        
+        [FirestoreProperty("createdAt")]
+        public DateTime CreatedAt { get; set; }
 
         public override string ToString()
         {

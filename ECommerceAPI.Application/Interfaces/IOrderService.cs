@@ -13,11 +13,12 @@ namespace ECommerceAPI.Application.Interfaces
         Task CreateOrderAsync(OrderDTO orderDTO);
         //Task<Order> CheckoutOrderAsync(OrderDTO orderDTO, string customerId);
         Task<Order> GetOrderAsync(string orderId);
+        Task<Order> GetCustomerOrderAsync(string customerId);
         Task<List<Order>> GetAllOrdersAsync();
         Task<IEnumerable<Order>> GetOrdersByCustomerAsync(string customerId);
         Task UpdateOrderStatusAsync(string orderId, string status);
         Task UpdateOrderDetailsAsync(string orderId, OrderDTO orderDTO);
         Task DeleteOrderAsync(string orderId);
-        Task CancelOrderAsync(string orderId, string note, string canceledBy);
+        Task<string> CancelOrderAsync(string orderId, string note, string canceledBy);
     }
 }

@@ -21,10 +21,26 @@ namespace ECommerceAPI.Infrastructure.Repositories
             var notifications = await _context.FirestoreDatabase.Collection("Notifications").GetSnapshotAsync();
             return notifications.Select(notification => notification.ConvertTo<Notification>()).ToList();
         }
-
-        public async Task CreateAsync(Notification notification)
+        
+        public async Task<List<Notification>> GetAllByUserAsync(string userId)
         {
-            await _context.FirestoreDatabase.Collection("Notifications").Document(notification.NotifyId.ToString()).SetAsync(notification);
+            var notifications = await _context.FirestoreDatabase.Collection("Notifications")
+                .WhereEqualTo("userId", userId)
+                .GetSnapshotAsync();
+            return notifications.Select(notification => notification.ConvertTo<Notification>()).ToList();
+        }
+
+        public async Task<string> CreateAsync(Notification notification)
+        {
+            try
+            {
+                await _context.FirestoreDatabase.Collection("Notifications").Document(notification.NotifyId.ToString()).SetAsync(notification);
+                return "Notifycation added successfully";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task ReadNotificationAsync(string notifyId)

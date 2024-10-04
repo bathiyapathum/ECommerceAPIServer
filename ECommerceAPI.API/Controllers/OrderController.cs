@@ -3,20 +3,16 @@ using ECommerceAPI.Application.Features;
 using ECommerceAPI.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace ECommerceAPI.API.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class OrderController : ControllerBase
+    public class OrderController(IOrderService orderService) : ControllerBase
     {
-        private readonly IOrderService _orderService;
-
-        public OrderController(IOrderService orderService)
-        {
-            _orderService = orderService;
-        }
+        private readonly IOrderService _orderService = orderService;
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] OrderDTO orderDTO)
@@ -46,6 +42,13 @@ namespace ECommerceAPI.API.Controllers
         {
             var order = await _orderService.GetOrderAsync(orderId);
             return Ok(order);
+        }  
+        
+        [HttpGet("cart")]
+        public async Task<IActionResult> GetCustomerCartOrder([FromQuery] string customerId)
+        {
+            var order = await _orderService.GetCustomerOrderAsync(customerId);
+            return Ok(order);
         }
 
         //Order update method implementation
@@ -73,13 +76,13 @@ namespace ECommerceAPI.API.Controllers
                 string note = orderDTO.Note;
                 string canceledBy = orderDTO.CanceledBy;
 
-                await _orderService.CancelOrderAsync(orderId, note, canceledBy);
-                return Ok();
+                var response = await _orderService.CancelOrderAsync(orderId, note, canceledBy);
+                return Ok(response);
 
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest($"Error while CancelOrder: {ex.Message}");
             }
         }
 

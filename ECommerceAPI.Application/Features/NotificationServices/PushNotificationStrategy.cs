@@ -10,7 +10,7 @@ namespace ECommerceAPI.Application.Features.NotificationServices
 {
     public class PushNotificationStrategy : INotificationStrategy
     {  
-        public Task Send(NotificationDTO notification)
+        Task<string> INotificationStrategy.Send(NotificationDTO notification)
         {
             throw new NotImplementedException();
         }

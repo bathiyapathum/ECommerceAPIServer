@@ -1,5 +1,7 @@
-﻿using ECommerceAPI.Application.DTOs.ProductDTO;
+﻿using ECommerceAPI.Application.DTOs.OrderDTO;
+using ECommerceAPI.Application.DTOs.ProductDTO;
 using ECommerceAPI.Application.Interfaces;
+using ECommerceAPI.Core.Entities.OrderEntity;
 using ECommerceAPI.Core.Entities.ProductEntity;
 using ECommerceAPI.Infrastructure.Repositories;
 using System;
@@ -11,10 +13,12 @@ namespace ECommerceAPI.Application.Features
     public class VendorProductService : IVendorProductService
     {
         private readonly VendorProductRepository _productRepository;
+        private readonly OrderRepository _orderRepository;
 
-        public VendorProductService(VendorProductRepository productRepository)
+        public VendorProductService(VendorProductRepository productRepository, OrderRepository orderRepository)
         {
             _productRepository = productRepository;
+            _orderRepository = orderRepository;
         }
 
         // Create a new vendor product
@@ -197,5 +201,50 @@ namespace ECommerceAPI.Application.Features
             // Simulate sending a notification
             Console.WriteLine($"Vendor Product {productId} is low on stock!");
         }
+
+        //get full details for specific order
+        public async Task<VendorOrderDTO> GetOrderDetailsAsync(string ItemId)
+        {
+            try
+            {
+                var orderItem = await _orderRepository.GetVendorOrderItemsAsync(ItemId);
+
+                if (orderItem == null)
+                {
+                    throw new Exception("Order Item is null or not found");
+                }
+
+                var order = await _orderRepository.GetOrderbyIdAsync(orderItem.OrderId);
+                VendorOrderDTO createdItem = VendorOrderDTO.OrderMapper(order, orderItem);
+                return createdItem;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        //get all active orders for vendor
+        public async Task<List<OrderItem>> GetAllAvailableOrdersAsync(string vendorId)
+        {
+            try
+            {
+                var result = await _orderRepository.GetVendorOrderAsync(vendorId);
+
+                if (result == null)
+                {
+                    return null;
+                }
+                    return result;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+
+
     }
 }

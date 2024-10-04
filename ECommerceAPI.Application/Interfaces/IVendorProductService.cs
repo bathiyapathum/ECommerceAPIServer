@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
 using System.Collections.Generic;
 using ECommerceAPI.Application.DTOs.ProductDTO;
+using ECommerceAPI.Core.Entities.OrderEntity;
+using ECommerceAPI.Application.DTOs.OrderDTO;
 
 namespace ECommerceAPI.Application.Interfaces
 {
@@ -15,5 +17,7 @@ namespace ECommerceAPI.Application.Interfaces
         Task<VendorProductDTO> GetVendorProductByIdAsync(string productId);
         Task ManageVendorStockLevelsAsync(string productId, int quantityChange);
         Task NotifyVendorLowStockAsync(string productId);
+        Task<VendorOrderDTO> GetOrderDetailsAsync(string orderId);
+        Task<List<OrderItem>> GetAllAvailableOrdersAsync(string vendorId);
     }
 }

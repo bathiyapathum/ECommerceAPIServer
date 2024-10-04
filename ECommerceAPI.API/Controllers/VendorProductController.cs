@@ -61,6 +61,29 @@ namespace ECommerceAPI.API.Controllers
             return Ok(product);
         }
 
+        [HttpGet("my/order")]
+        public async Task<IActionResult> GetVendorOrderByItemId([FromQuery] string itemId)
+        {
+            var product = await _productService.GetOrderDetailsAsync(itemId);
+            if (product == null)
+            {
+                return NotFound("Vendor Order not found");
+            }
+            return Ok(product);
+        }
+
+        [HttpGet("my/order/all")]
+        public async Task<IActionResult> GetAllVendorOrderItems([FromQuery] string vendorId)
+        {
+            var products = await _productService.GetAllAvailableOrdersAsync(vendorId);
+
+            if (products == null || products.Count == 0)
+            {
+                return NotFound("No Vendor order found.");
+            }
+            return Ok(products);
+        }
+
         // Get all products across all vendors
         [HttpGet("all")]
         public async Task<IActionResult> GetAllProducts()

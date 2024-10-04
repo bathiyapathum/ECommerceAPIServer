@@ -1,4 +1,5 @@
-﻿using ECommerceAPI.Application.DTOs.UserDTO;
+﻿using ECommerceAPI.Application.DTOs.FeadbackDTO;
+using ECommerceAPI.Application.DTOs.UserDTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +13,9 @@ namespace ECommerceAPI.Application.Interfaces
         public List<string> ValidateUserInputs(SignupReqDTO signupReqDTO);
         public List<string> ValidateUserRole(SignupReqDTO signupReqDTO, UserRole role);
         public bool IsValidEmail(string email);
+        public Task<bool> IsUserValid(string userID);
+        public Task<bool> IsValidProductID(string productID);
+        public Task<bool> IsValidOrderId(string orderID);
+        public Task<bool> IsItemandOrderIDTallywithUser(FeedbackDTO feedbackDTO);
     }
 }

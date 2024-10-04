@@ -11,6 +11,7 @@ namespace ECommerceAPI.Application.Interfaces
     public interface IOrderService
     {
         Task CreateOrderAsync(OrderDTO orderDTO);
+        //Task<Order> CheckoutOrderAsync(OrderDTO orderDTO, string customerId);
         Task<Order> GetOrderAsync(string orderId);
         Task<List<Order>> GetAllOrdersAsync();
         Task<IEnumerable<Order>> GetOrdersByCustomerAsync(string customerId);

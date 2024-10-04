@@ -19,7 +19,7 @@ namespace ECommerceAPI.Application.Features.NotificationServices
             _notificationRepository = notificationRepository;
         }
 
-        public async Task Send(NotificationDTO notificationDTO)
+        public async Task<string> Send(NotificationDTO notificationDTO)
         {
             try
             {
@@ -33,7 +33,8 @@ namespace ECommerceAPI.Application.Features.NotificationServices
                     UserId = notificationDTO.UserId
                 };
 
-                await _notificationRepository.CreateAsync(notification);
+                var result = await _notificationRepository.CreateAsync(notification);
+                return result;
 
             }
             catch (Exception ex) 

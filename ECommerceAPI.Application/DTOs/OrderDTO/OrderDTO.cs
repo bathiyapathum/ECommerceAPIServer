@@ -18,6 +18,8 @@ namespace ECommerceAPI.Application.DTOs.OrderDTO
         public string Price { get; set; }
         public string ProductName { get; set; }
         public string VendorId { get; set; }
+        public string Size { get; set; }
+        public string ImageUrl { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime DispatchedAt { get; set; }
         public DateTime DeliveredAt { get; set; }

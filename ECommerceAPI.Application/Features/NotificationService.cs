@@ -22,19 +22,43 @@ namespace ECommerceAPI.Application.Features
         {
             try
             {
-                var orders = await _notificationRepository.GetAllAsync();
-                return orders;
+                var notifications = await _notificationRepository.GetAllAsync();
+                return notifications;
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
         }
-        public async Task SendNotification(NotificationDTO notificationDTO)
+
+        public async Task<List<Notification>> GetUserNotifications(string userId)
         {
+            try
+            {
+                var notifications = await _notificationRepository.GetAllByUserAsync(userId);
+                return notifications;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<string> SendNotification(NotificationDTO notificationDTO)
+        {
+            try
+            {
+                WebNotificationStrategy webNotificationStrategy = new(_notificationRepository);
+                var result = await webNotificationStrategy.Send(notificationDTO);
+                return result;
+
+            }catch (Exception ex) 
+            {
+                throw new Exception(ex.Message);
+
+            }
            
-            WebNotificationStrategy webNotificationStrategy = new(_notificationRepository);
-            await webNotificationStrategy.Send(notificationDTO);
 
         }
     }

@@ -9,6 +9,6 @@ namespace ECommerceAPI.Application.Interfaces.NotificationInterfaces
 {
     public interface INotificationStrategy
     {
-        Task Send(NotificationDTO notification);
+        Task<string> Send(NotificationDTO notification);
     }
 }

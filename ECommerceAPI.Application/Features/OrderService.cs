@@ -72,6 +72,9 @@ namespace ECommerceAPI.Application.Features
                             Quantity = orderDTO.Quantity,
                             Price = orderDTO.Price,
                             ProductName = orderDTO.ProductName,
+                            ImageUrl = orderDTO.ImageUrl,
+                            Size = orderDTO.Size,                            
+                            CreatedAt = DateTime.UtcNow,
                         };
 
                         var orderItemsRes = await _orderRepository.CreateOrderItemAsync(orderItem);
@@ -81,7 +84,8 @@ namespace ECommerceAPI.Application.Features
                         {
                             ProductId = orderDTO.ProductId,
                             ItemId = orderItem.ItemId,
-                            VendorId = orderDTO.VendorId
+                            VendorId = orderDTO.VendorId,
+                            Size = orderDTO.Size,
                         };
 
                         List<OrderItemReference> refList = [orderRef];
@@ -133,6 +137,7 @@ namespace ECommerceAPI.Application.Features
                             ItemId = item.ItemId,
                             VendorId = item.VendorId,
                             ProductId = item.ProductId,
+                            Size = item.Size,
                         });
                         
                     }
@@ -141,7 +146,7 @@ namespace ECommerceAPI.Application.Features
                     foreach(var item in refList)
                     {
                         //if item exist in the order append the price and quantity
-                        if(item.ProductId == orderDTO.ProductId && item.VendorId == orderDTO.VendorId)
+                        if(item.ProductId == orderDTO.ProductId && item.VendorId == orderDTO.VendorId && item.Size == orderDTO.Size)
                         {
                             Debug.WriteLine("Item in the list");
                             isItemExist = true;
@@ -172,6 +177,9 @@ namespace ECommerceAPI.Application.Features
                             ProductName = orderDTO.ProductName,
                             Quantity = orderDTO.Quantity,
                             Price = orderDTO.Price,
+                            ImageUrl = orderDTO.ImageUrl,
+                            Size = orderDTO.Size,
+                            CreatedAt = DateTime.UtcNow,
                         };
 
                         var result = await _orderRepository.CreateOrderItemAsync(newOrderItem);
@@ -183,7 +191,8 @@ namespace ECommerceAPI.Application.Features
                             {
                                 ProductId = orderDTO.ProductId,
                                 ItemId = newOrderItem.ItemId,
-                                VendorId = orderDTO.VendorId
+                                VendorId = orderDTO.VendorId,
+                                Size = orderDTO.Size,
                             };
                             refList.Add(orderRef);
                         }
@@ -224,12 +233,14 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
-        public async Task CancelOrderAsync(string orderId, string note, string canceledBy)
+        public async Task<string> CancelOrderAsync(string orderId, string note, string canceledBy)
         {
             try
             {
                 await _orderRepository.CancelOrderAsync(orderId, note, canceledBy);
+
                 Order order =await GetOrderAsync(orderId);
+
                 NotificationService notificationService = new(_notificationRepository);
                 NotificationDTO notification = new()
                 {
@@ -238,14 +249,17 @@ namespace ECommerceAPI.Application.Features
                     Reason = note,
                     UserId= order.CustomerId                                        
                 };
-                await notificationService.SendNotification(notification);
+                var resutl = await notificationService.SendNotification(notification);
+                if (resutl != null)
+                {
+                    return resutl;
+                }
+                return "Something went wrong while sending notification";
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
-            }
-            
-            throw new NotImplementedException();
+            }            
         }
 
         

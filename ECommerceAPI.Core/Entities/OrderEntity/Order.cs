@@ -27,6 +27,9 @@ namespace ECommerceAPI.Core.Entities.OrderEntity
 
         [FirestoreProperty("note")]
         public string Note { get; set; }
+        
+        [FirestoreProperty("tel")]
+        public string Tel { get; set; }
 
         [FirestoreProperty("canceledBy")]
         public string CanceledBy { get; set; }
@@ -56,7 +59,6 @@ namespace ECommerceAPI.Core.Entities.OrderEntity
                    $"Items: [\n{itemsString}\n]";
         }
 
-
     }
 
     [FirestoreData]
@@ -64,10 +66,15 @@ namespace ECommerceAPI.Core.Entities.OrderEntity
     {
         [FirestoreProperty("itemId")]
         public string ItemId { get; set; }
+
         [FirestoreProperty("productId")]
         public string ProductId { get; set; }
+
         [FirestoreProperty("vendorId")]
-        public string VendorId { get; set; }
+        public string VendorId { get; set; }        
+        
+        [FirestoreProperty("size")]
+        public string Size { get; set; }
 
     }
 }

@@ -20,17 +20,24 @@ namespace ECommerceAPI.Application.Features
     {
         private readonly UserRepository _userRepository;
         private readonly VendorProductRepository _vendorProductRepository;
+        private readonly FeedbackRepository _feedbackRepository;
         private readonly IValidations _validations;
 
-        public FeedbackService(UserRepository userRepository, IValidations validations, VendorProductRepository vendorProductRepository)
+        public FeedbackService(UserRepository userRepository, IValidations validations, VendorProductRepository vendorProductRepository, FeedbackRepository feedbackRepository)
 
         {
             _userRepository = userRepository;
             _validations = validations;
             _vendorProductRepository = vendorProductRepository;
+            _feedbackRepository = feedbackRepository;
         }
         public async Task PlaceFeedBack(FeedbackDTO feadbackDTO)
         {
+            if (await _validations.IsFeedBackAlreadyAdded(feadbackDTO))
+            {
+                throw new DataException("Feedback Already Added");
+            }
+
             if (!await _validations.IsUserValid(feadbackDTO.CustomerId))
             {
                 throw new DataException("Invalid User Id");
@@ -53,7 +60,7 @@ namespace ECommerceAPI.Application.Features
 
             try
             {
-                await _userRepository.FirestoreDatabase.RunTransactionAsync(async transaction =>
+                await _feedbackRepository.FirestoreDatabase.RunTransactionAsync(async transaction =>
                 {
                     var feedback = new Feedback
                     {
@@ -66,7 +73,7 @@ namespace ECommerceAPI.Application.Features
                         Date = feadbackDTO.Date
                     };
 
-                    await _userRepository.CreateFeedbackAsync(feedback, transaction);
+                    await _feedbackRepository.CreateFeedbackAsync(feedback, transaction);
 
                     FeedbackInfo feedbacktoProduct = new FeedbackInfo
                     {
@@ -85,6 +92,14 @@ namespace ECommerceAPI.Application.Features
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task UpdateFeedBack(string feadbackId, FeedbackDTO feadbackDTO)
+        {
+            if (!await _validations.IsFeedBackAvailable(feadbackId))
+            {
+                throw new DataException("Invalid User Id");
             }
         }
     }

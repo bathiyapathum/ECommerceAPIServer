@@ -16,5 +16,7 @@ namespace ECommerceAPI.Application.Interfaces
         Task<UserLogin> UserLoginAsync(LoginReqDTO userCred);
         Task<UserLogin> GetUserByIdAsync(string userId);
         Task<bool> ActivateUser(ChangePasswordReqDTO changePasswordReqDTO);
+        Task<bool> ActivateUser(string userId); 
+        Task<bool> DeactivateUser(string userId);
     }
 }

@@ -17,5 +17,7 @@ namespace ECommerceAPI.Application.Interfaces
         public Task<bool> IsValidProductID(string productID);
         public Task<bool> IsValidOrderId(string orderID);
         public Task<bool> IsItemandOrderIDTallywithUser(FeedbackDTO feedbackDTO);
+        public Task<bool> IsFeedBackAvailable(string feadbackId);
+        public Task<bool> IsFeedBackAlreadyAdded(FeedbackDTO feadbackDTO);
     }
 }

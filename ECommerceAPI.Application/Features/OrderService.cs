@@ -3,6 +3,7 @@ using ECommerceAPI.Application.DTOs.OrderDTO;
 using ECommerceAPI.Application.Interfaces;
 using ECommerceAPI.Core.Entities.OrderEntity;
 using ECommerceAPI.Infrastructure.Repositories;
+using ECommerceAPI.Application.Features;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,8 +15,8 @@ namespace ECommerceAPI.Application.Features
 {
     internal class OrderService : IOrderService
     {
-        private readonly  OrderRepository _orderRepository;
-        private readonly  NotificationRepository _notificationRepository;
+        private readonly OrderRepository _orderRepository;
+        private readonly NotificationRepository _notificationRepository;
 
         public OrderService(OrderRepository orderRepository, NotificationRepository notificationRepository)
         {
@@ -58,9 +59,9 @@ namespace ECommerceAPI.Application.Features
                         CreatedAt = DateTime.UtcNow,
                     };
 
-                    var result =  await _orderRepository.CreateAsync(order);
+                    var result = await _orderRepository.CreateAsync(order);
 
-                    if (result) 
+                    if (result)
                     {
                         //Create orderItems
                         var orderItem = new OrderItem
@@ -73,7 +74,7 @@ namespace ECommerceAPI.Application.Features
                             Price = orderDTO.Price,
                             ProductName = orderDTO.ProductName,
                             ImageUrl = orderDTO.ImageUrl,
-                            Size = orderDTO.Size,                            
+                            Size = orderDTO.Size,
                             CreatedAt = DateTime.UtcNow,
                         };
 
@@ -94,7 +95,7 @@ namespace ECommerceAPI.Application.Features
                         {
                             //update the main order to include order item Ref in array
 
-                            var updatedFields = new Dictionary <string, object>{
+                            var updatedFields = new Dictionary<string, object>{
                                 { "items", refList}
                             };
 
@@ -115,14 +116,15 @@ namespace ECommerceAPI.Application.Features
                         Debug.WriteLine("Something went wrong while creating order");
                     }
                 }
-                else {
+                else
+                {
                     //Order is exist
                     Debug.WriteLine("Order found.");
 
                     var items = details.Items;
                     bool isItemExist = false;
 
-                    if(items != null)
+                    if (items != null)
                     {
                         Debug.WriteLine("Item is not null.");
                         Debug.WriteLine(details);
@@ -139,14 +141,14 @@ namespace ECommerceAPI.Application.Features
                             ProductId = item.ProductId,
                             Size = item.Size,
                         });
-                        
+
                     }
 
                     //check item exist or not
-                    foreach(var item in refList)
+                    foreach (var item in refList)
                     {
                         //if item exist in the order append the price and quantity
-                        if(item.ProductId == orderDTO.ProductId && item.VendorId == orderDTO.VendorId && item.Size == orderDTO.Size)
+                        if (item.ProductId == orderDTO.ProductId && item.VendorId == orderDTO.VendorId && item.Size == orderDTO.Size)
                         {
                             Debug.WriteLine("Item in the list");
                             isItemExist = true;
@@ -220,6 +222,52 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
+        public async Task<OrderResponseDTO> GetCustomerCartOrderAsync(string customerId)
+        {
+            try
+            {
+                var order = await _orderRepository.GetCustomerOrderAsync(customerId);
+                if (order == null)
+                {
+                    return null;
+                }
+
+                //create response object to return with product name, image, etc
+
+                var orderItems = order.Items;
+
+                var newItems = new List<OrderItem>();
+
+                foreach (var item in orderItems)
+                {
+                    var result = await _orderRepository.GetVendorOrderItemByIdAsync(item.ItemId);
+
+                    newItems.Add(new OrderItem
+                    {
+                        ItemId = result.ItemId,
+                        ProductId = result.ProductId,
+                        VendorId = result.VendorId,
+                        ProductName = result.ProductName,
+                        Quantity = result.Quantity,
+                        Price = result.Price,
+                        ImageUrl = result.ImageUrl,
+                        Size = result.Size,
+                        CreatedAt = result.CreatedAt,
+                    });
+
+                }
+                OrderResponseDTO response = OrderResponseDTO.ItemMapper(order, newItems);
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+        }
+
+
         public async Task<Order> GetCustomerOrderAsync(string customerId)
         {
             try
@@ -239,15 +287,15 @@ namespace ECommerceAPI.Application.Features
             {
                 await _orderRepository.CancelOrderAsync(orderId, note, canceledBy);
 
-                Order order =await GetOrderAsync(orderId);
+                Order order = await GetOrderAsync(orderId);
 
                 NotificationService notificationService = new(_notificationRepository);
                 NotificationDTO notification = new()
                 {
                     IsRead = false,
-                    Message = "Your order "+orderId+" Canceled.",
+                    Message = "Your order " + orderId + " Canceled.",
                     Reason = note,
-                    UserId= order.CustomerId                                        
+                    UserId = order.CustomerId
                 };
                 var resutl = await notificationService.SendNotification(notification);
                 if (resutl != null)
@@ -259,10 +307,10 @@ namespace ECommerceAPI.Application.Features
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
-            }            
+            }
         }
 
-        
+
 
         public async Task DeleteOrderAsync(string orderId)
         {
@@ -277,34 +325,6 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
-        //public Task<Order> CheckoutOrderAsync(OrderDTO orderDTO, string customerId)
-        //{
-        //    try
-        //    {   
-
-
-        //        var order = new Order
-        //        {
-        //            OrderId = Guid.NewGuid().ToString(),
-        //            CustomerId = customerId,
-        //            Items = orderDTO.Items,
-        //            CreatedAt = DateTime.UtcNow,
-        //            DeliveredAt = orderDTO.DeliveredAt,
-        //            DispatchedAt = orderDTO.DispatchedAt,
-        //            Status = orderDTO.Status,
-        //        };
-        //        //return _orderRepository.CreateAsync(order);
-
-        //        Order a = new Order();
-
-        //        return a;
-
-        //    }
-        //    catch(Exception ex)
-        //    {
-        //        throw new Exception(ex.Message);
-        //    }
-        //}
 
         public async Task<List<Order>> GetAllOrdersAsync()
         {
@@ -325,7 +345,7 @@ namespace ECommerceAPI.Application.Features
             {
                 var order = await _orderRepository.GetOrderbyIdAsync(orderId);
                 return order;
-                
+
             }
             catch (Exception ex)
             {
@@ -338,7 +358,7 @@ namespace ECommerceAPI.Application.Features
             throw new NotImplementedException();
         }
 
-        public async Task UpdateOrderDetailsAsync(string orderId ,OrderDTO orderDTO)
+        public async Task UpdateOrderDetailsAsync(string orderId, OrderDTO orderDTO)
         {
             try
             {
@@ -348,7 +368,7 @@ namespace ECommerceAPI.Application.Features
                     {"status" , orderDTO.Status }
                 };
                 await _orderRepository.UpdateOrderAsync(orderId, order);
-                
+
 
             }
             catch (Exception ex)
@@ -360,6 +380,70 @@ namespace ECommerceAPI.Application.Features
         public Task UpdateOrderStatusAsync(string orderId, string status)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<string> PlaceOrderAsync(string orderId, string address, string tel)
+        {
+            try
+            {
+                NotificationService notificationService = new(_notificationRepository);
+                //place order
+                Dictionary<string, object> updatedOrder = new()
+                {
+                    {"isInCart", false},
+                    {"status", "Pending"},
+                    {"address", address},
+                    {"tel", tel }
+                };
+
+               var result =  await _orderRepository.UpdateOrderAsync(orderId, updatedOrder);
+
+                if (result)
+                {
+                    var order = await _orderRepository.GetOrderAsync(orderId);
+
+                    foreach (var item in order.Items)
+                    {
+                        var itemResult = await _orderRepository.UpdateOrderItemAsync(item.ItemId, new Dictionary<string, object> { { "status", "Pending" },{ "isActive", true } });
+
+                        if (itemResult)
+                        {
+                            NotificationDTO notification = new()
+                            {
+                                IsRead = false,
+                                Message = "Order placed with" + orderId + " for you.",
+                                Reason = "Placing new order",
+                                UserId = item.VendorId
+                            };
+                            await notificationService.SendNotification(notification);
+                        }                       
+                    }
+
+                    NotificationDTO Custnotification = new()
+                    {
+                        IsRead = false,
+                        Message = "Congratulation your order: " + orderId + "has been placed successfully",
+                        Reason = "Placing new order",
+                        UserId = order.CustomerId
+                    };
+                    var res = await notificationService.SendNotification(Custnotification);
+
+                    if (res != null)
+                    {
+                        return "Order Placed Successfully";
+                    }
+                        return "Something went wrong while sending notification.";
+                }
+                else
+                {
+                    return "Something went wrong while placing order";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

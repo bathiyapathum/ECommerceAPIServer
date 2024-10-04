@@ -47,7 +47,7 @@ namespace ECommerceAPI.API.Controllers
         [HttpGet("cart")]
         public async Task<IActionResult> GetCustomerCartOrder([FromQuery] string customerId)
         {
-            var order = await _orderService.GetCustomerOrderAsync(customerId);
+            var order = await _orderService.GetCustomerCartOrderAsync(customerId);
             return Ok(order);
         }
 
@@ -97,6 +97,30 @@ namespace ECommerceAPI.API.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("placing")]
+        public async Task<IActionResult> PlaceOrder([FromBody] OrderDTO orderDTO, [FromQuery] string orderId)
+        {
+            try
+            {
+                string address = orderDTO.Address;
+                string tel = orderDTO.Tel;
+
+                var response = await _orderService.PlaceOrderAsync(orderId, address, tel);
+                if (response == "Order Placed Successfully")
+                {
+                    return Ok("Order Placed Successfully");
+                }
+                else
+                {
+                    return BadRequest(response);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error while PlaceOrder: {ex.Message}");
             }
         }
     }

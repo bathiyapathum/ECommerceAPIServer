@@ -63,7 +63,7 @@ namespace ECommerceAPI.Infrastructure.Repositories
 
         public async Task<Order> GetCustomerOrderAsync(string customerId)
         {
-            return await _context._firestoreDb.Collection("Orders")
+            return await _context.FirestoreDatabase.Collection("Orders")
                 .WhereEqualTo("customerId", customerId)
                 .WhereEqualTo("isInCart", true)
                 .Limit(1)
@@ -83,7 +83,7 @@ namespace ECommerceAPI.Infrastructure.Repositories
         {
             try
             {
-                var snapshot = await _context._firestoreDb.Collection("OrderItem")
+                var snapshot = await _context.FirestoreDatabase.Collection("OrderItem")
                     .WhereEqualTo("vendorId", vendorId)
                     .WhereEqualTo("isActive", true)
                     .Limit(100)
@@ -135,7 +135,7 @@ namespace ECommerceAPI.Infrastructure.Repositories
         {
             try
             {
-                var snapshot = await _context._firestoreDb.Collection("OrderItem")
+                var snapshot = await _context.FirestoreDatabase.Collection("OrderItem")
                     .WhereEqualTo("itemId", itemId)
                     .WhereEqualTo("isActive", true)
                     .Limit(100)
@@ -153,6 +153,29 @@ namespace ECommerceAPI.Infrastructure.Repositories
             }
                
                
+        }
+
+        public async Task<OrderItem> GetVendorOrderItemByIdAsync(string itemId)
+        {
+            try
+            {
+                var snapshot = await _context.FirestoreDatabase.Collection("OrderItem")
+                    .WhereEqualTo("itemId", itemId)
+                    .Limit(1)
+                    .GetSnapshotAsync();
+
+                if (snapshot.Count == 0)
+                {
+                    return null;
+                }
+                return snapshot.Documents[0].ConvertTo<OrderItem>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Something went wrong while GetVendorOrderAsync:{ex.Message}");
+            }
+
+
         }
 
         //Update OrderItems

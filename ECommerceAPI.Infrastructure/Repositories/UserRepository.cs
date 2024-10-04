@@ -70,7 +70,7 @@ namespace ECommerceAPI.Infrastructure.Repositories
                 {
                     { "passwordHash", changePasswordReqDTO.NewPassword},
                     { "updateTime", DateTime.UtcNow},
-                    {"isActive", true }
+                    { "isActive", true }
                 });
                 return true;
             }

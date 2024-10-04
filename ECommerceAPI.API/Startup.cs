@@ -84,6 +84,10 @@ namespace ECommerceAPI.API
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ECommerceAPI.API v1"));
             }
 
+            app.UseDeveloperExceptionPage();
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ECommerceAPI.API v1"));
+
             // Apply CORS policy
             app.UseCors("AllowAllOrigins");
 

@@ -7,6 +7,7 @@ using ECommerceAPI.Application.Features;
 using ECommerceAPI.Application.Interfaces;
 using ECommerceAPI.Application.Mappings;
 using ECommerceAPI.Application.Common;
+using ECommerceAPI.Application.Interfaces.NotificationInterfaces;
 
 namespace ECommerceAPI.Application.DependencyInjection
 {
@@ -33,6 +34,7 @@ namespace ECommerceAPI.Application.DependencyInjection
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IVendorProductService, VendorProductService>();
             services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<INotificationService, NotificationService>();
 
             // Add additional services if needed
             //Example: services.AddScoped<IYourService, YourServiceImplementation>();

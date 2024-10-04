@@ -1,0 +1,41 @@
+﻿using ECommerceAPI.Application.DTOs.NotificationDTO;
+using ECommerceAPI.Application.Features.NotificationServices;
+using ECommerceAPI.Application.Interfaces.NotificationInterfaces;
+using ECommerceAPI.Core.Entities.NotificationEntity;
+using ECommerceAPI.Infrastructure.Repositories;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ECommerceAPI.Application.Features
+{
+    public class NotificationService : INotificationService
+    {
+        private readonly NotificationRepository _notificationRepository;
+        public NotificationService(NotificationRepository notificationRepository) 
+        {
+            _notificationRepository = notificationRepository;
+        }
+        public async Task<List<Notification>> GetAllNotificationsAsync()
+        {
+            try
+            {
+                var orders = await _notificationRepository.GetAllAsync();
+                return orders;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public async Task SendNotification(NotificationDTO notificationDTO)
+        {
+           
+            WebNotificationStrategy webNotificationStrategy = new(_notificationRepository);
+            await webNotificationStrategy.Send(notificationDTO);
+
+        }
+    }
+}

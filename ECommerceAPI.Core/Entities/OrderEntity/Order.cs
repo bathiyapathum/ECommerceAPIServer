@@ -16,38 +16,58 @@ namespace ECommerceAPI.Core.Entities.OrderEntity
         [FirestoreProperty("customerId")]
         public string CustomerId { get; set; }
 
-        [FirestoreProperty("items")]
-        public List<OrderItem> Items { get; set; }
-
         [FirestoreProperty("status")]
-        public string Status { get; set; } // Processing, Delivered, Canceled, etc.
+        public string Status { get; set; }
+
+        [FirestoreProperty("address")]
+        public string Address { get; set; }
+
+        [FirestoreProperty("isInCart")]
+        public bool IsInCart { get; set; }
+
+        [FirestoreProperty("note")]
+        public string Note { get; set; }
+
+        [FirestoreProperty("canceledBy")]
+        public string CanceledBy { get; set; }
 
         [FirestoreProperty("createdAt")]
         public DateTime CreatedAt { get; set; }
 
-        [FirestoreProperty("dispatchedAt")]
-        public DateTime? DispatchedAt { get; set; }
-
-        [FirestoreProperty("DeliceredAt")]
+        [FirestoreProperty("deliceredAt")]
         public DateTime? DeliveredAt { get; set; }
+
+        [FirestoreProperty("items")]
+        public List<OrderItemReference> Items { get; set; }
+
+        public override string ToString()
+        {
+            var itemsString = Items != null && Items.Any()
+                ? string.Join(",\n", Items.Select(item => item.ToString()))
+                : "No items";
+
+            return $"OrderId: {OrderId},\n" +
+                   $"CustomerId: {CustomerId},\n" +
+                   $"Status: {Status},\n" +
+                   $"Note: {Note},\n" +
+                   $"CanceledBy: {CanceledBy},\n" +
+                   $"CreatedAt: {CreatedAt},\n" +
+                   $"DeliveredAt: {(DeliveredAt.HasValue ? DeliveredAt.Value.ToString() : "Not Delivered")},\n" +
+                   $"Items: [\n{itemsString}\n]";
+        }
+
+
     }
 
     [FirestoreData]
-    public class OrderItem
+    public class OrderItemReference
     {
-        [FirestoreProperty]
+        [FirestoreProperty("itemId")]
+        public string ItemId { get; set; }
+        [FirestoreProperty("productId")]
         public string ProductId { get; set; }
-
-        [FirestoreProperty]
-        public string ProductName { get; set; }
-
-        [FirestoreProperty]
+        [FirestoreProperty("vendorId")]
         public string VendorId { get; set; }
 
-        [FirestoreProperty]
-        public int Quantity { get; set; }
-
-        [FirestoreProperty]
-        public string Price { get; set; }
     }
 }

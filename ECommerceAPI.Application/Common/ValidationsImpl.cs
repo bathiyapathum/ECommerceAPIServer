@@ -10,6 +10,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using ECommerceAPI.Application.DTOs.UserDTO;
 using ECommerceAPI.Infrastructure.Repositories;
 using ECommerceAPI.Application.DTOs.FeadbackDTO;
+//using ECommerceAPI.Core.Entities.UserEntity;
 
 namespace ECommerceAPI.Application.Common
 {
@@ -18,12 +19,14 @@ namespace ECommerceAPI.Application.Common
         private readonly UserRepository userRepository;
         private readonly VendorProductRepository productRe;
         private readonly OrderRepository orderRe;
+        private readonly FeedbackRepository feedbackRepository;
 
-        public ValidationsImpl(UserRepository userRepository, VendorProductRepository productRe, OrderRepository orderRe)
+        public ValidationsImpl(UserRepository userRepository, VendorProductRepository productRe, OrderRepository orderRe, FeedbackRepository feedbackRepository)
         {
             this.userRepository = userRepository;
             this.productRe = productRe;
             this.orderRe = orderRe;
+            this.feedbackRepository = feedbackRepository;
         }
 
         public List<string> ValidateUserInputs(SignupReqDTO signupReqDTO)
@@ -93,7 +96,7 @@ namespace ECommerceAPI.Application.Common
 
             if (role != UserRole.Admin)
             {
-                throw new UnauthorizedAccessException("Only admin can create vendor accounts.");
+                throw new UnauthorizedAccessException("Only admin can create accounts.");
             }
 
             if (signupReqDTO.Role != UserRole.Vendor && signupReqDTO.Role != UserRole.CSR)
@@ -132,6 +135,30 @@ namespace ECommerceAPI.Application.Common
             return true;
 
         }
+
+        public async Task<bool> IsFeedBackAvailable(string feedbackId)
+        {
+            var isAvailable = await feedbackRepository.GetFeedbackByIdAsync(feedbackId);
+
+            if (isAvailable)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public async Task<bool> IsFeedBackAlreadyAdded(FeedbackDTO feadbackDTO)
+        {
+            var isAvailable = await feedbackRepository.GetFeedbackByCustomerAndProductAsync(feadbackDTO.CustomerId, feadbackDTO.ProductId, feadbackDTO.OrderId);
+
+            if (isAvailable)
+            {
+                return true;
+            }
+            return false;
+        }
+
 
         public bool IsValidEmail(string email)
         {

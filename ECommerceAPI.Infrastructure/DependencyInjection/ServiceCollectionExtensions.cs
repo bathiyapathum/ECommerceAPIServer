@@ -29,6 +29,7 @@ namespace ECommerceAPI.Infrastructure.DependencyInjection
             services.AddTransient<ApplicationDbContext>();
             services.AddTransient<UserRepository>();
             services.AddTransient<OrderRepository>();
+            services.AddTransient<FeedbackRepository>();
             services.AddTransient<NotificationRepository>();
 
             return services;

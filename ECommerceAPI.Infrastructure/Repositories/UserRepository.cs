@@ -1,6 +1,7 @@
 ﻿using ECommerceAPI.Core.Entities.UserEntity;
 using ECommerceAPI.Infrastructure.Persistance;
 using FirebaseAdmin.Auth.Hash;
+using Google.Cloud.Firestore;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -14,12 +15,15 @@ namespace ECommerceAPI.Infrastructure.Repositories
     {
         //private readonly IMongoCollection<User> _users;
         private readonly ApplicationDbContext _context;
+        //private readonly FirestoreDatabase _firestoreDb;
 
         public UserRepository(ApplicationDbContext context)
         {
             //_users = database.GetCollection<User>("Users");
             _context = context;
         }
+
+        public FirestoreDb FirestoreDatabase => _context._firestoreDb;
 
         public async Task<User> GetUserbyEmailAsync(string email)
         {
@@ -38,6 +42,7 @@ namespace ECommerceAPI.Infrastructure.Repositories
                     return snapshot.Documents[0].ConvertTo<User>();
                 });
         }
+
 
         public async Task CreateUserAsync(User user)
         {
@@ -78,6 +83,18 @@ namespace ECommerceAPI.Infrastructure.Repositories
             {
                 throw new Exception(ex.Message);
             }   
+
+        }
+
+        public async Task<Feedback> CreateFeedbackAsync(Feedback feedback, Transaction transaction)
+        {
+            //await _context._firestoreDb.Collection("Feedbacks").Document(feedback.Id = Guid.NewGuid().ToString()).SetAsync(feedback);
+            //return feedback;
+            feedback.Id = Guid.NewGuid().ToString();
+            var feedbackRef = _context._firestoreDb.Collection("Feedbacks").Document(feedback.Id);
+            transaction.Set(feedbackRef, feedback);
+
+            return feedback;
 
         }
     }

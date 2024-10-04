@@ -37,6 +37,21 @@ namespace ECommerceAPI.Infrastructure.Repositories
             await _context.FirestoreDatabase.Collection("VendorProducts").Document(product.ProductId).SetAsync(product);
         }
 
+        public void UpdateVendorProduct(FeedbackInfo feedback, string productID, Transaction transaction)
+        {
+            var productRef = _context.FirestoreDatabase.Collection("VendorProducts").Document(productID);
+
+            var updateData = new Dictionary<string, object>
+            {
+                {"feedbackInfo", FieldValue.ArrayUnion(feedback) }
+            };
+
+            //await productRef.UpdateAsync(updateData);
+
+            transaction.Update(productRef, updateData);
+            //await _context.FirestoreDatabase.Collection("VendorProducts").Document(productID).SetAsync(feedback);
+        }
+
         // Fetching all products across all vendors
         public async Task<List<VendorProduct>> GetAllProductsAsync()
         {

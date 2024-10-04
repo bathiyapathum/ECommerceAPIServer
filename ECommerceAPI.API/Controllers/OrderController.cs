@@ -2,6 +2,7 @@
 using ECommerceAPI.Application.Features;
 using ECommerceAPI.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Formats.Asn1;
 using System.Threading.Tasks;
 
 namespace ECommerceAPI.API.Controllers
@@ -22,6 +23,13 @@ namespace ECommerceAPI.API.Controllers
         {
             await _orderService.CreateOrderAsync(orderDTO);
             return CreatedAtAction(nameof(Create) ,new { id = orderDTO }, orderDTO);
+        }
+
+        [HttpPost("checkout/{id}")]
+        public async Task<IActionResult> Checkout([FromBody] OrderDTO orderDTO, string id)
+        {
+            //await _orderService.CheckoutOrderAsync(orderDTO,id);
+            return CreatedAtAction(nameof(Checkout), new { id = orderDTO }, orderDTO);
         }
 
 

@@ -1,5 +1,7 @@
 ﻿using Google.Cloud.Firestore;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace ECommerceAPI.Core.Entities.ProductEntity
 {
@@ -39,6 +41,9 @@ namespace ECommerceAPI.Core.Entities.ProductEntity
 
         [FirestoreProperty("imageUrl")]
         public string ImageUrl { get; set; }
+
+        [FirestoreProperty("feedbackInfo")]
+        public List<FeedbackInfo> FeedbackInfo { get; set; }
     }
 
     public enum VendorStockStatus
@@ -47,5 +52,24 @@ namespace ECommerceAPI.Core.Entities.ProductEntity
         LowStock,
         Pending,
         OutOfStock
+    }
+
+    [FirestoreData]
+    public class FeedbackInfo
+    {
+        [FirestoreProperty("customerId")]
+        public string CustomerId { get; set; }
+
+        [FirestoreProperty("orderId")]
+        public string OrderId { get; set; }
+
+        [FirestoreProperty("feedbackMessage")]
+        public string FeedbackMessage { get; set; }
+
+        [FirestoreProperty("rating")]
+        public int Rating { get; set; }
+
+        [FirestoreProperty("date")]
+        public DateTime Date { get; set; }
     }
 }

@@ -22,5 +22,17 @@ namespace ECommerceAPI.Infrastructure.Repositories
             await _context.FirestoreDatabase.Collection("Orders").Document(order.OrderId.ToString()).SetAsync(order);
         }
 
+        public async Task<Order> GetOrderAsync(string orderId)
+        {
+            var documentSnapshot = await _context.FirestoreDatabase.Collection("Orders").Document(orderId).GetSnapshotAsync();
+
+            if (!documentSnapshot.Exists)
+            {
+                return null;
+            }
+
+            return documentSnapshot.ConvertTo<Order>();
+        }
+
     }
 }

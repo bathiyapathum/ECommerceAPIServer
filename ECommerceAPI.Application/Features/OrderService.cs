@@ -277,6 +277,35 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
+        //public Task<Order> CheckoutOrderAsync(OrderDTO orderDTO, string customerId)
+        //{
+        //    try
+        //    {   
+
+
+        //        var order = new Order
+        //        {
+        //            OrderId = Guid.NewGuid().ToString(),
+        //            CustomerId = customerId,
+        //            Items = orderDTO.Items,
+        //            CreatedAt = DateTime.UtcNow,
+        //            DeliveredAt = orderDTO.DeliveredAt,
+        //            DispatchedAt = orderDTO.DispatchedAt,
+        //            Status = orderDTO.Status,
+        //        };
+        //        //return _orderRepository.CreateAsync(order);
+
+        //        Order a = new Order();
+
+        //        return a;
+
+        //    }
+        //    catch(Exception ex)
+        //    {
+        //        throw new Exception(ex.Message);
+        //    }
+        //}
+
         public async Task<List<Order>> GetAllOrdersAsync()
         {
             try

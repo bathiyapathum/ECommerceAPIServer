@@ -20,7 +20,7 @@ namespace ECommerceAPI.API.Controllers
         public async Task<IActionResult> GetAll()
         {
             var orders = await _notificationService.GetAllNotificationsAsync();
-            return Ok(orders);
+            return Ok(orders.ToString());
         }
 
     }

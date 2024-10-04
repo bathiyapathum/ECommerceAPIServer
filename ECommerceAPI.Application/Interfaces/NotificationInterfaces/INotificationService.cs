@@ -10,7 +10,8 @@ namespace ECommerceAPI.Application.Interfaces.NotificationInterfaces
 {
     public interface INotificationService
     {
-        public Task SendNotification(NotificationDTO notificationDTO);
+        public Task<string> SendNotification(NotificationDTO notificationDTO);
         Task<List<Notification>> GetAllNotificationsAsync();
+        Task<List<Notification>> GetUserNotifications(string userId);
     }
 }

@@ -267,33 +267,23 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
-        //[HttpPatch("update-user/{userID}")]
-        //public async Task<IActionResult> UpdateUser(string userID, [FromBody] SignupReqDTO request)
-        //{
-            //try
-            //{
-            //    if (!ModelState.IsValid)
-            //        return BadRequest(ModelState);
-
-            //    var loggedInUserRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-
-            //    if (string.IsNullOrEmpty(loggedInUserRole))
-            //    {
-            //        return Unauthorized("User role is not defined.");
-            //    }
-
-            //    await _userService.CreateUserAsync(request);
-            //    return Ok("User updated successfully");
-            //}
-            //catch (DataException ex)
-            //{
-            //    return BadRequest($"Validation error: {ex.Message}");
-            //}
-            //catch (Exception ex)
-            //{
-            //    return StatusCode(500, ex.Message);
-            //}
-        //}
+        [HttpPatch("update-user/{userID}")]
+        public async Task<IActionResult> UpdateUser(string userID, [FromBody] UpdateUserReqDTO request)
+        {
+            try
+            {
+                await _userService.UpdateUserAsync(request, userID);
+                return Ok("User updated successfully");
+            }
+            catch (DataException ex)
+            {
+                return BadRequest($"Validation error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
 
     }
 }

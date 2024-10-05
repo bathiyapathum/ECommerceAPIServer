@@ -12,6 +12,7 @@ namespace ECommerceAPI.Application.Interfaces
     {
         Task<bool> CheckUserExists(string email);
         Task CreateUserAsync(SignupReqDTO user);
+        Task UpdateUserAsync(UpdateUserReqDTO user,string userID);
         Task CreateUserAsync(SignupReqDTO user, DTOs.UserDTO.UserRole role);
         Task<UserLogin> UserLoginAsync(LoginReqDTO userCred);
         Task<UserLogin> GetUserByIdAsync(string userId);

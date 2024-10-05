@@ -88,6 +88,37 @@ namespace ECommerceAPI.Application.Features
             }           
         }
 
+        public async Task UpdateUserAsync(UpdateUserReqDTO user, string userID) 
+        { 
+            try
+            {
+
+                User userforUpdate = _userRepository.GetUserByIdAsync(userID).Result;
+
+                if (userforUpdate == null)
+                {
+                    throw new DataException("Invalid User Id");
+                }
+
+                userforUpdate.FirstName = user.FirstName;
+                userforUpdate.LastName = user.LastName;
+                userforUpdate.PhoneNumber = user.PhoneNumber;
+                userforUpdate.ProfilePicture = user.ProfilePicture;
+                userforUpdate.Addresss.Street = user.Addresss.Street;
+                userforUpdate.Addresss.City = user.Addresss.City;
+                userforUpdate.Addresss.State = user.Addresss.State;
+                userforUpdate.Addresss.Country = user.Addresss.Country;
+                userforUpdate.Addresss.ZipCode = user.Addresss.ZipCode;
+                userforUpdate.UpdatedDate = user.UpdatedDate;
+
+                await _userRepository.UpdateUserAsync(userforUpdate, userID);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task CreateUserAsync(SignupReqDTO signupReqDTO, DTOs.UserDTO.UserRole role)
         {
             try

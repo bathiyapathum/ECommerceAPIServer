@@ -81,6 +81,11 @@ namespace ECommerceAPI.Infrastructure.Repositories
                 {
                     VendorProduct product = productSnapshot.ConvertTo<VendorProduct>();
 
+                    if(product.FeedbackInfo == null)
+                    {
+                        return false;
+                    }
+
                     foreach (var feedBack in product.FeedbackInfo)
                     {
                         if (feedBack.CustomerId == customerId && feedBack.OrderId == orderId)

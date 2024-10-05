@@ -86,16 +86,56 @@ namespace ECommerceAPI.Infrastructure.Repositories
 
         }
 
-        public async Task<Feedback> CreateFeedbackAsync(Feedback feedback, Transaction transaction)
+        public async Task<bool> ActivateCustomer(User userforActivation)
         {
-            //await _context._firestoreDb.Collection("Feedbacks").Document(feedback.Id = Guid.NewGuid().ToString()).SetAsync(feedback);
-            //return feedback;
-            feedback.Id = Guid.NewGuid().ToString();
-            var feedbackRef = _context._firestoreDb.Collection("Feedbacks").Document(feedback.Id);
-            transaction.Set(feedbackRef, feedback);
+            try
+            {
+                await _context._firestoreDb
+                    .Collection("Users")
+                    .Document(userforActivation.Id)
+                    .UpdateAsync(new Dictionary<string, object>
+                    {
+                        { "isActive", true },
+                        { "updateTime", DateTime.UtcNow }
+                    });
 
-            return feedback;
-
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
+
+        public async Task<bool> DeactivateUser(User userforDeactivate)
+        {
+            try
+            {
+                await _context._firestoreDb.Collection("Users")
+                    .Document(userforDeactivate.Id)
+                    .UpdateAsync(new Dictionary<string, object>
+                    {
+                        { "isActive", false },
+                        { "updateTime", DateTime.UtcNow }
+                    });
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        //public async Task<Feedback> CreateFeedbackAsync(Feedback feedback, Transaction transaction)
+        //{
+        //    //await _context._firestoreDb.Collection("Feedbacks").Document(feedback.Id = Guid.NewGuid().ToString()).SetAsync(feedback);
+        //    //return feedback;
+        //    feedback.Id = Guid.NewGuid().ToString();
+        //    var feedbackRef = _context._firestoreDb.Collection("Feedbacks").Document(feedback.Id);
+        //    transaction.Set(feedbackRef, feedback);
+
+        //    return feedback;
+
+        //}
     }
 }

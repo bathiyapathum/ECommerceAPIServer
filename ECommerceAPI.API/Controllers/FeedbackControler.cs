@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ECommerceAPI.API.Controllers
 {
-    [Authorize(Roles = "Customer")]
+    //[Authorize(Roles = "Customer")]
     [ApiController]
     [Route("api/v1/[controller]")]
     public class FeedbackControler :ControllerBase
@@ -32,8 +32,20 @@ namespace ECommerceAPI.API.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
-
         }
 
+        [HttpPatch]
+        public async Task<IActionResult> UpdateFeadback([FromBody] FeedbackDTO feadbackDTO, [FromQuery] string feadbackId)
+        {
+            try
+            {
+                await _feadbackService.UpdateFeedBack(feadbackId, feadbackDTO);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }

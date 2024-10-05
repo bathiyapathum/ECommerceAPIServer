@@ -660,6 +660,59 @@ namespace ECommerceAPI.Application.Features
             }
 
         }
+
+
+        public async Task<string> RemoveItemFromCart(string orderId, string itemId)
+        {
+            var order = await _orderRepository.GetOrderAsync(orderId);
+
+            if (order == null)
+            {
+                return "Order not found";
+            }
+
+            var items = order.Items;
+
+
+            foreach (var item in items) 
+            {
+                if (item.ItemId == itemId)
+                {
+                    var result = await _orderRepository.RemoveItemFromOrder(itemId);
+
+                    if (result)
+                    {
+                        items.RemoveAll(x => x.ItemId == itemId);
+
+                        var updatedFields = new Dictionary<string, object>
+                        {
+                            {"items", items }
+                        };
+
+                        var updatedOrder = await _orderRepository.UpdateOrderAsync(orderId, updatedFields);
+
+                        if (updatedOrder)
+                        {
+                            return "Item removed from cart successfully";
+                        }
+                        else
+                        {
+                            return "Something went wrong while updating order";
+                        }
+
+                    }
+                    else
+                    {
+                        return "Something went wrong while removing item from cart";
+                    }
+                }
+            }
+            return "Item not found in the cart";
+
+        }
+        
+
+
         public async Task<string> ItemDeliverAsync(string itemId)
         {
             try

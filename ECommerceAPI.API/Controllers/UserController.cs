@@ -58,7 +58,7 @@ namespace ECommerceAPI.API.Controllers
 
         }
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("create-by-admin")]
         public async Task<IActionResult> RegisterNewUser([FromBody] SignupReqDTO request)
         {

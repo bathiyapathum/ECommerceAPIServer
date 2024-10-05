@@ -19,6 +19,7 @@ namespace ECommerceAPI.Application.Interfaces
         Task<IEnumerable<Order>> GetOrdersByCustomerAsync(string customerId);
         Task<string> UpdateOrderStatusAsync(string orderId, string status);
         Task<string> RespondToCancelRequest(CancelRequestDTO cancelRequestDTO);
+        Task<string> RemoveItemFromCart(string orderId, string itemId);
         Task UpdateOrderDetailsAsync(string orderId, OrderDTO orderDTO);
         Task<OrderResponseDTO> GetCustomerCartOrderAsync(string customerId);
         Task DeleteOrderAsync(string orderId);

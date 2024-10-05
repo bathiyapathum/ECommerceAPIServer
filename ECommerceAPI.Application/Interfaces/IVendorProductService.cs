@@ -11,7 +11,7 @@ namespace ECommerceAPI.Application.Interfaces
     {
         Task CreateVendorProductAsync(VendorProductDTO productDTO);
         Task UpdateVendorProductAsync(string productId, VendorProductDTO productDTO);
-        Task DeleteVendorProductAsync(string productId);
+        Task<string> DeleteVendorProductAsync(string productId);
         Task<List<VendorProductDTO>> GetAllProductsAsync();
         Task<List<VendorProductDTO>> GetAllVendorProductsAsync(string vendorId);
         Task<VendorProductDTO> GetVendorProductByIdAsync(string productId);

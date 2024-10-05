@@ -10,6 +10,7 @@ using System.Diagnostics;
 using MongoDB.Bson;
 using ECommerceAPI.Core.Entities.UserEntity;
 using Google.Cloud.Firestore.V1;
+using static Google.Rpc.Context.AttributeContext.Types;
 
 namespace ECommerceAPI.Infrastructure.Repositories
 {
@@ -21,6 +22,8 @@ namespace ECommerceAPI.Infrastructure.Repositories
         {
             _context = context;
         }
+
+        public FirestoreDb FirestoreDatabase => _context._firestoreDb;
 
         //Creating Order
         public async Task<bool> CreateAsync(Order order)
@@ -41,6 +44,12 @@ namespace ECommerceAPI.Infrastructure.Repositories
         {
             var orders = await _context.FirestoreDatabase.Collection("Orders").GetSnapshotAsync();
             return orders.Select(orders => orders.ConvertTo<Order>()).ToList();
+        }
+        
+        public async Task<List<CancelRequest>> GetAllCancelRequests()
+        {
+            var requests = await _context.FirestoreDatabase.Collection("CancelRequest").GetSnapshotAsync();
+            return requests.Select(request => request.ConvertTo<CancelRequest>()).ToList();
         }
 
         public async Task<Order> GetOrderbyIdAsync(string orderId)
@@ -285,14 +294,10 @@ namespace ECommerceAPI.Infrastructure.Repositories
                     var refData = snapshot.ConvertTo<Order>();
 
                     if (refData != null)
-                    {
-                        if(refData.Status == "Canceled")
-                        {
-                            throw new Exception("Order is already canceled");
-                        }
+                    {                        
                         var order = new Dictionary<string, object>
                         {                    
-                            {"status" , "Canceled" },
+                            {"status" , "CANCELED" },
                             {"note" , note },
                             {"canceledBy" , canceledBy },
 
@@ -330,6 +335,88 @@ namespace ECommerceAPI.Infrastructure.Repositories
 
             return documentSnapshot.ConvertTo<Order>();
         }
+
+        public async Task<bool> CreateOrderCancelRequest(CancelRequest cancelRequest)
+        {
+            try
+            {
+                var result = await _context.FirestoreDatabase.Collection("CancelRequest").Document(cancelRequest.RequestId).SetAsync(cancelRequest);
+                if (result != null)
+                {
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error while execution of CreateOrderCancelRequest:  {ex.Message}");
+
+            }
+
+        }
+
+        public async Task<bool> GetRequestCancelationByOrderAsync(string orderId)
+        {
+            return await _context.FirestoreDatabase.Collection("CancelRequest")
+                .WhereEqualTo("orderId", orderId)
+                .Limit(1)
+                .GetSnapshotAsync()
+                .ContinueWith(task =>
+                {
+                    var snapshot = task.Result;
+                    if (snapshot.Count > 0)
+                    {
+                        return false;
+                    }
+                    return true;
+                });
+        }
+
+        public async Task<CancelRequest> GetRequestCancelationByOrderForResponseAsync(string requestId)
+        {
+            var snapshot = await _context.FirestoreDatabase.Collection("CancelRequest")
+                 .WhereEqualTo("requestId", requestId)
+                 .Limit(1)
+                 .GetSnapshotAsync();
+
+            if (snapshot.Count == 0)
+            {
+                return null;
+            }
+
+            // Convert the first matching document to an CancelRequest object
+            return snapshot.Documents[0].ConvertTo<CancelRequest>();
+        }
+        
+
+        //Update order details
+        public async Task<bool> ResponseToCancelOrderRequest(string requestId, Dictionary<string, object> updatedFields)
+        {
+            try
+            {
+                var documentRef = _context.FirestoreDatabase.Collection("CancelRequest").Document(requestId);
+                var snapshot = await documentRef.GetSnapshotAsync();
+
+                if (snapshot.Exists)
+                {
+                    await documentRef.UpdateAsync(updatedFields);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                    throw new Exception("CancelRequest not found.");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error while executing ResponseToCancelOrderRequest: {ex.Message}");
+
+            }
+
+        }
+
 
     }
 }

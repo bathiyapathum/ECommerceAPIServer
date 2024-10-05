@@ -25,6 +25,9 @@ namespace ECommerceAPI.Core.Entities.OrderEntity
         [FirestoreProperty("isInCart")]
         public bool IsInCart { get; set; }
 
+        [FirestoreProperty("deliveredItems")]
+        public int DeliveredItems { get; set; }
+
         [FirestoreProperty("note")]
         public string Note { get; set; }
         
@@ -37,7 +40,7 @@ namespace ECommerceAPI.Core.Entities.OrderEntity
         [FirestoreProperty("createdAt")]
         public DateTime CreatedAt { get; set; }
 
-        [FirestoreProperty("deliceredAt")]
+        [FirestoreProperty("deliveredAt")]
         public DateTime? DeliveredAt { get; set; }
 
         [FirestoreProperty("items")]

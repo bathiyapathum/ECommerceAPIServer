@@ -1,6 +1,7 @@
 ﻿using ECommerceAPI.Application.DTOs.OrderDTO;
 using ECommerceAPI.Application.Features;
 using ECommerceAPI.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Diagnostics;
@@ -67,6 +68,29 @@ namespace ECommerceAPI.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        //[Authorize(Roles = "CSR")]
+        [HttpPatch("delivered")]
+        public async Task<IActionResult> UpdateOrderStatus([FromQuery] string orderId)
+        {
+            try
+            {
+
+                var result = await _orderService.UpdateOrderStatusAsync(orderId, "DELIVERED");
+                if(result == "Order status updated successfully")
+                {
+                    return Ok(result);
+                }
+                else
+                {
+                    return BadRequest(result);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
         [HttpPatch("cancel")]
         public async Task<IActionResult> CancelOrder([FromBody] OrderDTO orderDTO, [FromQuery] string orderId)
@@ -77,7 +101,36 @@ namespace ECommerceAPI.API.Controllers
                 string canceledBy = orderDTO.CanceledBy;
 
                 var response = await _orderService.CancelOrderAsync(orderId, note, canceledBy);
-                return Ok(response);
+                if (response == "Order Canceled Successfully")
+                {
+                    return Ok("Order Canceled Successfully");
+                }
+                else
+                {
+                    return BadRequest(response);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error while CancelOrder: {ex.Message}");
+            }
+        }
+
+        [HttpPatch("item/delivered")]
+        public async Task<IActionResult> ItemDelivered([FromQuery] string itemId)
+        {
+            try
+            {
+                var response = await _orderService.ItemDeliverAsync(itemId);
+                if (response == "Order Item Delivered Successfully")
+                {
+                    return Ok("Order Item Delivered Successfully");
+                }
+                else
+                {
+                    return BadRequest(response);
+                }
 
             }
             catch (Exception ex)
@@ -122,6 +175,59 @@ namespace ECommerceAPI.API.Controllers
             {
                 return BadRequest($"Error while PlaceOrder: {ex.Message}");
             }
+        } 
+        
+        [HttpPost("request/cancel")]
+        public async Task<IActionResult> RequestCancellation([FromBody] CancelRequestDTO cancelRequest)
+        {
+            try
+            {
+
+                var response = await _orderService.MakeCancelOrderRequestAsync(cancelRequest);
+                if (response == "Cancel request sent successfully")
+                {
+                    return Ok("Cancel request sent successfully");
+                }
+                else
+                {
+                    return BadRequest(response);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error while RequestCancellation: {ex.Message}");
+            }
         }
+
+        [HttpGet("cancel/request/all")]
+        public async Task<IActionResult> GetAllRequestCancellation()
+        {
+            var order = await _orderService.GetAllCancellationRequests();
+            return Ok(order);
+        }
+
+        [HttpPatch("cancel/response")]
+        public async Task<IActionResult> UpdateCancelOrderResponse([FromBody] CancelRequestDTO cancelRequestDTO)
+        {
+            try
+            {
+                var response = await _orderService.RespondToCancelRequest(cancelRequestDTO);
+                if (response == "Cancel request response sent successfully")
+                {
+                    return Ok("Cancel request response sent successfully");
+                }
+                else
+                {
+                    return BadRequest(response);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error while CancelOrder: {ex.Message}");
+            }
+        }
+
+
+
     }
 }

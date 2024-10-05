@@ -1,4 +1,5 @@
-﻿using Google.Cloud.Firestore;
+﻿using ECommerceAPI.Core.Entities.ProductEntity;
+using Google.Cloud.Firestore;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
@@ -64,6 +65,9 @@ namespace ECommerceAPI.Core.Entities.UserEntity
         [FirestoreProperty("phoneNumber")]
         public string PhoneNumber { get; set; }
 
+        [FirestoreProperty("feedbackInfo")]
+        public VendorFeedbackInfo FeedbackInfo { get; set; }
+
         public string Password { get; set; }
 
         private bool IsValidUserRole(UserRole role)
@@ -99,5 +103,15 @@ namespace ECommerceAPI.Core.Entities.UserEntity
 
         [FirestoreProperty("zipCode")]
         public string ZipCode { get; set; }
+    }
+
+    [FirestoreData]
+    public class VendorFeedbackInfo
+    {
+        [FirestoreProperty("feedbackCount")]
+        public int FeedbackCount { get; set; }
+
+        [FirestoreProperty("sumOfRating")]
+        public int SumOfRating { get; set; }
     }
 }

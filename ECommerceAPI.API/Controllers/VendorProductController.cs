@@ -36,9 +36,13 @@ namespace ECommerceAPI.API.Controllers
         // Delete a vendor product
         [HttpDelete("delete/{productId}")]
         public async Task<IActionResult> DeleteVendorProduct(string productId)
-        {
-            await _productService.DeleteVendorProductAsync(productId);
-            return NoContent();
+        {  
+            var result = await _productService.DeleteVendorProductAsync(productId);
+            if(result == "Success")
+            {
+                return Ok("Product deleted successfully.");
+            }
+            return BadRequest($"Something went wrong DeleteVendorProduct: {result}");
         }
 
         // Get all vendor products by vendorId

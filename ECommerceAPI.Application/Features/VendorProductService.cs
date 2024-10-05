@@ -101,11 +101,11 @@ namespace ECommerceAPI.Application.Features
 
                 await _productRepository.DeleteVendorProductAsync(productId);
                 
-                return "Product is deleted";
+                return "Success";
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                return ("Something went wrong DeleteVendorProduct: " + ex.Message);
             }
         }
 

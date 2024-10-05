@@ -249,6 +249,24 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
+        [HttpGet("get-Inactive-users")]
+        public async Task<IActionResult> GetInactiveUsers()
+        {
+            try
+            {
+                var users = await _userService.GetInactiveUsers();
+                return Ok(users);
+            }
+            catch (DataException ex)
+            {
+                return BadRequest($"Validation error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
         //[HttpPatch("update-user/{userID}")]
         //public async Task<IActionResult> UpdateUser(string userID, [FromBody] SignupReqDTO request)
         //{

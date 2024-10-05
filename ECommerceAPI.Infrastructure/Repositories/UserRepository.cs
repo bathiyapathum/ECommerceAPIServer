@@ -126,6 +126,36 @@ namespace ECommerceAPI.Infrastructure.Repositories
             }
         }
 
+        public async Task<List<User>> GetInactiveUsers()
+        {
+            try
+            {
+                var snapShot = await _context._firestoreDb.Collection("Users")
+                    .WhereEqualTo("isActive", false)
+                    .GetSnapshotAsync();
+
+                if(snapShot.Count == 0)
+                {
+                    return null;
+                }
+
+                return snapShot.Documents.Select(doc => doc.ConvertTo<User>()).ToList();
+                    //.ContinueWith(task =>
+                    //{
+                    //    var snapshot = task.Result;
+                    //    if (snapshot.Count == 0)
+                    //    {
+                    //        return null;
+                    //    }
+                    //    return snapshot.Documents.Select(doc => doc.ConvertTo<User>()).ToList();
+                    //});
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         //public async Task<Feedback> CreateFeedbackAsync(Feedback feedback, Transaction transaction)
         //{
         //    //await _context._firestoreDb.Collection("Feedbacks").Document(feedback.Id = Guid.NewGuid().ToString()).SetAsync(feedback);

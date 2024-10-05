@@ -98,6 +98,26 @@ namespace ECommerceAPI.Infrastructure.Repositories
             }
         }
 
+        public async Task<User> GetRatingForVendor(string vendorId)
+        {
+
+            try
+            {
+                var userResult = await _context.FirestoreDatabase.Collection("Users").Document(vendorId).GetSnapshotAsync();
+
+                if (userResult.Exists)
+                {
+                    return userResult.ConvertTo<User>();
+                }
+
+                return null;
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+        }
 
     }
 }

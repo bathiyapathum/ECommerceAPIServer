@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Linq;
 using System.Security.Claims;
 using ECommerceAPI.Application.DTOs.UserDTO;
+using FirebaseAdmin.Messaging;
 
 namespace ECommerceAPI.API.Controllers
 {
@@ -35,7 +36,7 @@ namespace ECommerceAPI.API.Controllers
             try
             {
                 if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                    return BadRequest(ModelState);
 
                 var userExists = await _userService.CheckUserExists(request.Email);
 
@@ -57,7 +58,7 @@ namespace ECommerceAPI.API.Controllers
 
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPost("create-by-admin")]
         public async Task<IActionResult> RegisterNewUser([FromBody] SignupReqDTO request)
         {
@@ -116,12 +117,37 @@ namespace ECommerceAPI.API.Controllers
             {
                 var user = await _userService.UserLoginAsync(request);
 
-                var token = _authService.GenerateJwtToken(user);
-                return Ok(new 
+                if(user.Role.ToString() == "Vendor" || user.Role.ToString() == "CSR")
                 {
-                    Token = token,
-                    User = user 
-                });
+                    var token = _authService.GenerateJwtToken(user);
+                    return Ok(new
+                    {
+                        Token = token,
+                        User = user
+                    });
+                }
+                else
+                {
+                    if (user.IsActive)
+                    {
+                        var token = _authService.GenerateJwtToken(user);
+                        return Ok(new
+                        {
+                            Token = token,
+                            User = user
+                        });
+                    }
+                    else
+                    {
+                        return StatusCode(403, new
+                        {
+                            Message = "Account not activated. Please activate your account to proceed.",
+                            UserId = user.Id,
+                        });
+                    }
+                }
+
+
 
             }
             catch(DataException ex)
@@ -135,8 +161,7 @@ namespace ECommerceAPI.API.Controllers
         }
 
         [Authorize(Policy = "AccountActivatePolicy")]
-        //[Authorize(Roles = "Vendor")]
-        [HttpPost("activate-user")]
+        [HttpPost("activate-crv-vendor")]
         public async Task<IActionResult> ActivateUser([FromBody] ChangePasswordReqDTO changePasswordReqDTO)
         {
             try
@@ -164,7 +189,93 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
-        //[HttpPost("deactivate-user")]
+
+        [Authorize(Roles = "Admin")]
+        [HttpPatch("activate-customer/{customerID}")]
+        public async Task<IActionResult> ActivateCustomer(string customerID)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var loggedInUserRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (string.IsNullOrEmpty(loggedInUserRole))
+                {
+                    return Unauthorized("User role is not defined.");
+                }
+
+                await _userService.ActivateUser(customerID);
+                return Ok("User activated successfully");
+            }
+            catch (DataException ex)
+            {
+                return BadRequest($"Validation error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+
+        [Authorize(Roles = "Admin,Customer")]
+        [HttpPatch("deactivate-user/{userID}")]
+        public async Task<IActionResult> DeactivateUser(string userID)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var loggedInUserRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (string.IsNullOrEmpty(loggedInUserRole))
+                {
+                    return Unauthorized("User role is not defined.");
+                }
+
+                await _userService.DeactivateUser(userID);
+                return Ok("User deactivated successfully");
+            }
+            catch (DataException ex)
+            {
+                return BadRequest($"Validation error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        //[HttpPatch("update-user/{userID}")]
+        //public async Task<IActionResult> UpdateUser(string userID, [FromBody] SignupReqDTO request)
+        //{
+            //try
+            //{
+            //    if (!ModelState.IsValid)
+            //        return BadRequest(ModelState);
+
+            //    var loggedInUserRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            //    if (string.IsNullOrEmpty(loggedInUserRole))
+            //    {
+            //        return Unauthorized("User role is not defined.");
+            //    }
+
+            //    await _userService.CreateUserAsync(request);
+            //    return Ok("User updated successfully");
+            //}
+            //catch (DataException ex)
+            //{
+            //    return BadRequest($"Validation error: {ex.Message}");
+            //}
+            //catch (Exception ex)
+            //{
+            //    return StatusCode(500, ex.Message);
+            //}
+        //}
 
     }
 }

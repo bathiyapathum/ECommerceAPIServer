@@ -10,5 +10,7 @@ namespace ECommerceAPI.Application.Interfaces
     public interface IFeedbackService
     {
         Task PlaceFeedBack(FeedbackDTO feadbackDTO);
+
+        Task UpdateFeedBack(string feadbackId, FeedbackDTO feadbackDTO);
     }
 }

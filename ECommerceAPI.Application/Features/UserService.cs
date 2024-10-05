@@ -66,7 +66,7 @@ namespace ECommerceAPI.Application.Features
                     LastName = signupReqDTO.LastName,
                     Role = (Core.Entities.UserEntity.UserRole)signupReqDTO.Role,
                     CreatedDate = signupReqDTO.CreatedDate,
-                    IsActive = signupReqDTO.IsActive,
+                    IsActive = false,
                     ProfilePicture = signupReqDTO.ProfilePicture,
                     Addresss = new Core.Entities.UserEntity.Address
                     {
@@ -258,8 +258,64 @@ namespace ECommerceAPI.Application.Features
             {
                 throw new Exception(ex.Message);
             }
-            return Task.FromResult(true);
         }
 
+        public Task<bool> ActivateUser(string userId)
+        {
+            try
+            {
+                User userforActivation = _userRepository.GetUserByIdAsync(userId).Result;
+
+                if (userforActivation == null)
+                {
+                    throw new DataException("Invalid User Id");
+                }
+
+                if (userforActivation.IsActive == true)
+                {
+                    throw new DataException("User is already activated");
+                }
+
+                ChangePassword changePassword = new ChangePassword
+                {
+                    UserId = userId,
+                    NewPassword = BCrypt.Net.BCrypt.HashPassword("123456")
+                };
+
+                Task<bool> isSuccess = _userRepository.ActivateCustomer(userforActivation);
+
+                return isSuccess;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public Task<bool> DeactivateUser(string userId)
+        {
+            try
+            {
+                User userforDeactivate = _userRepository.GetUserByIdAsync(userId).Result;
+
+                if(userforDeactivate == null)
+                {
+                    throw new DataException("Invalid User Id");
+                }
+
+                if (!userforDeactivate.IsActive)
+                {
+                    throw new DataException("User account is already deactivated");
+                }
+
+                Task<bool> isSuccess = _userRepository.DeactivateUser(userforDeactivate);
+
+                return isSuccess;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

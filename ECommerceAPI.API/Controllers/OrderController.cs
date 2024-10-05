@@ -18,6 +18,26 @@ namespace ECommerceAPI.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] OrderDTO orderDTO)
         {
+            if(orderDTO.CustomerId == null)
+            {
+                return BadRequest("Customer Id is required");
+            }
+            else if (orderDTO.VendorId == null)
+            {
+                return BadRequest("Vendor Id is required");
+            }
+            else if (orderDTO.ProductId == null) {
+                return BadRequest("Product Id is required");
+            }
+            else if (orderDTO.Quantity == 0)
+            {
+                return BadRequest("Quantity is required");
+            }
+            else if (orderDTO.Price == null)
+            {
+                return BadRequest("Price is required");
+            }
+
             await _orderService.CreateOrderAsync(orderDTO);
             return CreatedAtAction(nameof(Create) ,new { id = orderDTO }, orderDTO);
         }
@@ -36,6 +56,29 @@ namespace ECommerceAPI.API.Controllers
         {
             var orders = await _orderService.GetAllOrdersAsync();
             return Ok(orders);
+        }
+
+        [HttpDelete("cart/item")]
+        public async Task<IActionResult> RemoveItemFromCart([FromQuery] string orderId, string itemId)
+        {
+            if(orderId == null)
+            {
+                return BadRequest("Order Id is required");
+            }
+            if(itemId == null)
+            {
+                return BadRequest("Item Id is required");
+            }
+
+            var response = await _orderService.RemoveItemFromCart(orderId, itemId);
+            if (response == "Item removed from cart successfully")
+            {
+                return Ok("Item removed from cart successfully");
+            }
+            else
+            {
+                return BadRequest(response);
+            }
         }
 
         [HttpGet]

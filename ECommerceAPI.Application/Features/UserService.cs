@@ -317,5 +317,21 @@ namespace ECommerceAPI.Application.Features
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task<List<User>> GetInactiveUsers()
+        {
+
+            try
+            {
+                List<User> users = new List<User>();
+
+                return users = _userRepository.GetInactiveUsers().Result;
+            }
+            catch(Exception ex)
+            {
+                   throw new Exception(ex.Message);
+            }
+
+        }
     }
 }

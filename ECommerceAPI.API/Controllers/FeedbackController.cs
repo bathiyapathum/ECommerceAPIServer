@@ -11,11 +11,11 @@ namespace ECommerceAPI.API.Controllers
     //[Authorize(Roles = "Customer")]
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class FeedbackControler :ControllerBase
+    public class FeedbackController :ControllerBase
     {
         private readonly IFeedbackService _feadbackService;
 
-        public FeedbackControler(IFeedbackService feadbackService)
+        public FeedbackController(IFeedbackService feadbackService)
         {
             _feadbackService = feadbackService;
         }
@@ -46,6 +46,22 @@ namespace ECommerceAPI.API.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
+        }
+
+        [HttpGet("vender-ranking/{vendorId}")]
+        public async Task<IActionResult> GetRatingforVendor(string vendorId)
+        {
+            var result = _feadbackService.GetRatingForVendor(vendorId);
+
+            if(result != null)
+            {
+                return Ok(new
+                {
+                    User = result,
+                });
+            }
+            
+            return NotFound();
         }
     }
 }

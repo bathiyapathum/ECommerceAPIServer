@@ -104,5 +104,17 @@ namespace ECommerceAPI.Application.Features
                 throw new DataException("Invalid User Id");
             }
         }
+
+        public async Task<User> GetRatingForVendor(string vendorId)
+        {
+            try
+            {
+                return await _feedbackRepository.GetRatingForVendor(vendorId);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

@@ -85,6 +85,8 @@ namespace ECommerceAPI.Application.Features
                     };
 
                     _vendorProductRepository.UpdateVendorProduct(feedbacktoProduct, feadbackDTO.ProductId, transaction);
+
+                    await _vendorProductRepository.UpdateVendorProductRating(feadbackDTO.ProductId, feadbackDTO.Rating, transaction);
                 });
 
                

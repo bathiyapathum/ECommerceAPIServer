@@ -1,4 +1,5 @@
 ﻿using ECommerceAPI.Core.Entities.ProductEntity;
+using ECommerceAPI.Core.Entities.UserEntity;
 using ECommerceAPI.Infrastructure.Persistance;
 using Google.Cloud.Firestore;
 using System.Collections.Generic;
@@ -96,5 +97,76 @@ namespace ECommerceAPI.Infrastructure.Repositories
 
             return vendorProducts;
         }
+
+        //public async Task<bool> UpdateVendorProductRating(string ProductId, int Rating, Transaction transaction)
+        //{
+        //    var productDetails = await _context.FirestoreDatabase.Collection("VendorProducts").Document(ProductId).GetSnapshotAsync();
+
+        //    VendorProduct productSnapshot = productDetails.ConvertTo<VendorProduct>();
+
+        //    if(productSnapshot != null)
+        //    {
+        //        var venderProfileSnapShot = await _context.FirestoreDatabase.Collection("User").Document(productSnapshot.VendorId).GetSnapshotAsync();
+
+        //        User venderProfile = venderProfileSnapShot.ConvertTo<User>();
+
+        //        if (venderProfile != null)
+        //        {
+        //            var feedBackUpdateData = new Dictionary<string, object>
+        //            {
+        //                { "feedbackInfo.sumOfRating", venderProfile.FeedbackInfo.SumOfRating + Rating },
+        //                { "feedbackInfo.feedbackCount", venderProfile.FeedbackInfo.FeedbackCount + 1 }
+        //            };
+        //        }
+
+        //        transaction.Update(venderProfileSnapShot.Reference, feedBackUpdateData);
+        //    }
+
+        //}
+
+        public async Task<bool> UpdateVendorProductRating(string productId, int rating, Transaction transaction)
+        {
+            // Fetch the product details
+            var productDetails = await _context.FirestoreDatabase.Collection("VendorProducts").Document(productId).GetSnapshotAsync();
+            if (!productDetails.Exists) return false;
+
+            // Convert snapshot to VendorProduct object
+            VendorProduct productSnapshot = productDetails.ConvertTo<VendorProduct>();
+
+            // Fetch vendor profile details
+            var vendorProfileSnapShot = await _context.FirestoreDatabase.Collection("Users").Document(productSnapshot.VendorId).GetSnapshotAsync();
+            if (!vendorProfileSnapShot.Exists) return false;
+
+            // Convert snapshot to User object
+            User vendorProfile = vendorProfileSnapShot.ConvertTo<User>();
+
+            if (vendorProfile.FeedbackInfo == null)
+            {
+                vendorProfile.FeedbackInfo = new VendorFeedbackInfo
+                {
+                    SumOfRating = 0,  
+                    FeedbackCount = 0   
+                };
+            }
+
+            // Prepare the update data
+            //var feedbackUpdateData = new Dictionary<string, object>
+            //{
+            //    { "feedbackInfo.sumOfRating", vendorProfile.FeedbackInfo.SumOfRating + rating },
+            //    { "feedbackInfo.feedbackCount", vendorProfile.FeedbackInfo.FeedbackCount + 1 }
+            //};
+
+            var feedbackUpdateData = new Dictionary<string, object>
+            {
+                { "feedbackInfo.sumOfRating", vendorProfile.FeedbackInfo.SumOfRating + rating },
+                { "feedbackInfo.feedbackCount", vendorProfile.FeedbackInfo.FeedbackCount + 1 }
+            };
+
+            // Update the vendor profile in Firestore transaction
+            transaction.Update(vendorProfileSnapShot.Reference, feedbackUpdateData);
+
+            return true;
+        }
+
     }
 }

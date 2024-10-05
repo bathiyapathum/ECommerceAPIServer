@@ -390,6 +390,33 @@ namespace ECommerceAPI.Infrastructure.Repositories
         
 
         //Update order details
+        public async Task<bool> RemoveItemFromOrder(string itemId)
+        {
+            try
+            {
+                var documentRef = _context.FirestoreDatabase.Collection("OrderItem").Document(itemId);
+                var snapshot = await documentRef.GetSnapshotAsync();
+
+                if (snapshot.Exists)
+                {
+                    await documentRef.DeleteAsync();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                    throw new Exception("OrderItem not found.");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error while executing RemoveItemFromOrder: {ex.Message}");
+
+            }
+
+        }
+
         public async Task<bool> ResponseToCancelOrderRequest(string requestId, Dictionary<string, object> updatedFields)
         {
             try

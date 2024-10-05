@@ -30,8 +30,6 @@ namespace ECommerceAPI.Infrastructure.Repositories
 
         public async Task<bool> GetFeedbackByIdAsync(string feedbackId)
         {
-            //await _context._firestoreDb.Collection("Feedbacks").Document(feedbackId).GetSnapshotAsync();
-
             try
             {
                 var result = await _context.FirestoreDatabase.Collection("Feedbacks").Document(feedbackId).GetSnapshotAsync();
@@ -50,9 +48,6 @@ namespace ECommerceAPI.Infrastructure.Repositories
 
         public async Task<Feedback> CreateFeedbackAsync(Feedback feedback, Transaction transaction)
         {
-            //await _context._firestoreDb.Collection("Feedbacks").Document(feedback.Id = Guid.NewGuid().ToString()).SetAsync(feedback);
-            //return feedback;
-
             try
             {
                 feedback.Id = Guid.NewGuid().ToString();
@@ -81,13 +76,17 @@ namespace ECommerceAPI.Infrastructure.Repositories
                 {
                     VendorProduct product = productSnapshot.ConvertTo<VendorProduct>();
 
+                    if(product.FeedbackInfo == null)
+                    {
+                        return false;
+                    }
+
                     foreach (var feedBack in product.FeedbackInfo)
                     {
-                        if (feedBack.CustomerId == customerId && feedBack.OrderId == orderId)
+                        if (feedBack.CustomerId.Trim() == customerId.Trim() && feedBack.OrderId.Trim() == orderId.Trim())
                         {
                             return true;
                         }
-                        return false;
                     }
                 }
 

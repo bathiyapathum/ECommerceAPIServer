@@ -12,11 +12,14 @@ namespace ECommerceAPI.Application.DTOs.OrderDTO
         public string CustomerId { get; set; }
         public string Status { get; set; }
         public string Note { get; set; }
+        public string Address { get; set; }
+        public string Tel { get; set; }
         public string CanceledBy { get; set; }
         public string ProductId { get; set; }
         public int Quantity { get; set; }
         public string Price { get; set; }
         public string ProductName { get; set; }
+        public int DeliveredItems { get; set; }
         public string VendorId { get; set; }
         public string Size { get; set; }
         public string ImageUrl { get; set; }

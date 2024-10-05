@@ -80,15 +80,32 @@ namespace ECommerceAPI.Application.Features
 
 
         // Delete a vendor product if it is not in pending state
-        public async Task DeleteVendorProductAsync(string productId)
+        public async Task<string> DeleteVendorProductAsync(string productId)
         {
-            var product = await _productRepository.GetVendorProductByIdAsync(productId);
-            if (product != null)
+            try
             {
-                if (product.StockStatus != VendorStockStatus.Pending.ToString())
+                var product = await _productRepository.GetVendorProductByIdAsync(productId);
+                if (product == null)
                 {
-                    await _productRepository.DeleteVendorProductAsync(productId);
+                    return "Product is not found";
                 }
+
+                var orderItems = await _orderRepository.GetVendorOrderAsync(product.VendorId);
+
+                foreach (var orderItem in orderItems) {
+                    if (orderItem.ProductId == productId && orderItem.Status == "PENDING")
+                    {
+                        return "Can't Delete, Product is Pending order Item";
+                    }
+                }
+
+                await _productRepository.DeleteVendorProductAsync(productId);
+                
+                return "Product is deleted";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
 

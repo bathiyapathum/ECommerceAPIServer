@@ -244,6 +244,18 @@ namespace ECommerceAPI.API.Controllers
         {
             try
             {
+                if (cancelRequest.OrderId == null)
+                {
+                    return BadRequest("Order Id is required");
+                }
+                if(cancelRequest.RequestNote == null)
+                {
+                    return BadRequest("Note is required");
+                }
+                if(cancelRequest.CustomerId == null)
+                {
+                    return BadRequest("Customer Id is required");
+                }
 
                 var response = await _orderService.MakeCancelOrderRequestAsync(cancelRequest);
                 if (response == "Cancel request sent successfully")

@@ -190,7 +190,7 @@ namespace ECommerceAPI.API.Controllers
         }
 
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,CSR")]
         [HttpPatch("activate-customer/{customerID}")]
         public async Task<IActionResult> ActivateCustomer(string customerID)
         {

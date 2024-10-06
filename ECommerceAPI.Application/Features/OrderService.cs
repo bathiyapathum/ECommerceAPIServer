@@ -665,11 +665,32 @@ namespace ECommerceAPI.Application.Features
         {
             try
             {
+                var customerOrder = await _orderRepository.GetOrderAsync(cancelRequestDTO.OrderId);
+
+                if (customerOrder == null)
+                {
+                    return "Order not found";
+                }
+                if(customerOrder.CustomerId != cancelRequestDTO.CustomerId)
+                {
+                    return "You are not authorized to cancel this order";
+                }
+                if (customerOrder.Status == "CANCELED")
+                {
+                    return "Order is already canceled";
+                }
+                if (customerOrder.Status == "DELIVERED")
+                {
+                    return "Order is already delivered";
+                }
+
                 var item =  await _orderRepository.GetRequestCancelationByOrderAsync(cancelRequestDTO.OrderId);
+
                 if (!item)
                 {
                     return "Cancel request already sent";
                 }
+
                 var request = new CancelRequest
                 {
                     RequestId = Guid.NewGuid().ToString(),

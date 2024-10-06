@@ -99,6 +99,21 @@ namespace ECommerceAPI.API.Controllers
             return Ok(order);
         }
 
+        [HttpGet("history")]
+        public async Task<IActionResult> GetCustomerPlacedOrder([FromQuery] string customerId)
+        {
+            if (customerId == null)
+            {
+                return BadRequest("Customer Id is required");
+            }
+            var order = await _orderService.GetCustomerPlacedOrderAsync(customerId);
+            if (order == null)
+            {
+                return NotFound("Orders not found");
+            }
+            return Ok(order);
+        }
+
         //Order update method implementation
 
         [HttpPatch]

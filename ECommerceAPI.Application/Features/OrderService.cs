@@ -267,6 +267,87 @@ namespace ECommerceAPI.Application.Features
             }
 
         }
+        
+        public async Task<List<OrderResponseDTO>> GetCustomerPlacedOrderAsync(string customerId)
+        {
+            try
+            {
+                var order = await _orderRepository.GetCustomerPlacdOrderAsync(customerId);
+                if (order == null)
+                {
+                    return null;
+                }
+
+                List<OrderResponseDTO> orderResponseDTO = [];
+                //create response object to return with product name, image, etc
+                foreach (var item in order)
+                {
+                    var orderItems = item.Items;
+
+                    var newItems = new List<OrderItem>();
+
+                    foreach (var orderItem in orderItems)
+                    {
+                        var result = await _orderRepository.GetVendorOrderItemByIdAsync(orderItem.ItemId);
+
+                        newItems.Add(new OrderItem
+                        {
+                            ItemId = result.ItemId,
+                            ProductId = result.ProductId,
+                            VendorId = result.VendorId,
+                            ProductName = result.ProductName,
+                            OrderId = result.OrderId,
+                            Quantity = result.Quantity,
+                            Price = result.Price,
+                            ImageUrl = result.ImageUrl,
+                            Size = result.Size,
+                            CreatedAt = result.CreatedAt,
+                        });
+
+                    }
+                    OrderResponseDTO response = OrderResponseDTO.ItemMapper(item, newItems);
+                    orderResponseDTO.Add(response);
+
+
+                }
+                    return orderResponseDTO;
+
+                //var orderItems = order.Items;
+
+                //var newItems = new List<OrderItem>();
+
+                //foreach (var item in orderItems)
+                //{
+                //    var result = await _orderRepository.GetVendorOrderItemByIdAsync(item.ItemId);
+
+                //    newItems.Add(new OrderItem
+                //    {
+                //        ItemId = result.ItemId,
+                //        ProductId = result.ProductId,
+                //        VendorId = result.VendorId,
+                //        ProductName = result.ProductName,
+                //        OrderId = result.OrderId,
+                //        Quantity = result.Quantity,
+                //        Price = result.Price,
+                //        ImageUrl = result.ImageUrl,
+                //        Size = result.Size,
+                //        CreatedAt = result.CreatedAt,
+                //    });
+
+                //}
+                //OrderResponseDTO response = OrderResponseDTO.ItemMapper(order, newItems);
+
+                //return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+        }
+
+
+
 
 
         public async Task<Order> GetCustomerOrderAsync(string customerId)

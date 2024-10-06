@@ -1,4 +1,11 @@
-﻿using ECommerceAPI.Application.DTOs.ProductDTO;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// IVendorProductService: Interface defining methods for product management in the vendor context.
+// This service interface supports product creation, updating, deletion, and retrieval for vendors.
+// Author: Arachchi D.S.U - IT21182914
+// Date: 06/10/2024
+// --------------------------------------------------------------------------------------------------------------------
+
+using ECommerceAPI.Application.DTOs.ProductDTO;
 using ECommerceAPI.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;

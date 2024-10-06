@@ -409,7 +409,7 @@ namespace ECommerceAPI.Application.Features
                         {
                             IsRead = false,
                             Message = $"Order {item.ItemId} has been canceled!",
-                            Reason = "Customer request cancelation.",
+                            Reason = "Customer request cancelation",
                             UserId = item.VendorId,
                         };
                         await notificationService.SendNotification(notification);

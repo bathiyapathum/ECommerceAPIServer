@@ -12,7 +12,6 @@ using System.Linq;
 using System.Security.Claims;
 using ECommerceAPI.Application.DTOs.UserDTO;
 using FirebaseAdmin.Messaging;
-using ECommerceAPI.Core.Entities.UserEntity;
 
 namespace ECommerceAPI.API.Controllers
 {
@@ -192,8 +191,8 @@ namespace ECommerceAPI.API.Controllers
 
 
         [Authorize(Roles = "Admin")]
-        [HttpPatch("activate-customer/{userID}")]
-        public async Task<IActionResult> ActivateCustomer(string userID)
+        [HttpPatch("activate-customer/{customerID}")]
+        public async Task<IActionResult> ActivateCustomer(string customerID)
         {
             try
             {
@@ -207,7 +206,7 @@ namespace ECommerceAPI.API.Controllers
                     return Unauthorized("User role is not defined.");
                 }
 
-                await _userService.ActivateUser(userID);
+                await _userService.ActivateUser(customerID);
                 return Ok("User activated successfully");
             }
             catch (DataException ex)
@@ -222,8 +221,8 @@ namespace ECommerceAPI.API.Controllers
 
 
         [Authorize(Roles = "Admin,Customer")]
-        [HttpPatch("deactivate-user/{userID}")]
-        public async Task<IActionResult> DeactivateUser(string userID)
+        [HttpPatch("deactivate-user/{customerID}")]
+        public async Task<IActionResult> DeactivateUser(string customerID)
         {
             try
             {
@@ -237,7 +236,7 @@ namespace ECommerceAPI.API.Controllers
                     return Unauthorized("User role is not defined.");
                 }
 
-                await _userService.DeactivateUser(userID);
+                await _userService.DeactivateUser(customerID);
                 return Ok("User deactivated successfully");
             }
             catch (DataException ex)
@@ -273,6 +272,16 @@ namespace ECommerceAPI.API.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var loggedInUserRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (string.IsNullOrEmpty(loggedInUserRole))
+                {
+                    return Unauthorized("User role is not defined.");
+                }
+
                 await _userService.UpdateUserAsync(request, userID);
                 return Ok("User updated successfully");
             }

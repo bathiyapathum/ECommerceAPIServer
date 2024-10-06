@@ -633,9 +633,18 @@ namespace ECommerceAPI.Application.Features
             try
             {
                 var item = await _orderRepository.GetRequestCancelationByOrderForResponseAsync(cancelRequestDTO.RequestId);
+
+                if (item == null)
+                {
+                    return "Request not found";
+                }
+
                 if (item.Status == "CANCELED")
                 {
                     return "Order is already Canceled";
+                }else if (item.Status == "APPROVED")
+                {
+                    return "Order is already Approved";
                 }
 
                 Dictionary<string, object> updatedFields = new()

@@ -248,6 +248,7 @@ namespace ECommerceAPI.Application.Features
                         ProductId = result.ProductId,
                         VendorId = result.VendorId,
                         ProductName = result.ProductName,
+                        OrderId = result.OrderId,
                         Quantity = result.Quantity,
                         Price = result.Price,
                         ImageUrl = result.ImageUrl,

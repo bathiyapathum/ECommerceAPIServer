@@ -92,6 +92,10 @@ namespace ECommerceAPI.API.Controllers
         public async Task<IActionResult> GetCustomerCartOrder([FromQuery] string customerId)
         {
             var order = await _orderService.GetCustomerCartOrderAsync(customerId);
+            if(order == null)
+            {
+                return NotFound("Order not found");
+            }
             return Ok(order);
         }
 

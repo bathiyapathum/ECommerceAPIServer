@@ -162,7 +162,7 @@ namespace ECommerceAPI.Infrastructure.Repositories
             try
             {
                 var snapShot = await _context._firestoreDb.Collection("Users")
-                    .WhereEqualTo("isActive", false)
+                    //.WhereEqualTo("isActive", false)
                     .GetSnapshotAsync();
 
                 if(snapShot.Count == 0)

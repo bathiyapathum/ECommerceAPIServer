@@ -1,4 +1,11 @@
-﻿using ECommerceAPI.Application.DTOs.OrderDTO;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// VendorProductService: Implements business logic for managing vendor products and orders.
+// This service handles product creation, updating, deletion, stock management, and notifications.
+// Author: Arachchi D.S.U - IT21182914
+// Date: 06/10/2024
+// --------------------------------------------------------------------------------------------------------------------
+
+using ECommerceAPI.Application.DTOs.OrderDTO;
 using ECommerceAPI.Application.DTOs.ProductDTO;
 using ECommerceAPI.Application.Interfaces;
 using ECommerceAPI.Core.Entities.OrderEntity;

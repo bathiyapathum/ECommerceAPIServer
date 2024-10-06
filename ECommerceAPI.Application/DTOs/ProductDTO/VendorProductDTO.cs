@@ -1,4 +1,11 @@
-﻿using System;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// VendorProductDTO: Defines the data transfer object for vendor products.
+// This DTO is used to transfer product data between the client and server.
+// Author: Arachchi D.S.U - IT21182914
+// Date: 06/10/2024
+// --------------------------------------------------------------------------------------------------------------------
+
+using System;
 
 namespace ECommerceAPI.Application.DTOs.ProductDTO
 {

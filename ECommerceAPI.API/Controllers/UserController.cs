@@ -12,6 +12,7 @@ using System.Linq;
 using System.Security.Claims;
 using ECommerceAPI.Application.DTOs.UserDTO;
 using FirebaseAdmin.Messaging;
+using ECommerceAPI.Core.Entities.UserEntity;
 
 namespace ECommerceAPI.API.Controllers
 {
@@ -206,7 +207,7 @@ namespace ECommerceAPI.API.Controllers
                     return Unauthorized("User role is not defined.");
                 }
 
-                await _userService.ActivateUser(customerID);
+                await _userService.ActivateUser(userID);
                 return Ok("User activated successfully");
             }
             catch (DataException ex)

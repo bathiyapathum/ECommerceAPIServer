@@ -1,4 +1,11 @@
-﻿using ECommerceAPI.Core.Entities.ProductEntity;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// VendorProductRepository: Manages database operations related to vendor products.
+// Provides methods for adding, updating, deleting, and retrieving vendor products from Firestore.
+// Author: Arachchi D.S.U - IT21182914
+// Date: 06/10/2024
+// --------------------------------------------------------------------------------------------------------------------
+
+using ECommerceAPI.Core.Entities.ProductEntity;
 using ECommerceAPI.Core.Entities.UserEntity;
 using ECommerceAPI.Infrastructure.Persistance;
 using Google.Cloud.Firestore;

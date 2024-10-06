@@ -1,5 +1,14 @@
-﻿using ECommerceAPI.Application.DTOs.ProductDTO;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// VendorProductService: Implements business logic for managing vendor products and orders.
+// This service handles product creation, updating, deletion, stock management, and notifications.
+// Author: Arachchi D.S.U - IT21182914
+// Date: 06/10/2024
+// --------------------------------------------------------------------------------------------------------------------
+
+using ECommerceAPI.Application.DTOs.OrderDTO;
+using ECommerceAPI.Application.DTOs.ProductDTO;
 using ECommerceAPI.Application.Interfaces;
+using ECommerceAPI.Core.Entities.OrderEntity;
 using ECommerceAPI.Core.Entities.ProductEntity;
 using ECommerceAPI.Infrastructure.Repositories;
 using System;
@@ -11,10 +20,12 @@ namespace ECommerceAPI.Application.Features
     public class VendorProductService : IVendorProductService
     {
         private readonly VendorProductRepository _productRepository;
+        private readonly OrderRepository _orderRepository;
 
-        public VendorProductService(VendorProductRepository productRepository)
+        public VendorProductService(VendorProductRepository productRepository, OrderRepository orderRepository)
         {
             _productRepository = productRepository;
+            _orderRepository = orderRepository;
         }
 
         // Create a new vendor product
@@ -76,15 +87,32 @@ namespace ECommerceAPI.Application.Features
 
 
         // Delete a vendor product if it is not in pending state
-        public async Task DeleteVendorProductAsync(string productId)
+        public async Task<string> DeleteVendorProductAsync(string productId)
         {
-            var product = await _productRepository.GetVendorProductByIdAsync(productId);
-            if (product != null)
+            try
             {
-                if (product.StockStatus != VendorStockStatus.Pending.ToString())
+                var product = await _productRepository.GetVendorProductByIdAsync(productId);
+                if (product == null)
                 {
-                    await _productRepository.DeleteVendorProductAsync(productId);
+                    return "Product is not found";
                 }
+
+                var orderItems = await _orderRepository.GetVendorOrderAsync(product.VendorId);
+
+                foreach (var orderItem in orderItems) {
+                    if (orderItem.ProductId == productId && orderItem.Status == "PENDING")
+                    {
+                        return "Can't Delete, Product is Pending order Item";
+                    }
+                }
+
+                await _productRepository.DeleteVendorProductAsync(productId);
+                
+                return "Success";
+            }
+            catch (Exception ex)
+            {
+                return ("Something went wrong DeleteVendorProduct: " + ex.Message);
             }
         }
 
@@ -197,5 +225,50 @@ namespace ECommerceAPI.Application.Features
             // Simulate sending a notification
             Console.WriteLine($"Vendor Product {productId} is low on stock!");
         }
+
+        //get full details for specific order
+        public async Task<VendorOrderDTO> GetOrderDetailsAsync(string ItemId)
+        {
+            try
+            {
+                var orderItem = await _orderRepository.GetVendorOrderItemsAsync(ItemId);
+
+                if (orderItem == null)
+                {
+                    throw new Exception("Order Item is null or not found");
+                }
+
+                var order = await _orderRepository.GetOrderbyIdAsync(orderItem.OrderId);
+                VendorOrderDTO createdItem = VendorOrderDTO.OrderMapper(order, orderItem);
+                return createdItem;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        //get all active orders for vendor
+        public async Task<List<OrderItem>> GetAllAvailableOrdersAsync(string vendorId)
+        {
+            try
+            {
+                var result = await _orderRepository.GetVendorOrderAsync(vendorId);
+
+                if (result == null)
+                {
+                    return null;
+                }
+                    return result;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+
+
     }
 }

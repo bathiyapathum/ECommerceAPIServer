@@ -3,6 +3,7 @@ using ECommerceAPI.Application.DTOs.OrderDTO;
 using ECommerceAPI.Application.Interfaces;
 using ECommerceAPI.Core.Entities.OrderEntity;
 using ECommerceAPI.Infrastructure.Repositories;
+using ECommerceAPI.Application.Features;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,8 +15,8 @@ namespace ECommerceAPI.Application.Features
 {
     internal class OrderService : IOrderService
     {
-        private readonly  OrderRepository _orderRepository;
-        private readonly  NotificationRepository _notificationRepository;
+        private readonly OrderRepository _orderRepository;
+        private readonly NotificationRepository _notificationRepository;
 
         public OrderService(OrderRepository orderRepository, NotificationRepository notificationRepository)
         {
@@ -58,9 +59,9 @@ namespace ECommerceAPI.Application.Features
                         CreatedAt = DateTime.UtcNow,
                     };
 
-                    var result =  await _orderRepository.CreateAsync(order);
+                    var result = await _orderRepository.CreateAsync(order);
 
-                    if (result) 
+                    if (result)
                     {
                         //Create orderItems
                         var orderItem = new OrderItem
@@ -72,6 +73,9 @@ namespace ECommerceAPI.Application.Features
                             Quantity = orderDTO.Quantity,
                             Price = orderDTO.Price,
                             ProductName = orderDTO.ProductName,
+                            ImageUrl = orderDTO.ImageUrl,
+                            Size = orderDTO.Size,
+                            CreatedAt = DateTime.UtcNow,
                         };
 
                         var orderItemsRes = await _orderRepository.CreateOrderItemAsync(orderItem);
@@ -81,7 +85,8 @@ namespace ECommerceAPI.Application.Features
                         {
                             ProductId = orderDTO.ProductId,
                             ItemId = orderItem.ItemId,
-                            VendorId = orderDTO.VendorId
+                            VendorId = orderDTO.VendorId,
+                            Size = orderDTO.Size,
                         };
 
                         List<OrderItemReference> refList = [orderRef];
@@ -90,7 +95,7 @@ namespace ECommerceAPI.Application.Features
                         {
                             //update the main order to include order item Ref in array
 
-                            var updatedFields = new Dictionary <string, object>{
+                            var updatedFields = new Dictionary<string, object>{
                                 { "items", refList}
                             };
 
@@ -111,14 +116,15 @@ namespace ECommerceAPI.Application.Features
                         Debug.WriteLine("Something went wrong while creating order");
                     }
                 }
-                else {
+                else
+                {
                     //Order is exist
                     Debug.WriteLine("Order found.");
 
                     var items = details.Items;
                     bool isItemExist = false;
 
-                    if(items != null)
+                    if (items != null)
                     {
                         Debug.WriteLine("Item is not null.");
                         Debug.WriteLine(details);
@@ -133,15 +139,16 @@ namespace ECommerceAPI.Application.Features
                             ItemId = item.ItemId,
                             VendorId = item.VendorId,
                             ProductId = item.ProductId,
+                            Size = item.Size,
                         });
-                        
+
                     }
 
                     //check item exist or not
-                    foreach(var item in refList)
+                    foreach (var item in refList)
                     {
                         //if item exist in the order append the price and quantity
-                        if(item.ProductId == orderDTO.ProductId && item.VendorId == orderDTO.VendorId)
+                        if (item.ProductId == orderDTO.ProductId && item.VendorId == orderDTO.VendorId && item.Size == orderDTO.Size)
                         {
                             Debug.WriteLine("Item in the list");
                             isItemExist = true;
@@ -172,6 +179,9 @@ namespace ECommerceAPI.Application.Features
                             ProductName = orderDTO.ProductName,
                             Quantity = orderDTO.Quantity,
                             Price = orderDTO.Price,
+                            ImageUrl = orderDTO.ImageUrl,
+                            Size = orderDTO.Size,
+                            CreatedAt = DateTime.UtcNow,
                         };
 
                         var result = await _orderRepository.CreateOrderItemAsync(newOrderItem);
@@ -183,7 +193,8 @@ namespace ECommerceAPI.Application.Features
                             {
                                 ProductId = orderDTO.ProductId,
                                 ItemId = newOrderItem.ItemId,
-                                VendorId = orderDTO.VendorId
+                                VendorId = orderDTO.VendorId,
+                                Size = orderDTO.Size,
                             };
                             refList.Add(orderRef);
                         }
@@ -211,6 +222,53 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
+        public async Task<OrderResponseDTO> GetCustomerCartOrderAsync(string customerId)
+        {
+            try
+            {
+                var order = await _orderRepository.GetCustomerOrderAsync(customerId);
+                if (order == null)
+                {
+                    return null;
+                }
+
+                //create response object to return with product name, image, etc
+
+                var orderItems = order.Items;
+
+                var newItems = new List<OrderItem>();
+
+                foreach (var item in orderItems)
+                {
+                    var result = await _orderRepository.GetVendorOrderItemByIdAsync(item.ItemId);
+
+                    newItems.Add(new OrderItem
+                    {
+                        ItemId = result.ItemId,
+                        ProductId = result.ProductId,
+                        VendorId = result.VendorId,
+                        ProductName = result.ProductName,
+                        OrderId = result.OrderId,
+                        Quantity = result.Quantity,
+                        Price = result.Price,
+                        ImageUrl = result.ImageUrl,
+                        Size = result.Size,
+                        CreatedAt = result.CreatedAt,
+                    });
+
+                }
+                OrderResponseDTO response = OrderResponseDTO.ItemMapper(order, newItems);
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+        }
+
+
         public async Task<Order> GetCustomerOrderAsync(string customerId)
         {
             try
@@ -224,31 +282,81 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
-        public async Task CancelOrderAsync(string orderId, string note, string canceledBy)
+        public async Task<string> CancelOrderAsync(string orderId, string note, string canceledBy)
         {
             try
             {
-                await _orderRepository.CancelOrderAsync(orderId, note, canceledBy);
-                Order order =await GetOrderAsync(orderId);
+                var existingItem =await _orderRepository.GetOrderAsync(orderId);
+
                 NotificationService notificationService = new(_notificationRepository);
-                NotificationDTO notification = new()
+
+                if (existingItem == null)
+                {
+                    return "Order not found";
+                }
+                if (existingItem.IsInCart)
+                {
+                    return "Still order is in the cart";
+                }
+                else if (existingItem.Status == "CANCELED")
+                {
+                    return "Order is already canceled";
+                }
+                else if (existingItem.Status == "DELIVERED")
+                {
+                    return "Order is already delivered";
+                }else if(existingItem.Status == "PARTIALY-DELIVERED")
+                {
+                    return "Order is PARTIALY-DELIVERED";
+                }
+
+                var response = await _orderRepository.CancelOrderAsync(orderId, note, canceledBy);
+
+                if(!response)
+                {
+                    return "Something went wrong while canceling order";
+                }
+
+                //Order order = await GetOrderAsync(orderId);
+                foreach (var item in existingItem.Items)
+                {
+                    var itemResult = await _orderRepository.UpdateOrderItemAsync(item.ItemId, new Dictionary<string, object> { { "status", "CANCELED" } });
+
+                    if (itemResult)
+                    {
+                        NotificationDTO notification = new()
+                        {
+                            IsRead = false,
+                            Message = $"Order {item.ItemId} has been canceled!",
+                            Reason = "Customer request cancelation.",
+                            UserId = item.VendorId,
+                        };
+                        await notificationService.SendNotification(notification);
+                    }
+                }
+
+                NotificationDTO notificationCus = new()
                 {
                     IsRead = false,
-                    Message = "Your order "+orderId+" Canceled.",
+                    Message = "Your order " + orderId + " has canceled.",
                     Reason = note,
-                    UserId= order.CustomerId                                        
+                    UserId = existingItem.CustomerId
                 };
-                await notificationService.SendNotification(notification);
+
+                var resutl = await notificationService.SendNotification(notificationCus);
+                if (resutl != null)
+                {
+                    return "Order Canceled Successfully";
+                }
+                return "Something went wrong while sending notification";
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
-            
-            throw new NotImplementedException();
         }
 
-        
+
 
         public async Task DeleteOrderAsync(string orderId)
         {
@@ -263,34 +371,6 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
-        //public Task<Order> CheckoutOrderAsync(OrderDTO orderDTO, string customerId)
-        //{
-        //    try
-        //    {   
-
-
-        //        var order = new Order
-        //        {
-        //            OrderId = Guid.NewGuid().ToString(),
-        //            CustomerId = customerId,
-        //            Items = orderDTO.Items,
-        //            CreatedAt = DateTime.UtcNow,
-        //            DeliveredAt = orderDTO.DeliveredAt,
-        //            DispatchedAt = orderDTO.DispatchedAt,
-        //            Status = orderDTO.Status,
-        //        };
-        //        //return _orderRepository.CreateAsync(order);
-
-        //        Order a = new Order();
-
-        //        return a;
-
-        //    }
-        //    catch(Exception ex)
-        //    {
-        //        throw new Exception(ex.Message);
-        //    }
-        //}
 
         public async Task<List<Order>> GetAllOrdersAsync()
         {
@@ -311,7 +391,7 @@ namespace ECommerceAPI.Application.Features
             {
                 var order = await _orderRepository.GetOrderbyIdAsync(orderId);
                 return order;
-                
+
             }
             catch (Exception ex)
             {
@@ -324,7 +404,7 @@ namespace ECommerceAPI.Application.Features
             throw new NotImplementedException();
         }
 
-        public async Task UpdateOrderDetailsAsync(string orderId ,OrderDTO orderDTO)
+        public async Task UpdateOrderDetailsAsync(string orderId, OrderDTO orderDTO)
         {
             try
             {
@@ -334,7 +414,7 @@ namespace ECommerceAPI.Application.Features
                     {"status" , orderDTO.Status }
                 };
                 await _orderRepository.UpdateOrderAsync(orderId, order);
-                
+
 
             }
             catch (Exception ex)
@@ -343,9 +423,352 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
-        public Task UpdateOrderStatusAsync(string orderId, string status)
+        public async Task<string> UpdateOrderStatusAsync(string orderId, string status)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var order = await _orderRepository.GetOrderAsync(orderId);
+                if (order == null)
+                {
+                    return "Order not found";
+                }
+                else if (order.Status == "DELIVERED")
+                {
+                    return "Order is already delivered";
+                }
+                else if (order.Status == "CANCELED")
+                {
+                    return "Order is already canceled";
+                }
+                else
+                {
+                    if (status == "DELIVERED")
+                    {
+                        foreach (var item in order.Items)
+                        {
+                            var itemResult = await _orderRepository.UpdateOrderItemAsync(item.ItemId, new Dictionary<string, object> { { "status", "DELIVERED" } });
+
+                            if (itemResult)
+                            {
+                                NotificationService notificationService = new(_notificationRepository);
+
+                                NotificationDTO notification = new()
+                                {
+                                    IsRead = false,
+                                    Message = $"Order {item.ItemId} has been delivered successfully",
+                                    Reason = "Order delivered",
+                                    UserId = item.VendorId,
+                                };
+                                await notificationService.SendNotification(notification);
+                            }
+                        }
+                    }
+
+                    var response = await _orderRepository.UpdateOrderAsync(orderId, new Dictionary<string, object> { { "status", status } });
+                    if (response)
+                    {
+                        NotificationService notificationService = new(_notificationRepository);
+
+                        NotificationDTO notification = new()
+                        {
+                            IsRead = false,
+                            Message = "Order placed with" + orderId + " for you.",
+                            Reason = "Placing new order",
+                            UserId = order.CustomerId
+                        };
+                        await notificationService.SendNotification(notification);
+
+                        return "Order status updated successfully";
+                    }
+                    else
+                    {
+                        return $"Something went wrong while updating order status to: {status} ";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
+
+        public async Task<string> PlaceOrderAsync(string orderId, string address, string tel)
+        {
+            try
+            {
+                NotificationService notificationService = new(_notificationRepository);
+                //place order
+                Dictionary<string, object> updatedOrder = new()
+                {
+                    {"isInCart", false},
+                    {"status", "PENDING"},
+                    {"address", address},
+                    {"tel", tel }
+                };
+
+                var existingOrder = await _orderRepository.GetOrderAsync(orderId);
+                if (existingOrder == null) {
+                    return "Order not found";
+                }
+                
+                if(existingOrder.Status == "CANCELED")
+                {
+                    return "Order is already canceled";
+                }
+
+                if (existingOrder.Status == "DELIVERED")
+                {
+                    return "Order is already delivered";
+                }
+                if (existingOrder.Status == "PARTIALY-DELIVERED")
+                {
+                    return "Order is PARTIALY-DELIVERED";
+                }
+                if (existingOrder.Status == "PENDING")
+                {
+                    return "Order is already placed";
+                }
+
+                var result =  await _orderRepository.UpdateOrderAsync(orderId, updatedOrder);
+
+                if (result)
+                {
+                    var order = await _orderRepository.GetOrderAsync(orderId);
+
+                    foreach (var item in order.Items)
+                    {
+                        var itemResult = await _orderRepository.UpdateOrderItemAsync(item.ItemId, new Dictionary<string, object> { { "status", "PENDING" },{ "isActive", true } });
+
+                        if (itemResult)
+                        {
+                            NotificationDTO notification = new()
+                            {
+                                IsRead = false,
+                                Message = "Order placed with" + orderId + " for you.",
+                                Reason = "Placing new order",
+                                UserId = item.VendorId
+                            };
+                            await notificationService.SendNotification(notification);
+                        }                       
+                    }
+
+                    NotificationDTO Custnotification = new()
+                    {
+                        IsRead = false,
+                        Message = "Congratulation your order: " + orderId + "has been placed successfully",
+                        Reason = "Placing new order",
+                        UserId = order.CustomerId
+                    };
+                    var res = await notificationService.SendNotification(Custnotification);
+
+                    if (res != null)
+                    {
+                        return "Order Placed Successfully";
+                    }
+                        return "Something went wrong while sending notification.";
+                }
+                else
+                {
+                    return "Something went wrong while placing order";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+        public async Task<string> MakeCancelOrderRequestAsync(CancelRequestDTO cancelRequestDTO)
+        {
+            try
+            {
+                var item =  await _orderRepository.GetRequestCancelationByOrderAsync(cancelRequestDTO.OrderId);
+                if (!item)
+                {
+                    return "Cancel request already sent";
+                }
+                var request = new CancelRequest
+                {
+                    RequestId = Guid.NewGuid().ToString(),
+                    OrderId = cancelRequestDTO.OrderId,
+                    CustomerId = cancelRequestDTO.CustomerId,
+                    RequestNote = cancelRequestDTO.RequestNote,
+                    CreatedAt = DateTime.UtcNow,
+                };
+
+                var resutl = await _orderRepository.CreateOrderCancelRequest(request);
+                if(resutl)
+                {
+                    return "Cancel request sent successfully";
+                }
+                else
+                {
+                    return "Something went wrong while sending cancel request";
+                }
+            }
+            catch(Exception ex)
+            {
+                throw new Exception($"Some thing went wrong CancelOrderAsync:{ex.Message}");
+            }
+
+        }
+
+        public async Task<List<CancelRequest>> GetAllCancellationRequests()
+        {
+            try
+            {
+                var requests = await _orderRepository.GetAllCancelRequests();
+                return requests;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<string> RespondToCancelRequest(CancelRequestDTO cancelRequestDTO)
+        {
+            try
+            {
+                var item = await _orderRepository.GetRequestCancelationByOrderForResponseAsync(cancelRequestDTO.RequestId);
+                if (item.Status == "CANCELED")
+                {
+                    return "Order is already Canceled";
+                }
+
+                Dictionary<string, object> updatedFields = new()
+                {
+                    {"status", cancelRequestDTO.Status },
+                    {"responsedBy", cancelRequestDTO.ResponsedBy },
+                    {"responseNote", cancelRequestDTO.ResponseNote }
+                };
+
+                var response = await _orderRepository.ResponseToCancelOrderRequest(cancelRequestDTO.RequestId, updatedFields);
+
+                if (!response)
+                {
+                    return "Something went wrong";
+                }
+
+                return "Cancel request response sent successfully";
+            
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Some thing went wrong CancelOrderAsync:{ex.Message}");
+            }
+
+        }
+
+
+        public async Task<string> RemoveItemFromCart(string orderId, string itemId)
+        {
+            var order = await _orderRepository.GetOrderAsync(orderId);
+
+            if (order == null)
+            {
+                return "Order not found";
+            }
+
+            var items = order.Items;
+
+
+            foreach (var item in items) 
+            {
+                if (item.ItemId == itemId)
+                {
+                    var result = await _orderRepository.RemoveItemFromOrder(itemId);
+
+                    if (result)
+                    {
+                        items.RemoveAll(x => x.ItemId == itemId);
+
+                        var updatedFields = new Dictionary<string, object>
+                        {
+                            {"items", items }
+                        };
+
+                        var updatedOrder = await _orderRepository.UpdateOrderAsync(orderId, updatedFields);
+
+                        if (updatedOrder)
+                        {
+                            return "Item removed from cart successfully";
+                        }
+                        else
+                        {
+                            return "Something went wrong while updating order";
+                        }
+
+                    }
+                    else
+                    {
+                        return "Something went wrong while removing item from cart";
+                    }
+                }
+            }
+            return "Item not found in the cart";
+
+        }
+        
+
+
+        public async Task<string> ItemDeliverAsync(string itemId)
+        {
+            try
+            {
+                var orderItem = await _orderRepository.GetVendorOrderItemByIdAsync(itemId);
+                if (orderItem == null)
+                {
+                    return "Order Item not found";
+                }
+                var order = await _orderRepository.GetOrderAsync(orderItem.OrderId);
+                if (order == null)
+                {
+                    return "Order not found";
+                }
+                if (order.Status == "CANCELED")
+                {
+                    return "Order is already canceled";
+                }
+                if (orderItem.Status == "DELIVERED")
+                {
+                    return "Order item is already delivered";
+                }
+
+                if (order.DeliveredItems == order.Items.Count)
+                {
+                    return "Order is already delivered";
+                }
+                if (order.DeliveredItems + 1 == order.Items.Count)
+                {
+                    await _orderRepository.UpdateOrderAsync(order.OrderId, new Dictionary<string, object> { { "status", "DELIVERED" }, { "deliveredItems", order.DeliveredItems + 1 }, { "deliveredAt", DateTime.UtcNow} });
+                }
+                else
+                {
+                    await _orderRepository.UpdateOrderAsync(order.OrderId, new Dictionary<string, object> { { "status", "PARTIALY-DELIVERED" }, { "deliveredItems", order.DeliveredItems + 1 } });
+                }
+
+                var result = await _orderRepository.UpdateOrderItemAsync(itemId, new Dictionary<string, object> { { "status", "DELIVERED" } });
+                if (result)
+                {
+                    await _orderRepository.UpdateOrderAsync(itemId, new Dictionary<string, object> { { "isActive", false } });
+                    return "Order Item Delivered Successfully";
+                }
+                else
+                {
+                    return "Something went wrong while updating item status";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Some thing went wrong ItemDeliverAsync:{ex.Message}");
+            }
+        }
+
+
     }
+
 }

@@ -10,6 +10,7 @@ using System.Diagnostics;
 using MongoDB.Bson;
 using ECommerceAPI.Core.Entities.UserEntity;
 using Google.Cloud.Firestore.V1;
+using static Google.Rpc.Context.AttributeContext.Types;
 
 namespace ECommerceAPI.Infrastructure.Repositories
 {
@@ -21,6 +22,8 @@ namespace ECommerceAPI.Infrastructure.Repositories
         {
             _context = context;
         }
+
+        public FirestoreDb FirestoreDatabase => _context._firestoreDb;
 
         //Creating Order
         public async Task<bool> CreateAsync(Order order)
@@ -41,6 +44,12 @@ namespace ECommerceAPI.Infrastructure.Repositories
         {
             var orders = await _context.FirestoreDatabase.Collection("Orders").GetSnapshotAsync();
             return orders.Select(orders => orders.ConvertTo<Order>()).ToList();
+        }
+        
+        public async Task<List<CancelRequest>> GetAllCancelRequests()
+        {
+            var requests = await _context.FirestoreDatabase.Collection("CancelRequest").GetSnapshotAsync();
+            return requests.Select(request => request.ConvertTo<CancelRequest>()).ToList();
         }
 
         public async Task<Order> GetOrderbyIdAsync(string orderId)
@@ -63,7 +72,7 @@ namespace ECommerceAPI.Infrastructure.Repositories
 
         public async Task<Order> GetCustomerOrderAsync(string customerId)
         {
-            return await _context._firestoreDb.Collection("Orders")
+            return await _context.FirestoreDatabase.Collection("Orders")
                 .WhereEqualTo("customerId", customerId)
                 .WhereEqualTo("isInCart", true)
                 .Limit(1)
@@ -77,6 +86,31 @@ namespace ECommerceAPI.Infrastructure.Repositories
                     }
                     return snapshot.Documents[0].ConvertTo<Order>();
                 });
+        }
+
+        public async Task<List<OrderItem>> GetVendorOrderAsync(string vendorId)
+        {
+            try
+            {
+                var snapshot = await _context.FirestoreDatabase.Collection("OrderItem")
+                    .WhereEqualTo("vendorId", vendorId)
+                    .WhereEqualTo("isActive", true)
+                    .Limit(100)
+                    .GetSnapshotAsync();
+
+                if (snapshot.Count == 0)
+                {
+                    return null;
+                }
+
+                return snapshot.Select(orders => orders.ConvertTo<OrderItem>()).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Something went wrong while GetVendorOrderAsync:{ex.Message}");
+            }
+               
+               
         }
 
 
@@ -105,8 +139,53 @@ namespace ECommerceAPI.Infrastructure.Repositories
                 throw new Exception($"Error retrieving order item: {ex.Message}");
             }
         }
+    
+        public async Task<OrderItem> GetVendorOrderItemsAsync(string itemId)
+        {
+            try
+            {
+                var snapshot = await _context.FirestoreDatabase.Collection("OrderItem")
+                    .WhereEqualTo("itemId", itemId)
+                    .WhereEqualTo("isActive", true)
+                    .Limit(100)
+                    .GetSnapshotAsync();
+
+                if (snapshot.Count == 0)
+                {
+                    return null;
+                }
+                return snapshot.Documents[0].ConvertTo<OrderItem>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Something went wrong while GetVendorOrderAsync:{ex.Message}");
+            }
+               
+               
+        }
+
+        public async Task<OrderItem> GetVendorOrderItemByIdAsync(string itemId)
+        {
+            try
+            {
+                var snapshot = await _context.FirestoreDatabase.Collection("OrderItem")
+                    .WhereEqualTo("itemId", itemId)
+                    .Limit(1)
+                    .GetSnapshotAsync();
+
+                if (snapshot.Count == 0)
+                {
+                    return null;
+                }
+                return snapshot.Documents[0].ConvertTo<OrderItem>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Something went wrong while GetVendorOrderAsync:{ex.Message}");
+            }
 
 
+        }
 
         //Update OrderItems
         public async Task<bool> UpdateOrderItemAsync(string itemId, Dictionary<string, object> updatedField)
@@ -202,27 +281,44 @@ namespace ECommerceAPI.Infrastructure.Repositories
             }
         }
 
-        public async Task CancelOrderAsync(string orderId, string note, string canceledBy)
+        public async Task<bool> CancelOrderAsync(string orderId, string note, string canceledBy)
         {
-            // Retrieve the document by orderId and delete it
-            var documentRef = _context.FirestoreDatabase.Collection("Orders").Document(orderId);
-
-            var snapshot = await documentRef.GetSnapshotAsync();
-            if (snapshot.Exists)
+            try
             {
-                var order = new Dictionary<string, object>
-                {                    
-                    {"status" , "Canceled" },
-                    {"note" , note },
-                    {"canceledBy" , canceledBy },
+                // Retrieve the document by orderId and delete it
+                var documentRef = _context.FirestoreDatabase.Collection("Orders").Document(orderId);
 
-                };
-                // Cancel Order
-                await documentRef.UpdateAsync(order);
+                var snapshot = await documentRef.GetSnapshotAsync();
+                if (snapshot.Exists)
+                {
+                    var refData = snapshot.ConvertTo<Order>();
+
+                    if (refData != null)
+                    {                        
+                        var order = new Dictionary<string, object>
+                        {                    
+                            {"status" , "CANCELED" },
+                            {"note" , note },
+                            {"canceledBy" , canceledBy },
+
+                        };
+                        // Cancel Order
+                        var result = await documentRef.UpdateAsync(order);
+                        return true;
+
+                    }
+                    return false;
+                }
+                else
+                {
+                    return false;
+                    throw new Exception("Order not found.");
+                }
+
             }
-            else
-            {
-                throw new Exception("Order not found.");
+            catch (Exception ex) 
+            { 
+                throw new Exception($"Something went wrong while CancelOrderAsync: {ex.Message}");
             }
 
         }
@@ -239,6 +335,115 @@ namespace ECommerceAPI.Infrastructure.Repositories
 
             return documentSnapshot.ConvertTo<Order>();
         }
+
+        public async Task<bool> CreateOrderCancelRequest(CancelRequest cancelRequest)
+        {
+            try
+            {
+                var result = await _context.FirestoreDatabase.Collection("CancelRequest").Document(cancelRequest.RequestId).SetAsync(cancelRequest);
+                if (result != null)
+                {
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error while execution of CreateOrderCancelRequest:  {ex.Message}");
+
+            }
+
+        }
+
+        public async Task<bool> GetRequestCancelationByOrderAsync(string orderId)
+        {
+            return await _context.FirestoreDatabase.Collection("CancelRequest")
+                .WhereEqualTo("orderId", orderId)
+                .Limit(1)
+                .GetSnapshotAsync()
+                .ContinueWith(task =>
+                {
+                    var snapshot = task.Result;
+                    if (snapshot.Count > 0)
+                    {
+                        return false;
+                    }
+                    return true;
+                });
+        }
+
+        public async Task<CancelRequest> GetRequestCancelationByOrderForResponseAsync(string requestId)
+        {
+            var snapshot = await _context.FirestoreDatabase.Collection("CancelRequest")
+                 .WhereEqualTo("requestId", requestId)
+                 .Limit(1)
+                 .GetSnapshotAsync();
+
+            if (snapshot.Count == 0)
+            {
+                return null;
+            }
+
+            // Convert the first matching document to an CancelRequest object
+            return snapshot.Documents[0].ConvertTo<CancelRequest>();
+        }
+        
+
+        //Update order details
+        public async Task<bool> RemoveItemFromOrder(string itemId)
+        {
+            try
+            {
+                var documentRef = _context.FirestoreDatabase.Collection("OrderItem").Document(itemId);
+                var snapshot = await documentRef.GetSnapshotAsync();
+
+                if (snapshot.Exists)
+                {
+                    await documentRef.DeleteAsync();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                    throw new Exception("OrderItem not found.");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error while executing RemoveItemFromOrder: {ex.Message}");
+
+            }
+
+        }
+
+        public async Task<bool> ResponseToCancelOrderRequest(string requestId, Dictionary<string, object> updatedFields)
+        {
+            try
+            {
+                var documentRef = _context.FirestoreDatabase.Collection("CancelRequest").Document(requestId);
+                var snapshot = await documentRef.GetSnapshotAsync();
+
+                if (snapshot.Exists)
+                {
+                    await documentRef.UpdateAsync(updatedFields);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                    throw new Exception("CancelRequest not found.");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error while executing ResponseToCancelOrderRequest: {ex.Message}");
+
+            }
+
+        }
+
 
     }
 }

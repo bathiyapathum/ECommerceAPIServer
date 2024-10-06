@@ -1,4 +1,11 @@
-﻿using ECommerceAPI.Application.DTOs.ProductDTO;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// IVendorProductService: Interface defining methods for product management in the vendor context.
+// This service interface supports product creation, updating, deletion, and retrieval for vendors.
+// Author: Arachchi D.S.U - IT21182914
+// Date: 06/10/2024
+// --------------------------------------------------------------------------------------------------------------------
+
+using ECommerceAPI.Application.DTOs.ProductDTO;
 using ECommerceAPI.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -36,9 +43,13 @@ namespace ECommerceAPI.API.Controllers
         // Delete a vendor product
         [HttpDelete("delete/{productId}")]
         public async Task<IActionResult> DeleteVendorProduct(string productId)
-        {
-            await _productService.DeleteVendorProductAsync(productId);
-            return NoContent();
+        {  
+            var result = await _productService.DeleteVendorProductAsync(productId);
+            if(result == "Success")
+            {
+                return Ok("Product deleted successfully.");
+            }
+            return BadRequest($"Something went wrong DeleteVendorProduct: {result}");
         }
 
         // Get all vendor products by vendorId
@@ -59,6 +70,29 @@ namespace ECommerceAPI.API.Controllers
                 return NotFound("Product not found.");
             }
             return Ok(product);
+        }
+
+        [HttpGet("my/order")]
+        public async Task<IActionResult> GetVendorOrderByItemId([FromQuery] string itemId)
+        {
+            var product = await _productService.GetOrderDetailsAsync(itemId);
+            if (product == null)
+            {
+                return NotFound("Vendor Order not found");
+            }
+            return Ok(product);
+        }
+
+        [HttpGet("my/order/all")]
+        public async Task<IActionResult> GetAllVendorOrderItems([FromQuery] string vendorId)
+        {
+            var products = await _productService.GetAllAvailableOrdersAsync(vendorId);
+
+            if (products == null || products.Count == 0)
+            {
+                return NotFound("No Vendor order found.");
+            }
+            return Ok(products);
         }
 
         // Get all products across all vendors

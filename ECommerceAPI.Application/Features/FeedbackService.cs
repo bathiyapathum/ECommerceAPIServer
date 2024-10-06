@@ -116,5 +116,10 @@ namespace ECommerceAPI.Application.Features
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task UpdateFeedbackMessage(string feadbackId, FeedbackDTO feadbackDTO)
+        {
+
+        }
     }
 }

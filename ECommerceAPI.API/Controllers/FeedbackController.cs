@@ -63,5 +63,19 @@ namespace ECommerceAPI.API.Controllers
             
             return NotFound();
         }
+
+        [HttpPatch("UpdateFeedbackMessage/{feadbackId}")]
+        public async Task<IActionResult> UpdateFeedbackMessage([FromBody] FeedbackDTO feadbackDTO, string feadbackId)
+        {
+            try
+            {
+                await _feadbackService.UpdateFeedbackMessage(feadbackId, feadbackDTO);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }

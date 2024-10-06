@@ -11,6 +11,7 @@ using MongoDB.Bson;
 using ECommerceAPI.Core.Entities.UserEntity;
 using Google.Cloud.Firestore.V1;
 using static Google.Rpc.Context.AttributeContext.Types;
+using Google.Apis.Logging;
 
 namespace ECommerceAPI.Infrastructure.Repositories
 {
@@ -87,6 +88,51 @@ namespace ECommerceAPI.Infrastructure.Repositories
                     return snapshot.Documents[0].ConvertTo<Order>();
                 });
         }
+
+        public async Task<Dictionary<string, int>> GetOrderStats()
+        {
+            try
+            {
+                var orderStats = new Dictionary<string, int> {
+                { "CANCELED", 0 },
+                { "DELIVERED", 0 },
+                { "PENDING", 0 },
+                { "PARTIALY_DELIVERED",0 }
+                };
+
+                var snapshot = await _context.FirestoreDatabase.Collection("Orders")
+                  .WhereEqualTo("isInCart", false)
+                  .Limit(200)
+                  .GetSnapshotAsync();
+
+                if (snapshot.Count == 0)
+                {
+                    return orderStats;
+                }
+
+                foreach (var document in snapshot.Documents)
+                {
+                    var status = document.GetValue<string>("status");
+
+                    if (orderStats.ContainsKey(status.ToUpper()))
+                    {
+                        orderStats[status.ToUpper()] += 1;
+                    }
+                    if("PARTIALY-DELIVERED".Equals(status, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        orderStats["PARTIALY_DELIVERED"] += 1;
+                    }
+                }
+
+                return orderStats;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Something went wrong while getting order stats: {ex.Message}");
+            }
+        }
+
+
         public async Task<List<Order>> GetCustomerPlacdOrderAsync(string customerId)
         {
 
@@ -457,7 +503,39 @@ namespace ECommerceAPI.Infrastructure.Repositories
             }
 
         }
+        public async Task<string> GetTotalRevenue()
+        {
+            try
+            {
+                decimal totalRevenue = 0;
+                var requests = await _context.FirestoreDatabase.Collection("OrderItem")
+                  .WhereEqualTo("status", "DELIVERED")
+                  .Limit(200)
+                  .GetSnapshotAsync();
 
+                if (requests.Count == 0)
+                {
+                    return totalRevenue.ToString();
+                }
+                foreach (var document in requests.Documents)
+                {                   
+                    var priceString = document.GetValue<string>("price");
+                   
+                    if (!string.IsNullOrEmpty(priceString))
+                    {
+                        if (decimal.TryParse(priceString, out decimal price))
+                        {
+                            totalRevenue += price;
+                        }
+                    }
+                }
+                return totalRevenue.ToString("F2");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Something went wrong while GetTotalRevenue: {ex.Message}");
+            }
+        }
 
     }
 }

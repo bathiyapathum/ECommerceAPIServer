@@ -207,7 +207,7 @@ namespace ECommerceAPI.API.Controllers
                     return Unauthorized("User role is not defined.");
                 }
 
-                await _userService.ActivateUser(userID);
+                await _userService.ActivateUser(customerID);
                 return Ok("User activated successfully");
             }
             catch (DataException ex)
@@ -285,6 +285,31 @@ namespace ECommerceAPI.API.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [HttpGet("available/user/count")]
+        public async Task<IActionResult> GetUserCounts()
+        {
+            try
+            {
+                var result = await _userService.GetAvailableUserCount();
+                if (result == null)
+                { 
+                    return NotFound("No user found");
+                }
+
+                return Ok(result);
+            }
+            catch (DataException ex)
+            {
+                return BadRequest($"Validation error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+
 
     }
 }

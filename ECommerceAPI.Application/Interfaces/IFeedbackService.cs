@@ -13,5 +13,6 @@ namespace ECommerceAPI.Application.Interfaces
         Task PlaceFeedBack(FeedbackDTO feadbackDTO);
         Task<User> GetRatingForVendor(string vendorId);
         Task UpdateFeedBack(string feadbackId, FeedbackDTO feadbackDTO);
+        Task UpdateFeedbackMessage(string feadbackId, FeedbackDTO feadbackDTO);
     }
 }

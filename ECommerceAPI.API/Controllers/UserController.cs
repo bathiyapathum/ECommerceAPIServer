@@ -190,7 +190,8 @@ namespace ECommerceAPI.API.Controllers
         }
 
 
-        [Authorize(Roles = "Admin")]
+
+        [Authorize(Roles = "Admin,CSR")]
         [HttpPatch("activate-customer/{customerID}")]
         public async Task<IActionResult> ActivateCustomer(string customerID)
         {
@@ -221,8 +222,8 @@ namespace ECommerceAPI.API.Controllers
 
 
         [Authorize(Roles = "Admin,Customer")]
-        [HttpPatch("deactivate-user/{userID}")]
-        public async Task<IActionResult> DeactivateUser(string userID)
+        [HttpPatch("deactivate-user/{customerID}")]
+        public async Task<IActionResult> DeactivateUser(string customerID)
         {
             try
             {
@@ -236,7 +237,7 @@ namespace ECommerceAPI.API.Controllers
                     return Unauthorized("User role is not defined.");
                 }
 
-                await _userService.DeactivateUser(userID);
+                await _userService.DeactivateUser(customerID);
                 return Ok("User deactivated successfully");
             }
             catch (DataException ex)
@@ -272,6 +273,16 @@ namespace ECommerceAPI.API.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var loggedInUserRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (string.IsNullOrEmpty(loggedInUserRole))
+                {
+                    return Unauthorized("User role is not defined.");
+                }
+
                 await _userService.UpdateUserAsync(request, userID);
                 return Ok("User updated successfully");
             }

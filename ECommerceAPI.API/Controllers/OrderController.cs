@@ -99,6 +99,21 @@ namespace ECommerceAPI.API.Controllers
             return Ok(order);
         }
 
+        [HttpGet("history")]
+        public async Task<IActionResult> GetCustomerPlacedOrder([FromQuery] string customerId)
+        {
+            if (customerId == null)
+            {
+                return BadRequest("Customer Id is required");
+            }
+            var order = await _orderService.GetCustomerPlacedOrderAsync(customerId);
+            if (order == null)
+            {
+                return NotFound("Orders not found");
+            }
+            return Ok(order);
+        }
+
         //Order update method implementation
 
         [HttpPatch]
@@ -229,6 +244,18 @@ namespace ECommerceAPI.API.Controllers
         {
             try
             {
+                if (cancelRequest.OrderId == null)
+                {
+                    return BadRequest("Order Id is required");
+                }
+                if(cancelRequest.RequestNote == null)
+                {
+                    return BadRequest("Note is required");
+                }
+                if(cancelRequest.CustomerId == null)
+                {
+                    return BadRequest("Customer Id is required");
+                }
 
                 var response = await _orderService.MakeCancelOrderRequestAsync(cancelRequest);
                 if (response == "Cancel request sent successfully")

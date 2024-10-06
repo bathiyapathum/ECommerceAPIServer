@@ -12,11 +12,13 @@ namespace ECommerceAPI.Application.Interfaces
     {
         Task<bool> CheckUserExists(string email);
         Task CreateUserAsync(SignupReqDTO user);
+        Task UpdateUserAsync(UpdateUserReqDTO user,string userID);
         Task CreateUserAsync(SignupReqDTO user, DTOs.UserDTO.UserRole role);
         Task<UserLogin> UserLoginAsync(LoginReqDTO userCred);
         Task<UserLogin> GetUserByIdAsync(string userId);
         Task<bool> ActivateUser(ChangePasswordReqDTO changePasswordReqDTO);
         Task<bool> ActivateUser(string userId); 
         Task<bool> DeactivateUser(string userId);
+        Task<List<User>> GetInactiveUsers();
     }
 }

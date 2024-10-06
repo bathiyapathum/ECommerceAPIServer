@@ -85,6 +85,8 @@ namespace ECommerceAPI.Application.Features
                     };
 
                     _vendorProductRepository.UpdateVendorProduct(feedbacktoProduct, feadbackDTO.ProductId, transaction);
+
+                    await _vendorProductRepository.UpdateVendorProductRating(feadbackDTO.ProductId, feadbackDTO.Rating, transaction);
                 });
 
                
@@ -100,6 +102,18 @@ namespace ECommerceAPI.Application.Features
             if (!await _validations.IsFeedBackAvailable(feadbackId))
             {
                 throw new DataException("Invalid User Id");
+            }
+        }
+
+        public async Task<User> GetRatingForVendor(string vendorId)
+        {
+            try
+            {
+                return await _feedbackRepository.GetRatingForVendor(vendorId);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
     }

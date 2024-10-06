@@ -1,4 +1,5 @@
-﻿using ECommerceAPI.Core.Entities.UserEntity;
+﻿using Amazon.Runtime.Internal.Transform;
+using ECommerceAPI.Core.Entities.UserEntity;
 using ECommerceAPI.Infrastructure.Persistance;
 using FirebaseAdmin.Auth.Hash;
 using Google.Cloud.Firestore;
@@ -86,6 +87,36 @@ namespace ECommerceAPI.Infrastructure.Repositories
 
         }
 
+        public async Task<bool> UpdateUserAsync(User userforUpdate,string userID)
+        {
+            try
+            {
+                await _context._firestoreDb.Collection("Users")
+                    .Document(userID)
+                    .UpdateAsync(new Dictionary<string, object>
+                    {
+                        //{ "isActive", true },
+                        //{ "updateTime", DateTime.UtcNow }
+                        { "firstName" ,userforUpdate.FirstName},
+                        { "lastName", userforUpdate.LastName },
+                        { "phoneNumber", userforUpdate.PhoneNumber },
+                        { "addresss.city", userforUpdate.Addresss.City },
+                        {"addresss.country", userforUpdate.Addresss.Country },
+                        { "addresss.state", userforUpdate.Addresss.State },
+                        { "addresss.street", userforUpdate.Addresss.Street },
+                        { "addresss.zipCode", userforUpdate.Addresss.ZipCode },
+                        { "updateTime", DateTime.UtcNow },
+                        { "profilePicture", userforUpdate.ProfilePicture }
+                    });
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<bool> ActivateCustomer(User userforActivation)
         {
             try
@@ -119,6 +150,36 @@ namespace ECommerceAPI.Infrastructure.Repositories
                         { "updateTime", DateTime.UtcNow }
                     });
                 return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<List<User>> GetInactiveUsers()
+        {
+            try
+            {
+                var snapShot = await _context._firestoreDb.Collection("Users")
+                    .WhereEqualTo("isActive", false)
+                    .GetSnapshotAsync();
+
+                if(snapShot.Count == 0)
+                {
+                    return null;
+                }
+
+                return snapShot.Documents.Select(doc => doc.ConvertTo<User>()).ToList();
+                    //.ContinueWith(task =>
+                    //{
+                    //    var snapshot = task.Result;
+                    //    if (snapshot.Count == 0)
+                    //    {
+                    //        return null;
+                    //    }
+                    //    return snapshot.Documents.Select(doc => doc.ConvertTo<User>()).ToList();
+                    //});
             }
             catch (Exception ex)
             {

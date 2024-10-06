@@ -1,4 +1,12 @@
-﻿using Google.Cloud.Firestore;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// VendorProduct: Represents a product managed by a vendor in the E-commerce system.
+// This class includes properties for product details, stock status, feedback information, and more.
+// Firestore attributes are used for mapping to a Firestore database.
+// Author: Arachchi D.S.U - IT21182914
+// Date: 06/10/2024
+// --------------------------------------------------------------------------------------------------------------------
+
+using Google.Cloud.Firestore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

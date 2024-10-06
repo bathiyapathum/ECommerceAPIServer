@@ -22,6 +22,7 @@ namespace ECommerceAPI.Application.Interfaces
         Task<string> RemoveItemFromCart(string orderId, string itemId);
         Task UpdateOrderDetailsAsync(string orderId, OrderDTO orderDTO);
         Task<OrderResponseDTO> GetCustomerCartOrderAsync(string customerId);
+        Task<List<OrderResponseDTO>> GetCustomerPlacedOrderAsync(string customerId);
         Task DeleteOrderAsync(string orderId);
         Task<string> CancelOrderAsync(string orderId, string note, string canceledBy);
         Task<string> PlaceOrderAsync(string orderId, string address, string tel);

@@ -70,7 +70,7 @@ namespace ECommerceAPI.API.Controllers
                 var userExists = await _userService.CheckUserExists(request.Email);
 
                 if (userExists)
-                    return BadRequest("User already exists");
+                    return StatusCode(405,"User already exists");
 
                 var loggedInUserRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
@@ -190,7 +190,7 @@ namespace ECommerceAPI.API.Controllers
         }
 
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,CSR")]
         [HttpPatch("activate-customer/{customerID}")]
         public async Task<IActionResult> ActivateCustomer(string customerID)
         {
@@ -220,7 +220,7 @@ namespace ECommerceAPI.API.Controllers
         }
 
 
-        [Authorize(Roles = "Admin,Customer")]
+        [Authorize(Roles = "Admin,Customer,CSR")]
         [HttpPatch("deactivate-user/{customerID}")]
         public async Task<IActionResult> DeactivateUser(string customerID)
         {

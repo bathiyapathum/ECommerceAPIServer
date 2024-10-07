@@ -58,6 +58,9 @@ namespace ECommerceAPI.Core.Entities.ProductEntity
 
         [FirestoreProperty("size")]
         public string Size { get; set; } = "Default"; // Default value
+
+        [FirestoreProperty("isActive")]
+        public bool IsActive { get; set; } = false;
     }
 
     public enum VendorStockStatus
@@ -85,5 +88,7 @@ namespace ECommerceAPI.Core.Entities.ProductEntity
 
         [FirestoreProperty("date")]
         public DateTime Date { get; set; }
+
+       
     }
 }

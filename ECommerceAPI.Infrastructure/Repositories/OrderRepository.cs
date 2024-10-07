@@ -87,6 +87,20 @@ namespace ECommerceAPI.Infrastructure.Repositories
                     return snapshot.Documents[0].ConvertTo<Order>();
                 });
         }
+        public async Task<List<Order>> GetCustomerPlacdOrderAsync(string customerId)
+        {
+
+            var requests = await _context.FirestoreDatabase.Collection("Orders")
+                .WhereEqualTo("customerId", customerId)
+                .WhereEqualTo("isInCart", false)
+                .Limit(100)
+                .GetSnapshotAsync();
+            if (requests.Count == 0)
+            {
+                return null;
+            }
+            return requests.Select(request => request.ConvertTo<Order>()).ToList();
+        }
 
         public async Task<List<OrderItem>> GetVendorOrderAsync(string vendorId)
         {

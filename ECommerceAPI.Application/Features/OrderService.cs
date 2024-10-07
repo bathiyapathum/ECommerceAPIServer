@@ -267,6 +267,87 @@ namespace ECommerceAPI.Application.Features
             }
 
         }
+        
+        public async Task<List<OrderResponseDTO>> GetCustomerPlacedOrderAsync(string customerId)
+        {
+            try
+            {
+                var order = await _orderRepository.GetCustomerPlacdOrderAsync(customerId);
+                if (order == null)
+                {
+                    return null;
+                }
+
+                List<OrderResponseDTO> orderResponseDTO = [];
+                //create response object to return with product name, image, etc
+                foreach (var item in order)
+                {
+                    var orderItems = item.Items;
+
+                    var newItems = new List<OrderItem>();
+
+                    foreach (var orderItem in orderItems)
+                    {
+                        var result = await _orderRepository.GetVendorOrderItemByIdAsync(orderItem.ItemId);
+
+                        newItems.Add(new OrderItem
+                        {
+                            ItemId = result.ItemId,
+                            ProductId = result.ProductId,
+                            VendorId = result.VendorId,
+                            ProductName = result.ProductName,
+                            OrderId = result.OrderId,
+                            Quantity = result.Quantity,
+                            Price = result.Price,
+                            ImageUrl = result.ImageUrl,
+                            Size = result.Size,
+                            CreatedAt = result.CreatedAt,
+                        });
+
+                    }
+                    OrderResponseDTO response = OrderResponseDTO.ItemMapper(item, newItems);
+                    orderResponseDTO.Add(response);
+
+
+                }
+                    return orderResponseDTO;
+
+                //var orderItems = order.Items;
+
+                //var newItems = new List<OrderItem>();
+
+                //foreach (var item in orderItems)
+                //{
+                //    var result = await _orderRepository.GetVendorOrderItemByIdAsync(item.ItemId);
+
+                //    newItems.Add(new OrderItem
+                //    {
+                //        ItemId = result.ItemId,
+                //        ProductId = result.ProductId,
+                //        VendorId = result.VendorId,
+                //        ProductName = result.ProductName,
+                //        OrderId = result.OrderId,
+                //        Quantity = result.Quantity,
+                //        Price = result.Price,
+                //        ImageUrl = result.ImageUrl,
+                //        Size = result.Size,
+                //        CreatedAt = result.CreatedAt,
+                //    });
+
+                //}
+                //OrderResponseDTO response = OrderResponseDTO.ItemMapper(order, newItems);
+
+                //return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+        }
+
+
+
 
 
         public async Task<Order> GetCustomerOrderAsync(string customerId)
@@ -328,7 +409,7 @@ namespace ECommerceAPI.Application.Features
                         {
                             IsRead = false,
                             Message = $"Order {item.ItemId} has been canceled!",
-                            Reason = "Customer request cancelation.",
+                            Reason = "Customer request cancelation",
                             UserId = item.VendorId,
                         };
                         await notificationService.Send(notification);
@@ -584,11 +665,32 @@ namespace ECommerceAPI.Application.Features
         {
             try
             {
+                var customerOrder = await _orderRepository.GetOrderAsync(cancelRequestDTO.OrderId);
+
+                if (customerOrder == null)
+                {
+                    return "Order not found";
+                }
+                if(customerOrder.CustomerId != cancelRequestDTO.CustomerId)
+                {
+                    return "You are not authorized to cancel this order";
+                }
+                if (customerOrder.Status == "CANCELED")
+                {
+                    return "Order is already canceled";
+                }
+                if (customerOrder.Status == "DELIVERED")
+                {
+                    return "Order is already delivered";
+                }
+
                 var item =  await _orderRepository.GetRequestCancelationByOrderAsync(cancelRequestDTO.OrderId);
+
                 if (!item)
                 {
                     return "Cancel request already sent";
                 }
+
                 var request = new CancelRequest
                 {
                     RequestId = Guid.NewGuid().ToString(),
@@ -633,9 +735,18 @@ namespace ECommerceAPI.Application.Features
             try
             {
                 var item = await _orderRepository.GetRequestCancelationByOrderForResponseAsync(cancelRequestDTO.RequestId);
+
+                if (item == null)
+                {
+                    return "Request not found";
+                }
+
                 if (item.Status == "CANCELED")
                 {
                     return "Order is already Canceled";
+                }else if (item.Status == "APPROVED")
+                {
+                    return "Order is already Approved";
                 }
 
                 Dictionary<string, object> updatedFields = new()

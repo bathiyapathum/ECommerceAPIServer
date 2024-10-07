@@ -99,6 +99,12 @@ namespace ECommerceAPI.Application.Features
 
                 var orderItems = await _orderRepository.GetVendorOrderAsync(product.VendorId);
 
+                if(orderItems == null || orderItems.Count == 0)
+                {
+                    await _productRepository.DeleteVendorProductAsync(productId);
+                    return "Success";
+                }
+
                 foreach (var orderItem in orderItems) {
                     if (orderItem.ProductId == productId && orderItem.Status == "PENDING")
                     {
@@ -106,8 +112,7 @@ namespace ECommerceAPI.Application.Features
                     }
                 }
 
-                await _productRepository.DeleteVendorProductAsync(productId);
-                
+                await _productRepository.DeleteVendorProductAsync(productId);                
                 return "Success";
             }
             catch (Exception ex)

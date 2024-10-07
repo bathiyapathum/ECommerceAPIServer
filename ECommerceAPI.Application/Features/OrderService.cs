@@ -17,11 +17,13 @@ namespace ECommerceAPI.Application.Features
     {
         private readonly OrderRepository _orderRepository;
         private readonly NotificationRepository _notificationRepository;
+        private readonly VendorProductRepository _vendorProductRepository;
 
-        public OrderService(OrderRepository orderRepository, NotificationRepository notificationRepository)
+        public OrderService(OrderRepository orderRepository, NotificationRepository notificationRepository, VendorProductRepository vendorProductRepository)
         {
             _orderRepository = orderRepository;
             _notificationRepository = notificationRepository;
+            _vendorProductRepository = vendorProductRepository;
         }
         /**
          * @CreateOrderAsync - This method initiates an order for a customer.
@@ -346,9 +348,31 @@ namespace ECommerceAPI.Application.Features
 
         }
 
-
-
-
+        public async Task<string> GetTotalRevenue()
+        {
+            try
+            {
+                var revenue = await _orderRepository.GetTotalRevenue();
+                return revenue;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        
+        public async Task<Dictionary<string, int>> GetOrderStats()
+        {
+            try
+            {
+                var revenue = await _orderRepository.GetOrderStats();
+                return revenue;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
 
         public async Task<Order> GetCustomerOrderAsync(string customerId)
         {
@@ -608,6 +632,41 @@ namespace ECommerceAPI.Application.Features
                 if (existingOrder.Status == "PENDING")
                 {
                     return "Order is already placed";
+                }
+
+                foreach (var item in existingOrder.Items)
+                {
+                    var orderItem = await _orderRepository.GetVendorOrderItemByIdAsync(item.ItemId);
+                    var product = await _vendorProductRepository.GetVendorProductByIdAsync(item.ProductId);
+                    if (product == null)
+                    {
+                        return "Product item not found";
+                    }
+                    if (product.StockQuantity < orderItem.Quantity)
+                    {
+                        return $"Product {product.Name} is out of stock";
+                    }
+
+                }
+
+                foreach(var item in existingOrder.Items)
+                {
+                    var orderItem = await _orderRepository.GetVendorOrderItemByIdAsync(item.ItemId);
+                    var product = await _vendorProductRepository.GetVendorProductByIdAsync(item.ProductId);
+                    if (product == null)
+                    {
+                        return "Product item not found";
+                    }
+                    if (product.StockQuantity < orderItem.Quantity)
+                    {
+                        return $"Product {product.Name} is out of stock";
+                    }
+                    var updateResult = await _vendorProductRepository.UpdateVendorProductStockAsync(item.ProductId, new Dictionary<string, object> { { "stockQuantity", (product.StockQuantity - orderItem.Quantity) } });
+                    if (!updateResult)
+                    {
+                        return "Something went wrong while updating product";
+                    }
+
                 }
 
                 var result =  await _orderRepository.UpdateOrderAsync(orderId, updatedOrder);

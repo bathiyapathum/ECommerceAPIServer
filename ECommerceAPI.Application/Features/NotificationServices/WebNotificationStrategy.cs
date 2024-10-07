@@ -2,6 +2,7 @@
 using ECommerceAPI.Application.DTOs.OrderDTO;
 using ECommerceAPI.Application.Interfaces.NotificationInterfaces;
 using ECommerceAPI.Core.Entities.NotificationEntity;
+using ECommerceAPI.Core.Enums;
 using ECommerceAPI.Infrastructure.Repositories;
 using System;
 using System.Collections.Generic;
@@ -26,11 +27,13 @@ namespace ECommerceAPI.Application.Features.NotificationServices
                 var notification = new Notification
                 {
                     NotifyId = Guid.NewGuid().ToString(),
-                    IsRead = notificationDTO.IsRead,
+                    IsRead = false,
                     Message = notificationDTO.Message,
                     Reason = notificationDTO.Reason,
                     SentDate = DateTime.UtcNow,
-                    UserId = notificationDTO.UserId
+                    UserId = notificationDTO.UserId,
+                    RolesToNotify = GetRolesForScenario(notificationDTO.Scenario),
+                    Scenario = notificationDTO.Scenario
                 };
 
                 var result = await _notificationRepository.CreateAsync(notification);
@@ -40,6 +43,24 @@ namespace ECommerceAPI.Application.Features.NotificationServices
             catch (Exception ex) 
             {
                 throw new Exception(ex.Message);
+            }
+        }
+
+        private List<UserRole> GetRolesForScenario(NotificationScenario scenario)
+        {
+            switch (scenario)
+            {
+                case NotificationScenario.StockLow:
+                    return new List<UserRole> { UserRole.Vendor };
+
+                case NotificationScenario.OrderCancel:
+                    return new List<UserRole> { UserRole.Admin, UserRole.CSR };
+
+                case NotificationScenario.OrderShipped:
+                    return new List<UserRole> { UserRole.Customer };
+
+                default:
+                    return new List<UserRole>();
             }
         }
 

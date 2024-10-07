@@ -1,6 +1,8 @@
-﻿using ECommerceAPI.Application.Interfaces;
+﻿using ECommerceAPI.Application.DTOs.NotificationDTO;
+using ECommerceAPI.Application.Interfaces;
 using ECommerceAPI.Application.Interfaces.NotificationInterfaces;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace ECommerceAPI.API.Controllers
@@ -23,6 +25,23 @@ namespace ECommerceAPI.API.Controllers
         {
             var notifications = await _notificationService.GetUserNotifications(userId);
             return Ok(notifications);
+        }
+
+        [HttpPost("Send")]
+        public async Task<IActionResult> SendNotification([FromBody] NotificationDTO notificationDTO)
+        {
+            if (notificationDTO == null)
+                return BadRequest("Invalid notification data");
+
+            try
+            {
+                var result = await _notificationService.Send(notificationDTO);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
     }

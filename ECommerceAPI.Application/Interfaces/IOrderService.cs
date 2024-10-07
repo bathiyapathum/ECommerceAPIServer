@@ -13,6 +13,8 @@ namespace ECommerceAPI.Application.Interfaces
         Task CreateOrderAsync(OrderDTO orderDTO);
         //Task<Order> CheckoutOrderAsync(OrderDTO orderDTO, string customerId);
         Task<Order> GetOrderAsync(string orderId);
+        Task<string> GetTotalRevenue();
+        Task<Dictionary<string, int>> GetOrderStats();
         Task<Order> GetCustomerOrderAsync(string customerId);
         Task <List<CancelRequest>> GetAllCancellationRequests();
         Task<List<Order>> GetAllOrdersAsync();

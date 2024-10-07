@@ -9,6 +9,7 @@ using ECommerceAPI.Core.Entities.ProductEntity;
 using ECommerceAPI.Core.Entities.UserEntity;
 using ECommerceAPI.Infrastructure.Persistance;
 using Google.Cloud.Firestore;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -43,6 +44,32 @@ namespace ECommerceAPI.Infrastructure.Repositories
         public async Task UpdateVendorProductAsync(VendorProduct product)
         {
             await _context.FirestoreDatabase.Collection("VendorProducts").Document(product.ProductId).SetAsync(product);
+        }
+
+        public async Task<bool> UpdateVendorProductStockAsync(string productId, Dictionary<string, object> updatedField )
+        {
+            try
+            {
+                var documentRef = _context.FirestoreDatabase.Collection("VendorProducts").Document(productId);
+                var snapshot = await documentRef.GetSnapshotAsync();
+
+                if (snapshot.Exists)
+                {
+                    await documentRef.UpdateAsync(updatedField);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error while execution of UpdateVendorProductStockAsync:  {ex.Message}");
+
+            }
+
         }
 
         public void UpdateVendorProduct(FeedbackInfo feedback, string productID, Transaction transaction)

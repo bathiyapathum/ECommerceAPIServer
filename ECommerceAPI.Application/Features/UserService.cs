@@ -364,5 +364,74 @@ namespace ECommerceAPI.Application.Features
             }
 
         }
+
+        public async Task<Dictionary<string, int>> GetAvailableUserCount()
+        {
+            try
+            {          
+                var result = await _userRepository.GetAvailableUserCounts();
+
+                return result;
+            }
+            catch (DataException ex)
+            {
+                throw new DataException(ex.Message); 
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred GetAvailableUserCount: {ex.Message}"); 
+            }
+        }
+
+
+
+
+        //public Task<int> GetAvailableUserCount(string userType)
+        //{
+
+        //    try
+        //    {
+        //        int availableUserCount = 0;
+        //        int type = 0;
+
+        //        userType = userType.ToLower();
+        //        if(userType == "customer")
+        //        {
+        //            type = 1;
+        //        }
+        //        else if (userType == "admin")
+        //        {
+        //            type = 2;
+        //        }
+        //        else if (userType == "vendor")
+        //        {
+        //            type = 3;
+        //        }
+        //        else if (userType == "csr")
+        //        {
+        //            type = 4;
+        //        }
+        //        else
+        //        {
+        //            throw new DataException("Invalid user type");
+        //        }
+
+        //        var result =  _userRepository.GetAvailableuserCount(type);
+
+        //        if (result != null)
+        //        {
+        //            availableUserCount = result.Result;
+        //        }
+
+        //        Convert.ToInt32(availableUserCount);
+
+
+        //        return availableUserCount;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception(ex.Message);
+        //    }
+        //}
     }
 }

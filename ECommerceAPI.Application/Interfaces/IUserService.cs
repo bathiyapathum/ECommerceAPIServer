@@ -19,6 +19,7 @@ namespace ECommerceAPI.Application.Interfaces
         Task<bool> ActivateUser(ChangePasswordReqDTO changePasswordReqDTO);
         Task<bool> ActivateUser(string userId); 
         Task<bool> DeactivateUser(string userId);
+        Task<Dictionary<string, int>> GetAvailableUserCount();
         Task<List<User>> GetInactiveUsers();
     }
 }

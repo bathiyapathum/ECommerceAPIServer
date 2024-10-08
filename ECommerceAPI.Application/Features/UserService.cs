@@ -256,6 +256,7 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
+        //change password
         public Task<bool> ActivateUser(ChangePasswordReqDTO changePasswordReqDTO)
         {
             try
@@ -291,6 +292,7 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
+        //activate user
         public Task<bool> ActivateUser(string userId)
         {
             try
@@ -323,6 +325,7 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
+        //deaactivate user
         public Task<bool> DeactivateUser(string userId)
         {
             try
@@ -349,6 +352,7 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
+        //get inactive all users
         public async Task<List<User>> GetInactiveUsers()
         {
 

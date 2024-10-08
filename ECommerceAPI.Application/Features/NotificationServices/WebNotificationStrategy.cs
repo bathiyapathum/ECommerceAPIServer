@@ -20,6 +20,7 @@ namespace ECommerceAPI.Application.Features.NotificationServices
             _notificationRepository = notificationRepository;
         }
 
+        // Send notification
         public async Task<string> Send(NotificationDTO notificationDTO)
         {
             try
@@ -38,7 +39,6 @@ namespace ECommerceAPI.Application.Features.NotificationServices
 
                 var result = await _notificationRepository.CreateAsync(notification);
                 return result;
-
             }
             catch (Exception ex) 
             {
@@ -46,6 +46,7 @@ namespace ECommerceAPI.Application.Features.NotificationServices
             }
         }
 
+        // Get roles for a given scenario
         private List<UserRole> GetRolesForScenario(NotificationScenario scenario)
         {
             switch (scenario)
@@ -63,7 +64,5 @@ namespace ECommerceAPI.Application.Features.NotificationServices
                     return new List<UserRole>();
             }
         }
-
-
     }
 }

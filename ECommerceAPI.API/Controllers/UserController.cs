@@ -160,6 +160,8 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
+
+        //ACTIVATE ACCOUNTS
         [Authorize(Policy = "AccountActivatePolicy")]
         [HttpPost("activate-crv-vendor")]
         public async Task<IActionResult> ActivateUser([FromBody] ChangePasswordReqDTO changePasswordReqDTO)
@@ -189,7 +191,7 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
-
+        //ACTIVATE CUSTOMERS
         [Authorize(Roles = "Admin,CSR")]
         [HttpPatch("activate-customer/{customerID}")]
         public async Task<IActionResult> ActivateCustomer(string customerID)
@@ -220,6 +222,7 @@ namespace ECommerceAPI.API.Controllers
         }
 
 
+        //DEACTIVATE ACCOUNTS
         [Authorize(Roles = "Admin,Customer,CSR")]
         [HttpPatch("deactivate-user/{customerID}")]
         public async Task<IActionResult> DeactivateUser(string customerID)
@@ -249,6 +252,7 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
+        //GET INNACTIVE USERS
         [HttpGet("get-Inactive-users")]
         public async Task<IActionResult> GetInactiveUsers()
         {
@@ -267,6 +271,7 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
+        //UPDATE USER
         [HttpPatch("update-user/{userID}")]
         public async Task<IActionResult> UpdateUser(string userID, [FromBody] UpdateUserReqDTO request)
         {

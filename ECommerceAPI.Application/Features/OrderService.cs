@@ -480,11 +480,14 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
+
         public Task<IEnumerable<Order>> GetOrdersByCustomerAsync(string customerId)
         {
             throw new NotImplementedException();
         }
 
+
+        //Update order details
         public async Task UpdateOrderDetailsAsync(string orderId, OrderDTO orderDTO)
         {
             try
@@ -504,6 +507,7 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
+        //Update order status
         public async Task<string> UpdateOrderStatusAsync(string orderId, string status)
         {
             try
@@ -573,6 +577,7 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
+        
         public async Task<string> PlaceOrderAsync(string orderId, string address, string tel)
         {
             try
@@ -717,6 +722,7 @@ namespace ECommerceAPI.Application.Features
 
         }
 
+        //Get all cancel request
         public async Task<List<CancelRequest>> GetAllCancellationRequests()
         {
             try
@@ -730,6 +736,7 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
+        //Respond to cancel request
         public async Task<string> RespondToCancelRequest(CancelRequestDTO cancelRequestDTO)
         {
             try
@@ -825,6 +832,7 @@ namespace ECommerceAPI.Application.Features
         
 
 
+        //Item delivery
         public async Task<string> ItemDeliverAsync(string itemId)
         {
             try

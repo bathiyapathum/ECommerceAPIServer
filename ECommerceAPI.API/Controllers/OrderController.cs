@@ -115,7 +115,6 @@ namespace ECommerceAPI.API.Controllers
         }
 
         //Order update method implementation
-
         [HttpPatch]
         public async Task<IActionResult> UpdateOrder([FromBody] OrderDTO orderDTO, [FromQuery] string orderId)
         {
@@ -130,7 +129,8 @@ namespace ECommerceAPI.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        //[Authorize(Roles = "CSR")]
+
+        //updare order status
         [HttpPatch("delivered")]
         public async Task<IActionResult> UpdateOrderStatus([FromQuery] string orderId)
         {
@@ -154,6 +154,8 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
+
+        //cancel orders
         [HttpPatch("cancel")]
         public async Task<IActionResult> CancelOrder([FromBody] OrderDTO orderDTO, [FromQuery] string orderId)
         {
@@ -179,6 +181,7 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
+        //mark order item as delivered
         [HttpPatch("item/delivered")]
         public async Task<IActionResult> ItemDelivered([FromQuery] string itemId)
         {
@@ -272,6 +275,7 @@ namespace ECommerceAPI.API.Controllers
                 return BadRequest($"Error while RequestCancellation: {ex.Message}");
             }
         }
+
 
         [HttpGet("cancel/request/all")]
         public async Task<IActionResult> GetAllRequestCancellation()

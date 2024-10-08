@@ -45,7 +45,7 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
-        public async Task<string> SendNotification(NotificationDTO notificationDTO)
+        public async Task<string> Send(NotificationDTO notificationDTO)
         {
             try
             {

@@ -25,6 +25,7 @@ namespace ECommerceAPI.Application.DTOs.ProductDTO
 
         public string Type { get; set; } = "Anyone"; //default value
 
-        public string Size { get; set; } = "Default"; 
+        public string Size { get; set; } = "Default";
+        public bool IsActive { get; set; } = false;
     }
 }

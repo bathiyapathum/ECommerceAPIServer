@@ -436,7 +436,7 @@ namespace ECommerceAPI.Application.Features
                             Reason = "Customer request cancelation",
                             UserId = item.VendorId,
                         };
-                        await notificationService.SendNotification(notification);
+                        await notificationService.Send(notification);
                     }
                 }
 
@@ -448,7 +448,7 @@ namespace ECommerceAPI.Application.Features
                     UserId = existingItem.CustomerId
                 };
 
-                var resutl = await notificationService.SendNotification(notificationCus);
+                var resutl = await notificationService.Send(notificationCus);
                 if (resutl != null)
                 {
                     return "Order Canceled Successfully";
@@ -564,7 +564,7 @@ namespace ECommerceAPI.Application.Features
                                     Reason = "Order delivered",
                                     UserId = item.VendorId,
                                 };
-                                await notificationService.SendNotification(notification);
+                                await notificationService.Send(notification);
                             }
                         }
                     }
@@ -581,7 +581,7 @@ namespace ECommerceAPI.Application.Features
                             Reason = "Placing new order",
                             UserId = order.CustomerId
                         };
-                        await notificationService.SendNotification(notification);
+                        await notificationService.Send(notification);
 
                         return "Order status updated successfully";
                     }
@@ -688,7 +688,7 @@ namespace ECommerceAPI.Application.Features
                                 Reason = "Placing new order",
                                 UserId = item.VendorId
                             };
-                            await notificationService.SendNotification(notification);
+                            await notificationService.Send(notification);
                         }                       
                     }
 
@@ -699,7 +699,7 @@ namespace ECommerceAPI.Application.Features
                         Reason = "Placing new order",
                         UserId = order.CustomerId
                     };
-                    var res = await notificationService.SendNotification(Custnotification);
+                    var res = await notificationService.Send(Custnotification);
 
                     if (res != null)
                     {

@@ -43,9 +43,9 @@ namespace ECommerceAPI.API.Controllers
         // Delete a vendor product
         [HttpDelete("delete/{productId}")]
         public async Task<IActionResult> DeleteVendorProduct(string productId)
-        {  
+        {
             var result = await _productService.DeleteVendorProductAsync(productId);
-            if(result == "Success")
+            if (result == "Success")
             {
                 return Ok("Product deleted successfully.");
             }
@@ -105,6 +105,18 @@ namespace ECommerceAPI.API.Controllers
                 return NotFound("No products found.");
             }
             return Ok(products);
+        }
+
+        // Toggle a vendor product's activation status
+        [HttpPut("activate/{productId}")]
+        public async Task<IActionResult> ToggleProductActivation(string productId)
+        {
+            bool success = await _productService.ToggleProductActivationAsync(productId);
+            if (success)
+            {
+                return Ok("Product activation status changed successfully.");
+            }
+            return BadRequest("Failed to change product activation status.");
         }
     }
 }

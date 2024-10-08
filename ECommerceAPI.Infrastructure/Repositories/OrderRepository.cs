@@ -104,7 +104,23 @@ namespace ECommerceAPI.Infrastructure.Repositories
          * GetOrderbyIdAsync orders by its order id
          * Author : Hansana K T - IT21167850
          ***/
-        
+        public async Task<Order> GetOrderbyIdAsync(string orderId)
+        {
+            return await _context.FirestoreDatabase.Collection("Orders")
+                .WhereEqualTo("orderId", orderId)
+                .Limit(1)
+                .GetSnapshotAsync()
+                .ContinueWith(task =>
+            {
+                var snapshot = task.Result;
+                if (snapshot.Count == 0)
+                {
+                    return null;
+                }
+                return snapshot.Documents[0].ConvertTo<Order>();
+            });
+
+        }
 
         /***
          * GetCustomerOrderAsync get order that are in the cart

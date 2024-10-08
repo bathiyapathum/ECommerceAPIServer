@@ -98,6 +98,7 @@ namespace ECommerceAPI.Application.Features
 
                 var ordersQuery = await _orderRepository.FirestoreDatabase
                     .Collection("Orders")
+                    .WhereEqualTo("isInCart", false)
                     .WhereGreaterThanOrEqualTo("createdAt", date)
                     .WhereLessThan("createdAt", date.AddDays(1))
                     .GetSnapshotAsync();
@@ -109,6 +110,7 @@ namespace ECommerceAPI.Application.Features
                     .WhereGreaterThanOrEqualTo("createdAt", date)
                     .WhereLessThan("createdAt", date.AddDays(1))
                     .GetSnapshotAsync();
+
                 issuesCount.Add(issuesQuery.Count.ToString());
 
                 var resolvedQuery = await _orderRepository.FirestoreDatabase

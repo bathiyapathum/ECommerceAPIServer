@@ -1,4 +1,39 @@
-﻿using ECommerceAPI.Core.Entities.OrderEntity;
+﻿/******************************************************************************************
+ * OrderRepository.cs
+ * 
+ * This class implements the IOrderService interface and provides various functionalities 
+ * for managing orders in the e-commerce system. The OrderService handles the creation, 
+ * retrieval, updating, and deletion of orders, as well as the management of order items, 
+ * cancellations, and notifications.
+ * 
+ * Contributors:
+ * - Herath R P N M - Admin and csr fuctionalities and vendor order retrival
+ * - Registration No: IT21177828: 
+ *    - Implemented the following methods:
+ *     - Get all orders
+ *     - Update order status to delivered
+ *     - Cancel order
+ *     - Mark item as delivered
+ *     - Request cancellation
+ *     - Retrieve all cancellation requests
+ *     - Update cancellation response
+ * 
+ * - Hansana K. T - customer order creation and customer order retrival
+ * - Registration No: IT21167850:
+ *    - Implemented the following methods:
+ *     - Create order
+ *     - Retrieve a specific order
+ *     - Retrieve customer cart order
+ *     - Retrieve customer placed orders
+ *     - Remove item from cart
+ *     - Place order
+ *     - Delete order
+ * 
+ * Date: 2024/08/10
+ * 
+ ******************************************************************************************/
+
+using ECommerceAPI.Core.Entities.OrderEntity;
 using ECommerceAPI.Infrastructure.Persistance;
 using Google.Cloud.Firestore;
 using System;
@@ -26,7 +61,10 @@ namespace ECommerceAPI.Infrastructure.Repositories
 
         public FirestoreDb FirestoreDatabase => _context._firestoreDb;
 
-        //Creating Order
+        /***
+         * Creating order
+         * Author : Hansana K T - IT21167850
+         ***/
         public async Task<bool> CreateAsync(Order order)
         {
             try
@@ -41,18 +79,31 @@ namespace ECommerceAPI.Infrastructure.Repositories
                 throw new Exception($"Error while execution of CreateAsync:  {ex.Message}");
             }
         }
+
+        /***
+         * GetAllAsync get all orders for admins and csr
+         * Author : Herath R P N M - IT21177828
+         ***/
         public async Task<List<Order>> GetAllAsync()
         {
             var orders = await _context.FirestoreDatabase.Collection("Orders").GetSnapshotAsync();
             return orders.Select(orders => orders.ConvertTo<Order>()).ToList();
         }
-        
+
+        /***
+         * GetAllCancelRequests get all cancel request for admin and csr
+         * Author : Herath R P N M - IT21177828
+         ***/
         public async Task<List<CancelRequest>> GetAllCancelRequests()
         {
             var requests = await _context.FirestoreDatabase.Collection("CancelRequest").GetSnapshotAsync();
             return requests.Select(request => request.ConvertTo<CancelRequest>()).ToList();
         }
 
+        /***
+         * GetOrderbyIdAsync orders by its order id
+         * Author : Hansana K T - IT21167850
+         ***/
         public async Task<Order> GetOrderbyIdAsync(string orderId)
         {
             return await _context.FirestoreDatabase.Collection("Orders")
@@ -71,6 +122,10 @@ namespace ECommerceAPI.Infrastructure.Repositories
 
         }
 
+        /***
+         * GetCustomerOrderAsync get order that are in the cart
+         * Author : Hansana K T - IT21167850
+         ***/
         public async Task<Order> GetCustomerOrderAsync(string customerId)
         {
             return await _context.FirestoreDatabase.Collection("Orders")
@@ -89,6 +144,10 @@ namespace ECommerceAPI.Infrastructure.Repositories
                 });
         }
 
+        /***
+         * GetOrderStats for Show in teh admin pannel 
+         * Author : Herath R P N M - IT21177828
+         ***/
         public async Task<Dictionary<string, int>> GetOrderStats()
         {
             try
@@ -133,6 +192,10 @@ namespace ECommerceAPI.Infrastructure.Repositories
         }
 
 
+        /***
+         * GetCustomerPlacdOrderAsync get customers previous placed orders
+         * Author : Hansana K T - IT21167850
+         ***/
         public async Task<List<Order>> GetCustomerPlacdOrderAsync(string customerId)
         {
 
@@ -148,6 +211,10 @@ namespace ECommerceAPI.Infrastructure.Repositories
             return requests.Select(request => request.ConvertTo<Order>()).ToList();
         }
 
+        /***
+         * GetVendorOrderAsync get orders specifically for verdors that active state
+         * Author : Herath R P N M - IT21177828
+         ***/
         public async Task<List<OrderItem>> GetVendorOrderAsync(string vendorId)
         {
             try
@@ -174,7 +241,11 @@ namespace ECommerceAPI.Infrastructure.Repositories
         }
 
 
-        //Get OrderItems by OrderID, ProductID, CustomerID
+        /***
+         * Get OrderItems by OrderID, ProductID, CustomerID
+         * Author : Hansana K T - IT21167850
+         ***/
+       
         public async Task<OrderItem> GetCustomerOrderItemsAsync(string orderId, string customerId, string productId)
         {
             try
@@ -199,7 +270,11 @@ namespace ECommerceAPI.Infrastructure.Repositories
                 throw new Exception($"Error retrieving order item: {ex.Message}");
             }
         }
-    
+
+        /***
+         * GetVendorOrderItemsAsync for get active vendor orders for specific vendors 
+         * Author : Herath R P N M - IT21177828 
+         ***/
         public async Task<OrderItem> GetVendorOrderItemsAsync(string itemId)
         {
             try
@@ -224,6 +299,10 @@ namespace ECommerceAPI.Infrastructure.Repositories
                
         }
 
+        /***
+         * GetVendorOrderItemByIdAsync for identify orders related to vendors
+         * Author : Hansana K T - IT21167850
+         ***/
         public async Task<OrderItem> GetVendorOrderItemByIdAsync(string itemId)
         {
             try
@@ -247,6 +326,10 @@ namespace ECommerceAPI.Infrastructure.Repositories
 
         }
 
+        /***
+         * UpdateOrderItemAsync for update order items
+         * Author : Hansana K T - IT21167850
+         ***/
         //Update OrderItems
         public async Task<bool> UpdateOrderItemAsync(string itemId, Dictionary<string, object> updatedField)
         {
@@ -273,8 +356,12 @@ namespace ECommerceAPI.Infrastructure.Repositories
 
             }
 
-        } 
-        
+        }
+
+        /***
+         * CreateOrderItemAsync for create order items
+         * Author : Hansana K T - IT21167850
+         ***/
         //Create OrderItems
         public async Task<bool> CreateOrderItemAsync(OrderItem orderItem)
         {
@@ -295,6 +382,10 @@ namespace ECommerceAPI.Infrastructure.Repositories
 
         }
 
+        /***
+         * UpdateOrderAsync for update order
+         * Author : Hansana K T - IT21167850
+         ***/
         //Update order details
         public async Task<bool> UpdateOrderAsync(string orderId, Dictionary<string, object> updatedFields)
         {
@@ -323,12 +414,15 @@ namespace ECommerceAPI.Infrastructure.Repositories
 
         }
 
+        /***
+         * DeleteOrderAsync for delete orders
+         * Author : Hansana K T - IT21167850
+         ***/
         public async Task DeleteOrderAsync(string orderId)
         {
             // Retrieve the document by orderId and delete it
             var documentRef = _context.FirestoreDatabase.Collection("Orders").Document(orderId);
 
-            // Check if document exists
             var snapshot = await documentRef.GetSnapshotAsync();
             if (snapshot.Exists)
             {
@@ -341,11 +435,14 @@ namespace ECommerceAPI.Infrastructure.Repositories
             }
         }
 
+        /***
+         * CancelOrderAsync this method is used to cancel the order by the customer used Admin and CSR
+         * Author : Herath R P N M - IT21177828
+         ***/
         public async Task<bool> CancelOrderAsync(string orderId, string note, string canceledBy)
         {
             try
             {
-                // Retrieve the document by orderId and delete it
                 var documentRef = _context.FirestoreDatabase.Collection("Orders").Document(orderId);
 
                 var snapshot = await documentRef.GetSnapshotAsync();
@@ -383,7 +480,10 @@ namespace ECommerceAPI.Infrastructure.Repositories
 
         }
 
-
+        /***
+         * GetOrderAsync
+         * Author : Hansana K T - IT21167850
+         ***/
         public async Task<Order> GetOrderAsync(string orderId)
         {
             var documentSnapshot = await _context.FirestoreDatabase.Collection("Orders").Document(orderId).GetSnapshotAsync();
@@ -396,6 +496,10 @@ namespace ECommerceAPI.Infrastructure.Repositories
             return documentSnapshot.ConvertTo<Order>();
         }
 
+        /***
+         * Creating order cancel request
+         * Author : Herath R P N M - IT21177828
+         ***/
         public async Task<bool> CreateOrderCancelRequest(CancelRequest cancelRequest)
         {
             try
@@ -415,6 +519,10 @@ namespace ECommerceAPI.Infrastructure.Repositories
 
         }
 
+        /***
+         * GetRequestCancelationByOrderAsync for orders cancellation requests
+         * Author : Herath R P N M - IT21177828
+         ***/
         public async Task<bool> GetRequestCancelationByOrderAsync(string orderId)
         {
             return await _context.FirestoreDatabase.Collection("CancelRequest")
@@ -432,6 +540,10 @@ namespace ECommerceAPI.Infrastructure.Repositories
                 });
         }
 
+        /***
+         * GetRequestCancelationByOrderForResponseAsync for orders cancellation requests
+         * Author : Herath R P N M - IT21177828
+         ***/
         public async Task<CancelRequest> GetRequestCancelationByOrderForResponseAsync(string requestId)
         {
             var snapshot = await _context.FirestoreDatabase.Collection("CancelRequest")
@@ -443,13 +555,14 @@ namespace ECommerceAPI.Infrastructure.Repositories
             {
                 return null;
             }
-
-            // Convert the first matching document to an CancelRequest object
             return snapshot.Documents[0].ConvertTo<CancelRequest>();
         }
-        
 
-        //Update order details
+
+        /***
+         * Remove order item from order
+         * Author : Hansana K T - IT21167850
+         ***/
         public async Task<bool> RemoveItemFromOrder(string itemId)
         {
             try
@@ -477,6 +590,10 @@ namespace ECommerceAPI.Infrastructure.Repositories
 
         }
 
+        /***
+         * ResponseToCancelOrderRequest for orders cancellation requests
+         * Author : Herath R P N M - IT21177828
+         ***/
         public async Task<bool> ResponseToCancelOrderRequest(string requestId, Dictionary<string, object> updatedFields)
         {
             try
@@ -503,6 +620,11 @@ namespace ECommerceAPI.Infrastructure.Repositories
             }
 
         }
+
+        /***
+         * GetTotalRevenue for orders
+         * Author : Herath R P N M - IT21177828
+         ***/
         public async Task<string> GetTotalRevenue()
         {
             try

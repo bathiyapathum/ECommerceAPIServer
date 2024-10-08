@@ -1,4 +1,40 @@
-﻿using ECommerceAPI.Application.DTOs.OrderDTO;
+﻿/******************************************************************************************
+ * OrderController.cs
+ * 
+ * This file implements the API endpoints for managing orders in the E-Commerce application.
+ * The controller provides functionality for creating, updating, deleting, and retrieving 
+ * orders, as well as handling order cancellations and item deliveries. 
+ * 
+ * Authorization: 
+ * - Admin and CSR roles have access to certain critical endpoints (e.g., updating order status, cancellations).
+ * - Vendor role has access to specific vendor-related functionalities.
+ * - Customer role has access to order placement and retrieval anc other functionalities.
+ * - Unauthorized access to these endpoints will return a 401 Unauthorized response.
+ * 
+ * Contributions:
+ * - IT21177828 - Herath R P N M:
+ *   * Get all orders
+ *   * Mark order as delivered
+ *   * Cancel order
+ *   * Mark order item as delivered
+ *   * Request order cancellation
+ *   * Get all cancellation requests
+ *   * Respond to cancel requests
+ * 
+ * - IT21167850 - Hansana K. T:
+ *   * Create order
+ *   * Remove item from cart
+ *   * Get order by ID
+ *   * Get customer cart order
+ *   * Get customer placed orders
+ *   * Update order details
+ *   * Delete order when it is in the cart
+ *   * Place order
+ * 
+ * Date:2024/08/10
+ ******************************************************************************************/
+
+using ECommerceAPI.Application.DTOs.OrderDTO;
 using ECommerceAPI.Application.Features;
 using ECommerceAPI.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -15,6 +51,7 @@ namespace ECommerceAPI.API.Controllers
     {
         private readonly IOrderService _orderService = orderService;
 
+        // Create a new order
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] OrderDTO orderDTO)
         {
@@ -42,15 +79,8 @@ namespace ECommerceAPI.API.Controllers
             return CreatedAtAction(nameof(Create) ,new { id = orderDTO }, orderDTO);
         }
 
-
-        [HttpPost("checkout/{id}")]
-        public async Task<IActionResult> Checkout([FromBody] OrderDTO orderDTO, string id)
-        {
-            //await _orderService.CheckoutOrderAsync(orderDTO,id);
-            return CreatedAtAction(nameof(Checkout), new { id = orderDTO }, orderDTO);
-        }
-
-
+        // Get all orders in the system (Admin and CSR roles only)
+        [Authorize(Roles = "Admin,CSR")]
         [HttpGet("all")]
         public async Task<IActionResult> GetAll()
         {
@@ -58,6 +88,7 @@ namespace ECommerceAPI.API.Controllers
             return Ok(orders);
         }
 
+        // Remove an item from the cart
         [HttpDelete("cart/item")]
         public async Task<IActionResult> RemoveItemFromCart([FromQuery] string orderId, string itemId)
         {
@@ -81,13 +112,15 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
+        // Get an order by ID
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] string orderId)
         {
             var order = await _orderService.GetOrderAsync(orderId);
             return Ok(order);
-        }  
-        
+        }
+
+        // Get the customer's cart order
         [HttpGet("cart")]
         public async Task<IActionResult> GetCustomerCartOrder([FromQuery] string customerId)
         {
@@ -99,6 +132,7 @@ namespace ECommerceAPI.API.Controllers
             return Ok(order);
         }
 
+        // Get the customer's placed orders
         [HttpGet("history")]
         public async Task<IActionResult> GetCustomerPlacedOrder([FromQuery] string customerId)
         {
@@ -114,8 +148,8 @@ namespace ECommerceAPI.API.Controllers
             return Ok(order);
         }
 
-        //Order update method implementation
 
+        // Update order details
         [HttpPatch]
         public async Task<IActionResult> UpdateOrder([FromBody] OrderDTO orderDTO, [FromQuery] string orderId)
         {
@@ -130,7 +164,9 @@ namespace ECommerceAPI.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        //[Authorize(Roles = "CSR")]
+
+        // Make order status as delivered (Admin and CSR roles only)
+        [Authorize(Roles = "Admin,CSR")]
         [HttpPatch("delivered")]
         public async Task<IActionResult> UpdateOrderStatus([FromQuery] string orderId)
         {
@@ -154,6 +190,8 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
+        // Cancel an order (Admin and CSR roles only)
+        [Authorize(Roles = "Admin,CSR")]
         [HttpPatch("cancel")]
         public async Task<IActionResult> CancelOrder([FromBody] OrderDTO orderDTO, [FromQuery] string orderId)
         {
@@ -179,6 +217,8 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
+        // Mark an order item as delivered (Admin, CSR, and Vendor roles only)
+        [Authorize(Roles = "Admin,CSR,Vendor")]
         [HttpPatch("item/delivered")]
         public async Task<IActionResult> ItemDelivered([FromQuery] string itemId)
         {
@@ -201,6 +241,7 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
+        // Delete an order when it is in the cart
         [HttpDelete]
         public async Task<IActionResult> DeleteOrder([FromQuery] string orderId)
         {
@@ -215,6 +256,7 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
+        // Place an order with the provided address and telephone number
         [HttpPost("placing")]
         public async Task<IActionResult> PlaceOrder([FromBody] OrderDTO orderDTO, [FromQuery] string orderId)
         {
@@ -237,8 +279,9 @@ namespace ECommerceAPI.API.Controllers
             {
                 return BadRequest($"Error while PlaceOrder: {ex.Message}");
             }
-        } 
-        
+        }
+
+        // Request order cancellation
         [HttpPost("request/cancel")]
         public async Task<IActionResult> RequestCancellation([FromBody] CancelRequestDTO cancelRequest)
         {
@@ -273,6 +316,8 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
+        // Get all cancellation requests (Admin and CSR roles only)
+        [Authorize(Roles = "Admin,CSR")]
         [HttpGet("cancel/request/all")]
         public async Task<IActionResult> GetAllRequestCancellation()
         {
@@ -280,6 +325,8 @@ namespace ECommerceAPI.API.Controllers
             return Ok(order);
         }
 
+        // Respond to cancel requests (Admin and CSR roles only)
+        [Authorize(Roles = "Admin,CSR")]
         [HttpPatch("cancel/response")]
         public async Task<IActionResult> UpdateCancelOrderResponse([FromBody] CancelRequestDTO cancelRequestDTO)
         {
@@ -300,8 +347,6 @@ namespace ECommerceAPI.API.Controllers
                 return BadRequest($"Error while CancelOrder: {ex.Message}");
             }
         }
-
-
 
     }
 }

@@ -42,6 +42,7 @@ namespace ECommerceAPI.API.Controllers
             return CreatedAtAction(nameof(Create) ,new { id = orderDTO }, orderDTO);
         }
 
+        // checkout method implementation
 
         [HttpPost("checkout/{id}")]
         public async Task<IActionResult> Checkout([FromBody] OrderDTO orderDTO, string id)

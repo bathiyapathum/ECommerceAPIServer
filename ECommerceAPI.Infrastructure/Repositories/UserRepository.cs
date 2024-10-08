@@ -189,5 +189,41 @@ namespace ECommerceAPI.Infrastructure.Repositories
         //    return feedback;
 
         //}
+        public async Task<Dictionary<string, int>> GetAvailableUserCounts()
+        {
+            try
+            {
+                var roles = new Dictionary<int, string>
+                {
+                    { 1, "Admin" },
+                    { 2, "Customer" },
+                    { 3, "CSR" },
+                    { 4, "Vendor" }
+                };
+
+                var userCounts = new Dictionary<string, int>();
+
+                var snapShot = await _context.FirestoreDatabase.Collection("Users")
+                    .WhereEqualTo("isActive", true)
+                    .GetSnapshotAsync();
+
+                // Group users by their role and get the count
+                foreach (var role in roles)
+                {
+                    int count = snapShot.Documents
+                        .Where(doc => doc.GetValue<int>("role") == role.Key)
+                        .Count();
+
+                    userCounts[role.Value] = count;
+                }
+
+                return userCounts;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching user counts: {ex.Message}");
+            }
+        }
+
     }
 }

@@ -117,6 +117,28 @@ namespace ECommerceAPI.Infrastructure.Repositories
                 throw new Exception(ex.Message);
             }
 
+        } 
+        
+        public async Task<List<Feedback>> GetFeedbackForProduct(string productId)
+        {
+            try
+            {
+                var requests = await _context.FirestoreDatabase.Collection("Feedbacks")
+                 .WhereEqualTo("productId", productId)
+                 .Limit(100)
+                 .GetSnapshotAsync();
+
+                if (requests.Count == 0)
+                {
+                    return null;
+                }
+                return requests.Select(request => request.ConvertTo<Feedback>()).ToList();
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
         }
 
     }

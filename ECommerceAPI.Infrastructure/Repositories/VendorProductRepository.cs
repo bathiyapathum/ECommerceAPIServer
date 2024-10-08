@@ -9,6 +9,7 @@ using ECommerceAPI.Core.Entities.ProductEntity;
 using ECommerceAPI.Core.Entities.UserEntity;
 using ECommerceAPI.Infrastructure.Persistance;
 using Google.Cloud.Firestore;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -45,22 +46,63 @@ namespace ECommerceAPI.Infrastructure.Repositories
             await _context.FirestoreDatabase.Collection("VendorProducts").Document(product.ProductId).SetAsync(product);
         }
 
+        // Toggle the activation status of a product
+        public async Task<bool> ToggleProductActivationAsync(string productId)
+        {
+            var productRef = _context.FirestoreDatabase.Collection("VendorProducts").Document(productId);
+            var snapshot = await productRef.GetSnapshotAsync();
+
+            if (snapshot.Exists)
+            {
+                var currentStatus = snapshot.GetValue<bool>("isActive");
+                var updates = new Dictionary<string, object>
+                {
+                    { "isActive", !currentStatus } // Toggle the current status
+                };
+                await productRef.UpdateAsync(updates);
+                return true;
+            }
+            return false;
+        }
+
+        // Update Vendor Product stock (e.g. for managing inventory)
+        public async Task<bool> UpdateVendorProductStockAsync(string productId, Dictionary<string, object> updatedField)
+        {
+            try
+            {
+                var documentRef = _context.FirestoreDatabase.Collection("VendorProducts").Document(productId);
+                var snapshot = await documentRef.GetSnapshotAsync();
+
+                if (snapshot.Exists)
+                {
+                    await documentRef.UpdateAsync(updatedField);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error during execution of UpdateVendorProductStockAsync: {ex.Message}");
+            }
+        }
+
+        // Update Vendor Product with feedback (e.g. customer feedback)
         public void UpdateVendorProduct(FeedbackInfo feedback, string productID, Transaction transaction)
         {
             var productRef = _context.FirestoreDatabase.Collection("VendorProducts").Document(productID);
 
             var updateData = new Dictionary<string, object>
             {
-                {"feedbackInfo", FieldValue.ArrayUnion(feedback) }
+                { "feedbackInfo", FieldValue.ArrayUnion(feedback) }
             };
 
-            //await productRef.UpdateAsync(updateData);
-
             transaction.Update(productRef, updateData);
-            //await _context.FirestoreDatabase.Collection("VendorProducts").Document(productID).SetAsync(feedback);
         }
 
-        // Fetching all products across all vendors
+        // Fetch all products across all vendors
         public async Task<List<VendorProduct>> GetAllProductsAsync()
         {
             var productsQuery = await _context.FirestoreDatabase
@@ -74,7 +116,26 @@ namespace ECommerceAPI.Infrastructure.Repositories
             }
 
             return allProducts;
+        }  
+        
+        public async Task<string> GetAvailableProductCounts()
+        {
+            try 
+            { 
+                var productsQuery = await _context.FirestoreDatabase
+                    .Collection("VendorProducts")
+                    .WhereEqualTo("isActive", true)
+                    .GetSnapshotAsync();
+                int productCount = productsQuery.Count;
+                return productCount.ToString();
+            }
+            catch(Exception ex)
+            {
+                throw new Exception($"Error while execution of GetAvailableProductCounts:  {ex.Message}");
+            }
         }
+
+
 
         // Get a vendor product by its ID
         public async Task<VendorProduct> GetVendorProductByIdAsync(string productId)
@@ -89,7 +150,7 @@ namespace ECommerceAPI.Infrastructure.Repositories
             await _context.FirestoreDatabase.Collection("VendorProducts").Document(productId).DeleteAsync();
         }
 
-        // Get all vendor products for a specific vendor
+        // Get all vendor products for a specific vendor by vendorId
         public async Task<List<VendorProduct>> GetVendorProductsByVendorAsync(string vendorId)
         {
             var productsQuery = await _context.FirestoreDatabase.Collection("VendorProducts")
@@ -105,32 +166,7 @@ namespace ECommerceAPI.Infrastructure.Repositories
             return vendorProducts;
         }
 
-        //public async Task<bool> UpdateVendorProductRating(string ProductId, int Rating, Transaction transaction)
-        //{
-        //    var productDetails = await _context.FirestoreDatabase.Collection("VendorProducts").Document(ProductId).GetSnapshotAsync();
-
-        //    VendorProduct productSnapshot = productDetails.ConvertTo<VendorProduct>();
-
-        //    if(productSnapshot != null)
-        //    {
-        //        var venderProfileSnapShot = await _context.FirestoreDatabase.Collection("User").Document(productSnapshot.VendorId).GetSnapshotAsync();
-
-        //        User venderProfile = venderProfileSnapShot.ConvertTo<User>();
-
-        //        if (venderProfile != null)
-        //        {
-        //            var feedBackUpdateData = new Dictionary<string, object>
-        //            {
-        //                { "feedbackInfo.sumOfRating", venderProfile.FeedbackInfo.SumOfRating + Rating },
-        //                { "feedbackInfo.feedbackCount", venderProfile.FeedbackInfo.FeedbackCount + 1 }
-        //            };
-        //        }
-
-        //        transaction.Update(venderProfileSnapShot.Reference, feedBackUpdateData);
-        //    }
-
-        //}
-
+        // Update vendor product rating
         public async Task<bool> UpdateVendorProductRating(string productId, int rating, Transaction transaction)
         {
             // Fetch the product details
@@ -151,17 +187,10 @@ namespace ECommerceAPI.Infrastructure.Repositories
             {
                 vendorProfile.FeedbackInfo = new VendorFeedbackInfo
                 {
-                    SumOfRating = 0,  
-                    FeedbackCount = 0   
+                    SumOfRating = 0,
+                    FeedbackCount = 0
                 };
             }
-
-            // Prepare the update data
-            //var feedbackUpdateData = new Dictionary<string, object>
-            //{
-            //    { "feedbackInfo.sumOfRating", vendorProfile.FeedbackInfo.SumOfRating + rating },
-            //    { "feedbackInfo.feedbackCount", vendorProfile.FeedbackInfo.FeedbackCount + 1 }
-            //};
 
             var feedbackUpdateData = new Dictionary<string, object>
             {
@@ -174,6 +203,5 @@ namespace ECommerceAPI.Infrastructure.Repositories
 
             return true;
         }
-
     }
 }

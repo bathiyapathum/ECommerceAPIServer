@@ -58,20 +58,6 @@ namespace ECommerceAPI.API.Controllers
             return Ok(orders);
         }
 
-        [HttpGet("total/revanue")]
-        public async Task<IActionResult> GetTotalRevenue()
-        {
-            var orders = await _orderService.GetTotalRevenue();
-            return Ok(orders);
-        }
-        
-        [HttpGet("order/stats")]
-        public async Task<IActionResult> GetOrderStats()
-        {
-            var orders = await _orderService.GetOrderStats();
-            return Ok(orders);
-        }
-
         [HttpDelete("cart/item")]
         public async Task<IActionResult> RemoveItemFromCart([FromQuery] string orderId, string itemId)
         {

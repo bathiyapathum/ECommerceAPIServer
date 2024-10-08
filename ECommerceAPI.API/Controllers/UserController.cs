@@ -30,6 +30,11 @@ namespace ECommerceAPI.API.Controllers
             _authService = authService;
         }
 
+
+        /***
+         * GetRequestCancelationByOrderForResponseAsync for orders cancellation requests
+         * Author : Gunaratne M H B P T - IT21180552
+         ***/
         [HttpPost("signup")]
         public async Task<IActionResult> Signup([FromBody] SignupReqDTO request)
         {
@@ -58,7 +63,12 @@ namespace ECommerceAPI.API.Controllers
 
         }
 
-        //[Authorize(Roles = "Admin")]
+
+        /***
+         * Register new user by admin
+         * Author : Gunaratne M H B P T - IT21180552
+         ***/
+        [Authorize(Roles = "Admin")]
         [HttpPost("create-by-admin")]
         public async Task<IActionResult> RegisterNewUser([FromBody] SignupReqDTO request)
         {
@@ -99,7 +109,10 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
-
+        /***
+         * Login user by admin
+         * Author : Gunaratne M H B P T - IT21180552
+         ***/
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginReqDTO request)
         {
@@ -161,7 +174,10 @@ namespace ECommerceAPI.API.Controllers
         }
 
 
-        //ACTIVATE ACCOUNTS
+        /***
+         * Activate user by admin/CSR
+         * Author : Gunaratne M H B P T - IT21180552
+         ***/
         [Authorize(Policy = "AccountActivatePolicy")]
         [HttpPost("activate-crv-vendor")]
         public async Task<IActionResult> ActivateUser([FromBody] ChangePasswordReqDTO changePasswordReqDTO)
@@ -191,7 +207,10 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
-        //ACTIVATE CUSTOMERS
+        /***
+         * activate customer account by admin/CSR
+         * Author : Gunaratne M H B P T - IT21180552
+         ***/
         [Authorize(Roles = "Admin,CSR")]
         [HttpPatch("activate-customer/{customerID}")]
         public async Task<IActionResult> ActivateCustomer(string customerID)
@@ -221,8 +240,10 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
-
-        //DEACTIVATE ACCOUNTS
+        /***
+         * Deactivate  user by admin
+         * Author : Gunaratne M H B P T - IT21180552
+         ***/
         [Authorize(Roles = "Admin,Customer,CSR")]
         [HttpPatch("deactivate-user/{customerID}")]
         public async Task<IActionResult> DeactivateUser(string customerID)
@@ -252,7 +273,10 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
-        //GET INNACTIVE USERS
+        /***
+         * Get inactive user by admin
+         * Author : Gunaratne M H B P T - IT21180552
+         ***/
         [HttpGet("get-Inactive-users")]
         public async Task<IActionResult> GetInactiveUsers()
         {
@@ -271,7 +295,10 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
-        //UPDATE USER
+        /***
+         * Update  users 
+         * Author : Gunaratne M H B P T - IT21180552
+         ***/
         [HttpPatch("update-user/{userID}")]
         public async Task<IActionResult> UpdateUser(string userID, [FromBody] UpdateUserReqDTO request)
         {

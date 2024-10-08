@@ -286,30 +286,6 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
-        [HttpGet("available/user/count")]
-        public async Task<IActionResult> GetUserCounts()
-        {
-            try
-            {
-                var result = await _userService.GetAvailableUserCount();
-                if (result == null)
-                { 
-                    return NotFound("No user found");
-                }
-
-                return Ok(result);
-            }
-            catch (DataException ex)
-            {
-                return BadRequest($"Validation error: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-        }
-
-
-
+        
     }
 }

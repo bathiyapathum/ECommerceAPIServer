@@ -348,31 +348,31 @@ namespace ECommerceAPI.Application.Features
 
         }
 
-        public async Task<string> GetTotalRevenue()
-        {
-            try
-            {
-                var revenue = await _orderRepository.GetTotalRevenue();
-                return revenue;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
+        //public async Task<string> GetTotalRevenue()
+        //{
+        //    try
+        //    {
+        //        var revenue = await _orderRepository.GetTotalRevenue();
+        //        return revenue;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception(ex.Message);
+        //    }
+        //}
         
-        public async Task<Dictionary<string, int>> GetOrderStats()
-        {
-            try
-            {
-                var revenue = await _orderRepository.GetOrderStats();
-                return revenue;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
+        //public async Task<Dictionary<string, int>> GetOrderStats()
+        //{
+        //    try
+        //    {
+        //        var revenue = await _orderRepository.GetOrderStats();
+        //        return revenue;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception(ex.Message);
+        //    }
+        //}
 
         public async Task<Order> GetCustomerOrderAsync(string customerId)
         {
@@ -812,7 +812,8 @@ namespace ECommerceAPI.Application.Features
                 {
                     {"status", cancelRequestDTO.Status },
                     {"responsedBy", cancelRequestDTO.ResponsedBy },
-                    {"responseNote", cancelRequestDTO.ResponseNote }
+                    {"responseNote", cancelRequestDTO.ResponseNote },
+                    {"resolvedAt", DateTime.UtcNow }
                 };
 
                 var response = await _orderRepository.ResponseToCancelOrderRequest(cancelRequestDTO.RequestId, updatedFields);

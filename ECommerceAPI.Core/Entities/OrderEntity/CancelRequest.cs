@@ -33,5 +33,8 @@ namespace ECommerceAPI.Core.Entities.OrderEntity
 
         [FirestoreProperty("createdAt")]
         public DateTime CreatedAt { get; set; }
+        
+        [FirestoreProperty("resolvedAt")]
+        public DateTime? ResolvedAt { get; set; }
     }
 }

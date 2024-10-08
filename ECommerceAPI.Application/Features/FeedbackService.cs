@@ -116,6 +116,25 @@ namespace ECommerceAPI.Application.Features
                 throw new Exception(ex.Message);
             }
         }
+        
+        public async Task<List<Feedback>> GetFeedbackForProduct(string productId)
+        {
+            try
+            {
+                var feedbacks =  await _feedbackRepository.GetFeedbackForProduct(productId);
+
+                if (feedbacks == null)
+                {
+                    return null;
+                }
+                return feedbacks;
+
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
 
         public async Task UpdateFeedbackMessage(string feadbackId, FeedbackDTO feadbackDTO)
         {

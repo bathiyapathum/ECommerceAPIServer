@@ -51,7 +51,7 @@ namespace ECommerceAPI.API.Controllers
         [HttpGet("vender-ranking/{vendorId}")]
         public async Task<IActionResult> GetRatingforVendor(string vendorId)
         {
-            var result = _feadbackService.GetRatingForVendor(vendorId);
+            var result =  await _feadbackService.GetRatingForVendor(vendorId);
 
             if(result != null)
             {
@@ -61,6 +61,19 @@ namespace ECommerceAPI.API.Controllers
                 });
             }
             
+            return NotFound();
+        }
+
+        [HttpGet("product/feedback/{productId}")]
+        public async Task<IActionResult> GetFeedbackForProduct(string productId)
+        {
+            var result = await _feadbackService.GetFeedbackForProduct(productId);
+
+            if (result != null)
+            {
+                return Ok(result);
+            }
+
             return NotFound();
         }
 

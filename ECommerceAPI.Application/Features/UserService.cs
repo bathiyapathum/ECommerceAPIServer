@@ -365,23 +365,23 @@ namespace ECommerceAPI.Application.Features
 
         }
 
-        public async Task<Dictionary<string, int>> GetAvailableUserCount()
-        {
-            try
-            {          
-                var result = await _userRepository.GetAvailableUserCounts();
+        //public async Task<Dictionary<string, int>> GetAvailableUserCount()
+        //{
+        //    try
+        //    {          
+        //        var result = await _userRepository.GetAvailableUserCounts();
 
-                return result;
-            }
-            catch (DataException ex)
-            {
-                throw new DataException(ex.Message); 
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"An error occurred GetAvailableUserCount: {ex.Message}"); 
-            }
-        }
+        //        return result;
+        //    }
+        //    catch (DataException ex)
+        //    {
+        //        throw new DataException(ex.Message); 
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception($"An error occurred GetAvailableUserCount: {ex.Message}"); 
+        //    }
+        //}
 
 
 

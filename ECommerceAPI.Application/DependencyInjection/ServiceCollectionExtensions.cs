@@ -36,6 +36,7 @@ namespace ECommerceAPI.Application.DependencyInjection
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IFeedbackService, FeedbackService>();
             services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IDashboardService, DashboardService>();
 
             // Add additional services if needed
             //Example: services.AddScoped<IYourService, YourServiceImplementation>();

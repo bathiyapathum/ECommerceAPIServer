@@ -90,7 +90,27 @@ namespace ECommerceAPI.API.Controllers
 
         // Remove an item from the cart
         [HttpDelete("cart/item")]
-        
+        public async Task<IActionResult> RemoveItemFromCart([FromQuery] string orderId, string itemId)
+        {
+            if(orderId == null)
+            {
+                return BadRequest("Order Id is required");
+            }
+            if(itemId == null)
+            {
+                return BadRequest("Item Id is required");
+            }
+
+            var response = await _orderService.RemoveItemFromCart(orderId, itemId);
+            if (response == "Item removed from cart successfully")
+            {
+                return Ok("Item removed from cart successfully");
+            }
+            else
+            {
+                return BadRequest(response);
+            }
+        }
 
         // Get an order by ID
         [HttpGet]

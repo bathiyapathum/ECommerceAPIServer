@@ -12,7 +12,6 @@ using System.Linq;
 using System.Security.Claims;
 using ECommerceAPI.Application.DTOs.UserDTO;
 using FirebaseAdmin.Messaging;
-using ECommerceAPI.Core.Entities.UserEntity;
 
 namespace ECommerceAPI.API.Controllers
 {
@@ -71,7 +70,7 @@ namespace ECommerceAPI.API.Controllers
                 var userExists = await _userService.CheckUserExists(request.Email);
 
                 if (userExists)
-                    return BadRequest("User already exists");
+                    return StatusCode(405,"User already exists");
 
                 var loggedInUserRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
@@ -221,9 +220,9 @@ namespace ECommerceAPI.API.Controllers
         }
 
 
-        [Authorize(Roles = "Admin,Customer")]
-        [HttpPatch("deactivate-user/{userID}")]
-        public async Task<IActionResult> DeactivateUser(string userID)
+        [Authorize(Roles = "Admin,Customer,CSR")]
+        [HttpPatch("deactivate-user/{customerID}")]
+        public async Task<IActionResult> DeactivateUser(string customerID)
         {
             try
             {
@@ -237,7 +236,7 @@ namespace ECommerceAPI.API.Controllers
                     return Unauthorized("User role is not defined.");
                 }
 
-                await _userService.DeactivateUser(userID);
+                await _userService.DeactivateUser(customerID);
                 return Ok("User deactivated successfully");
             }
             catch (DataException ex)
@@ -273,6 +272,16 @@ namespace ECommerceAPI.API.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var loggedInUserRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                if (string.IsNullOrEmpty(loggedInUserRole))
+                {
+                    return Unauthorized("User role is not defined.");
+                }
+
                 await _userService.UpdateUserAsync(request, userID);
                 return Ok("User updated successfully");
             }

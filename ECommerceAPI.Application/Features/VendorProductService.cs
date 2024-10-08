@@ -49,7 +49,8 @@ namespace ECommerceAPI.Application.Features
                 StockStatus = productDTO.StockQuantity == 0 ? VendorStockStatus.OutOfStock.ToString() :
                               productDTO.StockQuantity < 5 ? VendorStockStatus.LowStock.ToString() : VendorStockStatus.Available.ToString(),
                 Type = productType, // Set default or provided value
-                Size = productSize  // Set default or provided value
+                Size = productSize, // Set default or provided value
+                IsActive = false // Initially false
             };
 
             await _productRepository.AddVendorProductAsync(product);
@@ -85,7 +86,6 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
-
         // Delete a vendor product if it is not in pending state
         public async Task<string> DeleteVendorProductAsync(string productId)
         {
@@ -99,20 +99,21 @@ namespace ECommerceAPI.Application.Features
 
                 var orderItems = await _orderRepository.GetVendorOrderAsync(product.VendorId);
 
-                if(orderItems == null || orderItems.Count == 0)
+                if (orderItems == null || orderItems.Count == 0)
                 {
                     await _productRepository.DeleteVendorProductAsync(productId);
                     return "Success";
                 }
 
-                foreach (var orderItem in orderItems) {
+                foreach (var orderItem in orderItems)
+                {
                     if (orderItem.ProductId == productId && orderItem.Status == "PENDING")
                     {
                         return "Can't Delete, Product is Pending order Item";
                     }
                 }
 
-                await _productRepository.DeleteVendorProductAsync(productId);                
+                await _productRepository.DeleteVendorProductAsync(productId);
                 return "Success";
             }
             catch (Exception ex)
@@ -143,7 +144,8 @@ namespace ECommerceAPI.Application.Features
                     StockStatus = product.StockStatus,
                     ImageUrl = product.ImageUrl,
                     Type = product.Type, // Include Type in the DTO
-                    Size = product.Size  // Include Size in the DTO
+                    Size = product.Size, // Include Size in the DTO
+                    IsActive = product.IsActive // Include IsActive in the DTO
                 });
             }
 
@@ -172,7 +174,8 @@ namespace ECommerceAPI.Application.Features
                     StockStatus = product.StockStatus,
                     ImageUrl = product.ImageUrl,
                     Type = product.Type, // Include Type in the DTO
-                    Size = product.Size  // Include Size in the DTO
+                    Size = product.Size, // Include Size in the DTO
+                    IsActive = product.IsActive // Include IsActive in the DTO
                 });
             }
 
@@ -199,8 +202,24 @@ namespace ECommerceAPI.Application.Features
                 StockStatus = product.StockStatus,
                 ImageUrl = product.ImageUrl,
                 Type = product.Type, // Include Type in the DTO
-                Size = product.Size  // Include Size in the DTO
+                Size = product.Size, // Include Size in the DTO
+                IsActive = product.IsActive // Include IsActive in the DTO
             };
+        }
+
+        // Toggle product activation
+        public async Task<bool> ToggleProductActivationAsync(string productId)
+        {
+            var product = await _productRepository.GetVendorProductByIdAsync(productId);
+            if (product != null)
+            {
+                // Toggle the isActive value
+                product.IsActive = !product.IsActive;
+                await _productRepository.UpdateVendorProductAsync(product);
+                return true;
+            }
+
+            return false;
         }
 
         // Manage stock levels and notify vendor if stock is low
@@ -231,7 +250,7 @@ namespace ECommerceAPI.Application.Features
             Console.WriteLine($"Vendor Product {productId} is low on stock!");
         }
 
-        //get full details for specific order
+        // Get full details for specific order
         public async Task<VendorOrderDTO> GetOrderDetailsAsync(string ItemId)
         {
             try
@@ -253,7 +272,7 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
-        //get all active orders for vendor
+        // Get all active orders for vendor
         public async Task<List<OrderItem>> GetAllAvailableOrdersAsync(string vendorId)
         {
             try
@@ -264,16 +283,13 @@ namespace ECommerceAPI.Application.Features
                 {
                     return null;
                 }
-                    return result;
+                return result;
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
         }
-
-
-
 
     }
 }

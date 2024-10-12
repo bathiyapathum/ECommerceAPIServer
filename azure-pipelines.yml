@@ -56,10 +56,17 @@ steps:
     secureFile: 'appsettings.json'  # Your exact filename
 
 # Replace existing appsettings.json in the project directory
+# - script: |
+#     echo "Replacing appsettings.json"
+#     copy /Y "$(Agent.TempDirectory)\$(appSettings.secureFilePath)" "$(System.DefaultWorkingDirectory)\ECommerceAPI.API\appsettings.json"
+#   displayName: 'Replace appsettings.json'
 - script: |
     echo "Replacing appsettings.json"
+    echo "Source Path: $(Agent.TempDirectory)\$(appSettings.secureFilePath)"
+    echo "Destination Path: $(System.DefaultWorkingDirectory)\ECommerceAPI.API\appsettings.json"
     copy /Y "$(Agent.TempDirectory)\$(appSettings.secureFilePath)" "$(System.DefaultWorkingDirectory)\ECommerceAPI.API\appsettings.json"
   displayName: 'Replace appsettings.json'
+
 
 - script: |
     echo "Replacing firebase credentials file"

@@ -51,7 +51,7 @@ steps:
 
 # Download appsettings.json from Secure Files
 - task: DownloadSecureFile@1
-  name: 'appSettings'
+  name: 'appsettings'
   inputs:
     secureFile: 'appsettings.json'  # Your exact filename
 
@@ -62,13 +62,13 @@ steps:
 #   displayName: 'Replace appsettings.json'
 - script: |
     echo "Replacing appsettings.json"
-    echo "Source Path: $(Agent.TempDirectory)$(appSettings.secureFilePath)"
+    echo "Source Path: $(Agent.TempDirectory)$(appsettings.secureFilePath)"
     echo "Destination Path: $(System.DefaultWorkingDirectory)\ECommerceAPI.API\appsettings.json"
 
     REM Check if source file exists
-    if exist "$(Agent.TempDirectory)$(appSettings.secureFilePath)" (
+    if exist "$(Agent.TempDirectory)$(appsettings.secureFilePath)" (
         echo "File exists. Proceeding with copy."
-        copy /Y "$(Agent.TempDirectory)$(appSettings.secureFilePath)" "$(System.DefaultWorkingDirectory)\ECommerceAPI.API\appsettings.json"
+        copy /Y "$(Agent.TempDirectory)$(appsettings.secureFilePath)" "$(System.DefaultWorkingDirectory)\ECommerceAPI.API\appsettings.json"
     ) else (
         echo "Error: Source file does not exist!"
         exit 1

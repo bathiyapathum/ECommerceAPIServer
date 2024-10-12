@@ -62,9 +62,17 @@ steps:
 #   displayName: 'Replace appsettings.json'
 - script: |
     echo "Replacing appsettings.json"
-    echo "Source Path: $(Agent.TempDirectory)\$(appSettings.secureFilePath)"
+    echo "Source Path: $(Agent.TempDirectory)$(appSettings.secureFilePath)"
     echo "Destination Path: $(System.DefaultWorkingDirectory)\ECommerceAPI.API\appsettings.json"
-    copy /Y "$(Agent.TempDirectory)\$(appSettings.secureFilePath)" "$(System.DefaultWorkingDirectory)\ECommerceAPI.API\appsettings.json"
+
+    REM Check if source file exists
+    if exist "$(Agent.TempDirectory)$(appSettings.secureFilePath)" (
+        echo "File exists. Proceeding with copy."
+        copy /Y "$(Agent.TempDirectory)$(appSettings.secureFilePath)" "$(System.DefaultWorkingDirectory)\ECommerceAPI.API\appsettings.json"
+    ) else (
+        echo "Error: Source file does not exist!"
+        exit 1
+    )
   displayName: 'Replace appsettings.json'
 
 

@@ -58,7 +58,7 @@ steps:
 # Replace existing appsettings.json in the project directory
 - script: |
     echo "Replacing appsettings.json"
-    copy /Y "$(Agent.TempDirectory)/$(appSettings.secureFilePath)" "$(System.DefaultWorkingDirectory)/ECommerceAPI.API/appsettings.json"   
+    copy /Y "$(Agent.TempDirectory)\$(appSettings.secureFilePath)" "$(System.DefaultWorkingDirectory)\ECommerceAPI.API\appsettings.json"
   displayName: 'Replace appsettings.json'
 
 - script: |

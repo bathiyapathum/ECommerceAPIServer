@@ -120,7 +120,6 @@ namespace ECommerceAPI.API.Controllers
                 return BadRequest(ModelState);
 
 
-
             var userExists = await _userService.CheckUserExists(request.Email);
 
             if (!userExists)
@@ -130,17 +129,17 @@ namespace ECommerceAPI.API.Controllers
             {
                 var user = await _userService.UserLoginAsync(request);
 
-                if(user.Role.ToString() == "Vendor" || user.Role.ToString() == "CSR")
-                {
-                    var token = _authService.GenerateJwtToken(user);
-                    return Ok(new
-                    {
-                        Token = token,
-                        User = user
-                    });
-                }
-                else
-                {
+                //if(user.Role.ToString() == "Vendor" || user.Role.ToString() == "CSR")
+                //{
+                //    var token = _authService.GenerateJwtToken(user);
+                //    return Ok(new
+                //    {
+                //        Token = token,
+                //        User = user
+                //    });
+                //}
+                //else
+                //{
                     if (user.IsActive)
                     {
                         var token = _authService.GenerateJwtToken(user);
@@ -158,7 +157,7 @@ namespace ECommerceAPI.API.Controllers
                             UserId = user.Id,
                         });
                     }
-                }
+                //}
 
 
 

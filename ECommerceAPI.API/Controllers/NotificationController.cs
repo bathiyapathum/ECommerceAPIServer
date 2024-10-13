@@ -45,7 +45,6 @@ namespace ECommerceAPI.API.Controllers
             return Ok(notifications);
         }
 
-        //Get notifications specific to a given user
         [HttpGet("my/notifications")]
         public async Task<IActionResult> GetUserNotification([FromQuery] string userId)
         {
@@ -53,7 +52,6 @@ namespace ECommerceAPI.API.Controllers
             return Ok(notifications);
         }
 
-        //Send a notification to users
         [HttpPost("Send")]
         public async Task<IActionResult> SendNotification([FromBody] NotificationDTO notificationDTO)
         {

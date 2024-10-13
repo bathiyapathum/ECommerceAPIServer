@@ -41,7 +41,6 @@ namespace ECommerceAPI.Application.Features.NotificationServices
             _notificationRepository = notificationRepository;
         }
 
-        // Send a web notification based on the provided NotificationDTO
         public async Task<string> Send(NotificationDTO notificationDTO)
         {
             try
@@ -60,7 +59,6 @@ namespace ECommerceAPI.Application.Features.NotificationServices
 
                 var result = await _notificationRepository.CreateAsync(notification);
                 return result;
-
             }
             catch (Exception ex) 
             {
@@ -68,7 +66,6 @@ namespace ECommerceAPI.Application.Features.NotificationServices
             }
         }
 
-        // Determine the user roles to notify based on the given notification scenario
         private List<UserRole> GetRolesForScenario(NotificationScenario scenario)
         {
             switch (scenario)
@@ -86,7 +83,5 @@ namespace ECommerceAPI.Application.Features.NotificationServices
                     return new List<UserRole>();
             }
         }
-
-
     }
 }

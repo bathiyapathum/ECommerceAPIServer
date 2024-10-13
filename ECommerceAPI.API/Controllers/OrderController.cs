@@ -148,8 +148,8 @@ namespace ECommerceAPI.API.Controllers
             return Ok(order);
         }
 
+        //Order update method implementation
 
-        // Update order details
         [HttpPatch]
         public async Task<IActionResult> UpdateOrder([FromBody] OrderDTO orderDTO, [FromQuery] string orderId)
         {
@@ -164,9 +164,7 @@ namespace ECommerceAPI.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
-        // Make order status as delivered (Admin and CSR roles only)
-        [Authorize(Roles = "Admin,CSR")]
+        //[Authorize(Roles = "CSR")]
         [HttpPatch("delivered")]
         public async Task<IActionResult> UpdateOrderStatus([FromQuery] string orderId)
         {
@@ -190,8 +188,6 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
-        // Cancel an order (Admin and CSR roles only)
-        [Authorize(Roles = "Admin,CSR")]
         [HttpPatch("cancel")]
         public async Task<IActionResult> CancelOrder([FromBody] OrderDTO orderDTO, [FromQuery] string orderId)
         {
@@ -217,8 +213,6 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
-        // Mark an order item as delivered (Admin, CSR, and Vendor roles only)
-        [Authorize(Roles = "Admin,CSR,Vendor")]
         [HttpPatch("item/delivered")]
         public async Task<IActionResult> ItemDelivered([FromQuery] string itemId)
         {
@@ -316,8 +310,6 @@ namespace ECommerceAPI.API.Controllers
             }
         }
 
-        // Get all cancellation requests (Admin and CSR roles only)
-        [Authorize(Roles = "Admin,CSR")]
         [HttpGet("cancel/request/all")]
         public async Task<IActionResult> GetAllRequestCancellation()
         {

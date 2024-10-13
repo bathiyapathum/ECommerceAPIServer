@@ -316,17 +316,28 @@ namespace ECommerceAPI.Application.Features
         }
 
         // Get all active orders for vendor
-        public async Task<List<OrderItem>> GetAllAvailableOrdersAsync(string vendorId)
+        public async Task<List<VendorOrderDTO>> GetAllAvailableOrdersAsync(string vendorId)
         {
             try
             {
                 var result = await _orderRepository.GetVendorOrderAsync(vendorId);
+                var orderItems = new List<VendorOrderDTO>();
 
-                if (result == null)
+                foreach (var order in result)
+                {
+                    var orderDetails = await GetOrderDetailsAsync(order.ItemId);
+                    if (orderDetails != null)
+                    {
+                        orderItems.Add(orderDetails);
+                    }
+                }
+
+                if (orderItems == null || orderItems.Count == 0)
                 {
                     return null;
                 }
-                return result;
+
+                return orderItems;
             }
             catch (Exception ex)
             {

@@ -303,15 +303,14 @@ namespace ECommerceAPI.API.Controllers
         {
             try
             {
+
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                var loggedInUserRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                var userExists = await _userService.GetUserByIdAsync(userID);
 
-                if (string.IsNullOrEmpty(loggedInUserRole))
-                {
-                    return Unauthorized("User role is not defined.");
-                }
+                if (string.IsNullOrEmpty(userExists.Email))
+                    return BadRequest("Invalid User ID");
 
                 await _userService.UpdateUserAsync(request, userID);
                 return Ok("User updated successfully");

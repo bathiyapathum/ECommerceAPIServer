@@ -31,7 +31,9 @@ namespace ECommerceAPI.Application.Interfaces.NotificationInterfaces
         // Send a notification
         Task<string> Send(NotificationDTO notificationDTO);
         // Get all notifications
-        Task<List<Notification>> GetAllNotificationsAsync();
+        Task<List<Notification>> GetAllNotificationsAsync(string userRole);
+        // Mark a notification as read
+        Task<string> MarkAsRead(string notificationId, string readBy);
         // Get user-specific notifications
         Task<List<Notification>> GetUserNotifications(string userId);
     }

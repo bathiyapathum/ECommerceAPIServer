@@ -16,13 +16,17 @@ namespace ECommerceAPI.Application.DTOs.NotificationDTO
 
         public string UserId { get; set; }
 
-        public string Reason { get; set; }
-
         public bool IsRead { get; set; }
 
-        public DateTime SentDate { get; set; }
+        public string ReadBy { get; set; }
+
+        public DateTime CreatedDate { get; set; }
+
+        public List<UserRole> RolesToNotify { get; set; }
 
         public NotificationScenario Scenario { get; set; }
+
+        public string ScenarioId { get; set; }
 
     }
 }

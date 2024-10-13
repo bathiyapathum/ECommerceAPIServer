@@ -46,6 +46,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ECommerceAPI.Application.Interfaces.NotificationInterfaces;
 
 namespace ECommerceAPI.Application.Features
 {
@@ -431,10 +432,16 @@ namespace ECommerceAPI.Application.Features
                     {
                         NotificationDTO notification = new()
                         {
+                            NotifyId = Guid.NewGuid().ToString(),
                             IsRead = false,
                             Message = $"Order {item.ItemId} has been canceled!",
-                            Reason = "Customer request cancelation",
                             UserId = item.VendorId,
+                            CreatedDate = DateTime.UtcNow,
+                            ReadBy = null,
+                            RolesToNotify = null,
+                            Scenario = Core.Enums.NotificationScenario.OrderCancelled,
+                            ScenarioId = orderId                            
+
                         };
                         await notificationService.Send(notification);
                     }
@@ -442,10 +449,15 @@ namespace ECommerceAPI.Application.Features
 
                 NotificationDTO notificationCus = new()
                 {
+                    NotifyId = Guid.NewGuid().ToString(),
                     IsRead = false,
                     Message = "Your order " + orderId + " has canceled.",
-                    Reason = note,
-                    UserId = existingItem.CustomerId
+                    UserId = existingItem.CustomerId,
+                    CreatedDate = DateTime.UtcNow,
+                    ReadBy = null,
+                    RolesToNotify = null,
+                    Scenario = Core.Enums.NotificationScenario.OrderCancelled,
+                    ScenarioId = orderId
                 };
 
                 var resutl = await notificationService.Send(notificationCus);
@@ -580,7 +592,9 @@ namespace ECommerceAPI.Application.Features
                                 {
                                     IsRead = false,
                                     Message = $"Order {item.ItemId} has been delivered successfully",
-                                    Reason = "Order delivered",
+                                    RolesToNotify = null,
+                                    Scenario = Core.Enums.NotificationScenario.OrderDelivered,
+                                    ScenarioId = orderId,
                                     UserId = item.VendorId,
                                 };
                                 await notificationService.Send(notification);
@@ -596,8 +610,9 @@ namespace ECommerceAPI.Application.Features
                         NotificationDTO notification = new()
                         {
                             IsRead = false,
-                            Message = "Order placed with" + orderId + " for you.",
-                            Reason = "Placing new order",
+                            Message = "Order "+status.ToLower()+ " with " + orderId + " for you.",
+                            Scenario = Core.Enums.NotificationScenario.OrderDelivered,
+                            ScenarioId = orderId,                            
                             UserId = order.CustomerId
                         };
                         await notificationService.Send(notification);
@@ -708,8 +723,9 @@ namespace ECommerceAPI.Application.Features
                             NotificationDTO notification = new()
                             {
                                 IsRead = false,
-                                Message = "Order placed with" + orderId + " for you.",
-                                Reason = "Placing new order",
+                                Message = "Order placed with " + orderId + " for you.",
+                                Scenario = Core.Enums.NotificationScenario.OrderPlaced,
+                                ScenarioId = orderId,
                                 UserId = item.VendorId
                             };
                             await notificationService.Send(notification);
@@ -720,8 +736,9 @@ namespace ECommerceAPI.Application.Features
                     {
                         IsRead = false,
                         Message = "Congratulation your order: " + orderId + "has been placed successfully",
-                        Reason = "Placing new order",
-                        UserId = order.CustomerId
+                        UserId = order.CustomerId,
+                        Scenario = Core.Enums.NotificationScenario.OrderPlaced,
+                        ScenarioId = orderId 
                     };
                     var res = await notificationService.Send(Custnotification);
 
@@ -751,6 +768,7 @@ namespace ECommerceAPI.Application.Features
         {
             try
             {
+                NotificationService notificationService = new(_notificationRepository);
                 var customerOrder = await _orderRepository.GetOrderAsync(cancelRequestDTO.OrderId);
 
                 if (customerOrder == null)
@@ -787,7 +805,18 @@ namespace ECommerceAPI.Application.Features
                 };
 
                 var resutl = await _orderRepository.CreateOrderCancelRequest(request);
-                if(resutl)
+
+                NotificationDTO notification = new()
+                {
+                    IsRead = false,
+                    Message = "Order cancellation request for " + customerOrder.OrderId,
+                    Scenario = Core.Enums.NotificationScenario.OrderCancelRequest,
+                    ScenarioId = customerOrder.OrderId,
+                    UserId = null,
+                };
+                await notificationService.Send(notification);
+
+                if (resutl)
                 {
                     return "Cancel request sent successfully";
                 }

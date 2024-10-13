@@ -1,4 +1,5 @@
 ﻿using ECommerceAPI.Core.Entities.NotificationEntity;
+using ECommerceAPI.Core.Enums;
 using ECommerceAPI.Infrastructure.Persistance;
 using System;
 using System.Collections.Generic;
@@ -16,9 +17,12 @@ namespace ECommerceAPI.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<List<Notification>> GetAllAsync()
+        public async Task<List<Notification>> GetAllAsync(string userRole)
         {
-            var notifications = await _context.FirestoreDatabase.Collection("Notifications").GetSnapshotAsync();
+            var notifications = await _context.FirestoreDatabase.Collection("Notifications")
+                .WhereArrayContains("rolesToNotify", UserRole.Admin)
+                .OrderByDescending("createdDate")
+                .GetSnapshotAsync();
             return notifications.Select(notification => notification.ConvertTo<Notification>()).ToList();
         }
         
@@ -26,6 +30,7 @@ namespace ECommerceAPI.Infrastructure.Repositories
         {
             var notifications = await _context.FirestoreDatabase.Collection("Notifications")
                 .WhereEqualTo("userId", userId)
+                .OrderByDescending("createdDate")
                 .GetSnapshotAsync();
             return notifications.Select(notification => notification.ConvertTo<Notification>()).ToList();
         }
@@ -43,7 +48,7 @@ namespace ECommerceAPI.Infrastructure.Repositories
             }
         }
 
-        public async Task ReadNotificationAsync(string notifyId)
+        public async Task<string> ReadNotificationAsync(string notifyId, string readBy)
         {
             // Retrieve the document by orderId
             var documentRef = _context.FirestoreDatabase.Collection("Notifications").Document(notifyId);
@@ -55,10 +60,12 @@ namespace ECommerceAPI.Infrastructure.Repositories
                 var notification = new Dictionary<string, object>
                 {                
                     {"isRead" , true },
+                    {"readBy" , readBy},
 
                 };
                 // Update only the provided fields in the dictionary
                 await documentRef.UpdateAsync(notification);
+                return "Notification marked as read.";
             }
             else
             {

@@ -49,31 +49,31 @@ steps:
     echo "##vso[task.setvariable variable=GOOGLE_APPLICATION_CREDENTIALS]$(Agent.TempDirectory)/$(firebaseCredentials.secureFilePath)"
   displayName: 'Set GOOGLE_APPLICATION_CREDENTIALS environment variable'
 
-# Download appsettings.json from Secure Files
-- task: DownloadSecureFile@1
-  name: 'appsettings'
-  inputs:
-    secureFile: 'appsettings.json'  # Your exact filename
+# # Download appsettings.json from Secure Files
+# - task: DownloadSecureFile@1
+#   name: 'appsettings'
+#   inputs:
+#     secureFile: 'appsettings.json'  # Your exact filename
 
 # Replace existing appsettings.json in the project directory
 # - script: |
 #     echo "Replacing appsettings.json"
 #     copy /Y "$(Agent.TempDirectory)\$(appSettings.secureFilePath)" "$(System.DefaultWorkingDirectory)\ECommerceAPI.API\appsettings.json"
 #   displayName: 'Replace appsettings.json'
-- script: |
-    echo "Replacing appsettings.json"
-    echo "Source Path: $(Agent.TempDirectory)$(appsettings.secureFilePath)"
-    echo "Destination Path: $(System.DefaultWorkingDirectory)\ECommerceAPI.API\appsettings.json"
+# - script: |
+#     echo "Replacing appsettings.json"
+#     echo "Source Path: $(Agent.TempDirectory)$(appsettings.secureFilePath)"
+#     echo "Destination Path: $(System.DefaultWorkingDirectory)\ECommerceAPI.API\appsettings.json"
 
-    REM Check if source file exists
-    if exist "$(Agent.TempDirectory)$(appsettings.secureFilePath)" (
-        echo "File exists. Proceeding with copy."
-        copy /Y "$(Agent.TempDirectory)$(appsettings.secureFilePath)" "$(System.DefaultWorkingDirectory)\ECommerceAPI.API\appsettings.json"
-    ) else (
-        echo "Error: Source file does not exist!"
-        exit 1
-    )
-  displayName: 'Replace appsettings.json'
+#     REM Check if source file exists
+#     if exist "$(Agent.TempDirectory)$(appsettings.secureFilePath)" (
+#         echo "File exists. Proceeding with copy."
+#         copy /Y "$(Agent.TempDirectory)$(appsettings.secureFilePath)" "$(System.DefaultWorkingDirectory)\ECommerceAPI.API\appsettings.json"
+#     ) else (
+#         echo "Error: Source file does not exist!"
+#         exit 1
+#     )
+#   displayName: 'Replace appsettings.json'
 
 
 - script: |

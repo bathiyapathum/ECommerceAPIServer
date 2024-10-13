@@ -171,15 +171,6 @@ namespace ECommerceAPI.Infrastructure.Repositories
                 }
 
                 return snapShot.Documents.Select(doc => doc.ConvertTo<User>()).ToList();
-                    //.ContinueWith(task =>
-                    //{
-                    //    var snapshot = task.Result;
-                    //    if (snapshot.Count == 0)
-                    //    {
-                    //        return null;
-                    //    }
-                    //    return snapshot.Documents.Select(doc => doc.ConvertTo<User>()).ToList();
-                    //});
             }
             catch (Exception ex)
             {

@@ -1,4 +1,4 @@
-﻿/******************************************************************************************
+/******************************************************************************************
  * File Name: NotificationController.cs
  * Description: This controller handles notification-related API requests, providing 
  *              services for retrieving and sending notifications in the e-commerce 

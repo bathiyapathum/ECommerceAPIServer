@@ -533,10 +533,6 @@ namespace ECommerceAPI.Application.Features
             throw new NotImplementedException();
         }
 
-        /***
-         *  Update order Status for Delivered
-         *  Author: Herath R. P. N. M - IT21177828   
-         ***/
         public async Task UpdateOrderDetailsAsync(string orderId, OrderDTO orderDTO)
         {
             try
@@ -555,10 +551,6 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
-        /***
-        *  Update order Status for Delivered and send Notification when done
-        *  Author: Herath R. P. N. M - IT21177828
-        ***/
         public async Task<string> UpdateOrderStatusAsync(string orderId, string status)
         {
             try
@@ -630,12 +622,6 @@ namespace ECommerceAPI.Application.Features
                 throw new Exception(ex.Message);
             }
         }
-
-
-        /***
-         * Place order by order ID, address, and telephone no and Send Notification to Vendor and Customer
-         * Author: Hansana K. T - IT21167850 
-         ***/
 
         public async Task<string> PlaceOrderAsync(string orderId, string address, string tel)
         {
@@ -832,10 +818,6 @@ namespace ECommerceAPI.Application.Features
 
         }
 
-        /***
-         * Get all cancellation requests for Admins and CSR
-         * Author: Heraht R P N M - IT21177828
-         ***/
         public async Task<List<CancelRequest>> GetAllCancellationRequests()
         {
             try
@@ -849,10 +831,6 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
-        /***
-         * Response to cancel order request by Admins and CSR
-         * Author: Herath R P N M - IT21177828
-         ***/
         public async Task<string> RespondToCancelRequest(CancelRequestDTO cancelRequestDTO)
         {
             try
@@ -951,10 +929,7 @@ namespace ECommerceAPI.Application.Features
         }
 
 
-        /***
-         * Deliver items from vendor side
-         * Author : Herath R P N M - IT21177828
-         ***/
+
         public async Task<string> ItemDeliverAsync(string itemId)
         {
             try

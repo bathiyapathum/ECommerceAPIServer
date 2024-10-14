@@ -14,25 +14,28 @@ namespace ECommerceAPI.Core.Entities.NotificationEntity
         [FirestoreProperty("notifyId")]
         public string NotifyId { get; set; }
 
-        [FirestoreProperty("message")]
-        public string Message { get; set; }
-
         [FirestoreProperty("userId")]
         public string UserId { get; set; }
 
-        [FirestoreProperty("reason")]
-        public string Reason { get; set; }
+        [FirestoreProperty("message")]
+        public string Message { get; set; }
 
         [FirestoreProperty("isRead")]
-        public bool IsRead { get; set; }
+        public bool IsRead { get; set; }        
 
-        [FirestoreProperty("sentDate")]
-        public DateTime SentDate { get; set; }
+        [FirestoreProperty("readBy")]
+        public string ReadBy { get; set; }
+
+        [FirestoreProperty("createdDate")]
+        public DateTime CreatedDate { get; set; }
 
         [FirestoreProperty("rolesToNotify")]
         public List<UserRole> RolesToNotify { get; set; } 
 
         [FirestoreProperty("scenario")]
         public NotificationScenario Scenario { get; set; }
+        
+        [FirestoreProperty("scenarioId")]
+        public string ScenarioId { get; set; }
     }
 }

@@ -116,7 +116,26 @@ namespace ECommerceAPI.Infrastructure.Repositories
             }
 
             return allProducts;
+        }  
+        
+        public async Task<string> GetAvailableProductCounts()
+        {
+            try 
+            { 
+                var productsQuery = await _context.FirestoreDatabase
+                    .Collection("VendorProducts")
+                    .WhereEqualTo("isActive", true)
+                    .GetSnapshotAsync();
+                int productCount = productsQuery.Count;
+                return productCount.ToString();
+            }
+            catch(Exception ex)
+            {
+                throw new Exception($"Error while execution of GetAvailableProductCounts:  {ex.Message}");
+            }
         }
+
+
 
         // Get a vendor product by its ID
         public async Task<VendorProduct> GetVendorProductByIdAsync(string productId)

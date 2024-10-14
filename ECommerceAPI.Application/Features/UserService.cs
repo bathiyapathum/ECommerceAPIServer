@@ -130,12 +130,12 @@ namespace ECommerceAPI.Application.Features
                     throw new DataException(string.Join(",", inputErrors));
                 }
 
-                List<string> roleErrors = _validations.ValidateUserRole(signupReqDTO, role);
+                //List<string> roleErrors = _validations.ValidateUserRole(signupReqDTO, role);
 
-                if (roleErrors.Count > 0)
-                {
-                    throw new DataException(string.Join(",", roleErrors));
-                }
+                //if (roleErrors.Count > 0)
+                //{
+                //    throw new DataException(string.Join(",", roleErrors));
+                //}
 
                 var user = new User
                 {
@@ -256,6 +256,7 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
+        //change password
         public Task<bool> ActivateUser(ChangePasswordReqDTO changePasswordReqDTO)
         {
             try
@@ -291,6 +292,7 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
+        //activate user
         public Task<bool> ActivateUser(string userId)
         {
             try
@@ -323,6 +325,7 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
+        //deaactivate user
         public Task<bool> DeactivateUser(string userId)
         {
             try
@@ -349,6 +352,7 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
+        //get inactive all users
         public async Task<List<User>> GetInactiveUsers()
         {
 
@@ -365,23 +369,23 @@ namespace ECommerceAPI.Application.Features
 
         }
 
-        public async Task<Dictionary<string, int>> GetAvailableUserCount()
-        {
-            try
-            {          
-                var result = await _userRepository.GetAvailableUserCounts();
+        //public async Task<Dictionary<string, int>> GetAvailableUserCount()
+        //{
+        //    try
+        //    {          
+        //        var result = await _userRepository.GetAvailableUserCounts();
 
-                return result;
-            }
-            catch (DataException ex)
-            {
-                throw new DataException(ex.Message); 
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"An error occurred GetAvailableUserCount: {ex.Message}"); 
-            }
-        }
+        //        return result;
+        //    }
+        //    catch (DataException ex)
+        //    {
+        //        throw new DataException(ex.Message); 
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception($"An error occurred GetAvailableUserCount: {ex.Message}"); 
+        //    }
+        //}
 
 
 

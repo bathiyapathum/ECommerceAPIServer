@@ -1,4 +1,40 @@
-﻿using ECommerceAPI.Application.DTOs.NotificationDTO;
+﻿/******************************************************************************************
+ * OrderService.cs
+ * 
+ * This class implements the IOrderService interface and provides various functionalities 
+ * for managing orders in the e-commerce system. The OrderService handles the creation, 
+ * retrieval, updating, and deletion of orders, as well as the management of order items, 
+ * cancellations, and notifications.
+ * 
+ * Contributors:
+ * - Herath R P N M
+ * - Registration No: IT21177828: 
+ *    - Implemented the following methods:
+ *     - Get all orders
+ *     - Update order status to delivered
+ *     - Cancel order
+ *     - Mark item as delivered
+ *     - Request cancellation
+ *     - Retrieve all cancellation requests
+ *     - Update cancellation response
+ * 
+ * - Hansana K. T 
+ * - Registration No: IT21167850:
+ *    - Implemented the following methods:
+ *     - Create order
+ *     - Retrieve a specific order
+ *     - Retrieve customer cart order
+ *     - Retrieve customer placed orders
+ *     - Remove item from cart
+ *     - Place order
+ *     - Delete order
+ * 
+ * Date: 2024/08/10
+ * 
+ ******************************************************************************************/
+
+
+using ECommerceAPI.Application.DTOs.NotificationDTO;
 using ECommerceAPI.Application.DTOs.OrderDTO;
 using ECommerceAPI.Application.Interfaces;
 using ECommerceAPI.Core.Entities.OrderEntity;
@@ -10,6 +46,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ECommerceAPI.Application.Interfaces.NotificationInterfaces;
 
 namespace ECommerceAPI.Application.Features
 {
@@ -25,6 +62,7 @@ namespace ECommerceAPI.Application.Features
             _notificationRepository = notificationRepository;
             _vendorProductRepository = vendorProductRepository;
         }
+
         /**
          * @CreateOrderAsync - This method initiates an order for a customer.
          *
@@ -39,8 +77,8 @@ namespace ECommerceAPI.Application.Features
          * adds a reference to the Order's items array.
          *
          * Params: Accepts CustomerId and the selected item to be added to the order.
+         * author: IT21167850 - Hansana K. T
          */
-
         public async Task CreateOrderAsync(OrderDTO orderDTO)
         {
             try
@@ -96,7 +134,6 @@ namespace ECommerceAPI.Application.Features
                         if (orderItemsRes)
                         {
                             //update the main order to include order item Ref in array
-
                             var updatedFields = new Dictionary<string, object>{
                                 { "items", refList}
                             };
@@ -224,6 +261,10 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
+        /*
+         * Retrieve a customer's cart order by customer IT21167850
+         * Author: Hansana K. T -IT21167850
+         */
         public async Task<OrderResponseDTO> GetCustomerCartOrderAsync(string customerId)
         {
             try
@@ -235,7 +276,6 @@ namespace ECommerceAPI.Application.Features
                 }
 
                 //create response object to return with product name, image, etc
-
                 var orderItems = order.Items;
 
                 var newItems = new List<OrderItem>();
@@ -269,7 +309,12 @@ namespace ECommerceAPI.Application.Features
             }
 
         }
-        
+
+        /*
+         * Get all placed orders by customer 
+         * Autor: Hansana K. T - IT21167850
+         *
+         */
         public async Task<List<OrderResponseDTO>> GetCustomerPlacedOrderAsync(string customerId)
         {
             try
@@ -313,33 +358,6 @@ namespace ECommerceAPI.Application.Features
 
                 }
                     return orderResponseDTO;
-
-                //var orderItems = order.Items;
-
-                //var newItems = new List<OrderItem>();
-
-                //foreach (var item in orderItems)
-                //{
-                //    var result = await _orderRepository.GetVendorOrderItemByIdAsync(item.ItemId);
-
-                //    newItems.Add(new OrderItem
-                //    {
-                //        ItemId = result.ItemId,
-                //        ProductId = result.ProductId,
-                //        VendorId = result.VendorId,
-                //        ProductName = result.ProductName,
-                //        OrderId = result.OrderId,
-                //        Quantity = result.Quantity,
-                //        Price = result.Price,
-                //        ImageUrl = result.ImageUrl,
-                //        Size = result.Size,
-                //        CreatedAt = result.CreatedAt,
-                //    });
-
-                //}
-                //OrderResponseDTO response = OrderResponseDTO.ItemMapper(order, newItems);
-
-                //return response;
             }
             catch (Exception ex)
             {
@@ -348,32 +366,11 @@ namespace ECommerceAPI.Application.Features
 
         }
 
-        public async Task<string> GetTotalRevenue()
-        {
-            try
-            {
-                var revenue = await _orderRepository.GetTotalRevenue();
-                return revenue;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-        
-        public async Task<Dictionary<string, int>> GetOrderStats()
-        {
-            try
-            {
-                var revenue = await _orderRepository.GetOrderStats();
-                return revenue;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
+        /*
+         * Get customer order by customer ID
+         * Author: Hansana K. T - IT21167850
+         * 
+         */
         public async Task<Order> GetCustomerOrderAsync(string customerId)
         {
             try
@@ -387,6 +384,10 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
+        /*
+         * Cancel order by order ID, Note, Cancelled by person
+         * Author: Heraht R P N M - IT21177828
+         */
         public async Task<string> CancelOrderAsync(string orderId, string note, string canceledBy)
         {
             try
@@ -431,10 +432,16 @@ namespace ECommerceAPI.Application.Features
                     {
                         NotificationDTO notification = new()
                         {
+                            NotifyId = Guid.NewGuid().ToString(),
                             IsRead = false,
                             Message = $"Order {item.ItemId} has been canceled!",
-                            Reason = "Customer request cancelation",
                             UserId = item.VendorId,
+                            CreatedDate = DateTime.UtcNow,
+                            ReadBy = null,
+                            RolesToNotify = null,
+                            Scenario = Core.Enums.NotificationScenario.OrderCancelled,
+                            ScenarioId = orderId                            
+
                         };
                         await notificationService.Send(notification);
                     }
@@ -442,10 +449,15 @@ namespace ECommerceAPI.Application.Features
 
                 NotificationDTO notificationCus = new()
                 {
+                    NotifyId = Guid.NewGuid().ToString(),
                     IsRead = false,
                     Message = "Your order " + orderId + " has canceled.",
-                    Reason = note,
-                    UserId = existingItem.CustomerId
+                    UserId = existingItem.CustomerId,
+                    CreatedDate = DateTime.UtcNow,
+                    ReadBy = null,
+                    RolesToNotify = null,
+                    Scenario = Core.Enums.NotificationScenario.OrderCancelled,
+                    ScenarioId = orderId
                 };
 
                 var resutl = await notificationService.Send(notificationCus);
@@ -462,7 +474,10 @@ namespace ECommerceAPI.Application.Features
         }
 
 
-
+        /***
+         * Delete order by order ID
+         * Author: Hansana K. T - IT21167850
+         ***/
         public async Task DeleteOrderAsync(string orderId)
         {
             try
@@ -476,7 +491,10 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
-
+        /***
+         * Get All orders for Admin And CSR
+         * Author : Heraht R P N M - IT21177828
+         ***/
         public async Task<List<Order>> GetAllOrdersAsync()
         {
             try
@@ -489,6 +507,11 @@ namespace ECommerceAPI.Application.Features
                 throw new Exception(ex.Message);
             }
         }
+
+        /***
+         * Get Order by order id 
+         * Author : Hansana K. T - IT21167850
+         ***/
 
         public async Task<Order> GetOrderAsync(string orderId)
         {
@@ -503,6 +526,7 @@ namespace ECommerceAPI.Application.Features
                 throw new Exception(ex.Message);
             }
         }
+
 
         public Task<IEnumerable<Order>> GetOrdersByCustomerAsync(string customerId)
         {
@@ -519,7 +543,6 @@ namespace ECommerceAPI.Application.Features
                     {"status" , orderDTO.Status }
                 };
                 await _orderRepository.UpdateOrderAsync(orderId, order);
-
 
             }
             catch (Exception ex)
@@ -561,7 +584,9 @@ namespace ECommerceAPI.Application.Features
                                 {
                                     IsRead = false,
                                     Message = $"Order {item.ItemId} has been delivered successfully",
-                                    Reason = "Order delivered",
+                                    RolesToNotify = null,
+                                    Scenario = Core.Enums.NotificationScenario.OrderDelivered,
+                                    ScenarioId = orderId,
                                     UserId = item.VendorId,
                                 };
                                 await notificationService.Send(notification);
@@ -577,8 +602,9 @@ namespace ECommerceAPI.Application.Features
                         NotificationDTO notification = new()
                         {
                             IsRead = false,
-                            Message = "Order placed with" + orderId + " for you.",
-                            Reason = "Placing new order",
+                            Message = "Order "+status.ToLower()+ " with " + orderId + " for you.",
+                            Scenario = Core.Enums.NotificationScenario.OrderDelivered,
+                            ScenarioId = orderId,                            
                             UserId = order.CustomerId
                         };
                         await notificationService.Send(notification);
@@ -602,7 +628,6 @@ namespace ECommerceAPI.Application.Features
             try
             {
                 NotificationService notificationService = new(_notificationRepository);
-                //place order
                 Dictionary<string, object> updatedOrder = new()
                 {
                     {"isInCart", false},
@@ -684,8 +709,9 @@ namespace ECommerceAPI.Application.Features
                             NotificationDTO notification = new()
                             {
                                 IsRead = false,
-                                Message = "Order placed with" + orderId + " for you.",
-                                Reason = "Placing new order",
+                                Message = "Order placed with " + orderId + " for you.",
+                                Scenario = Core.Enums.NotificationScenario.OrderPlaced,
+                                ScenarioId = orderId,
                                 UserId = item.VendorId
                             };
                             await notificationService.Send(notification);
@@ -696,8 +722,9 @@ namespace ECommerceAPI.Application.Features
                     {
                         IsRead = false,
                         Message = "Congratulation your order: " + orderId + "has been placed successfully",
-                        Reason = "Placing new order",
-                        UserId = order.CustomerId
+                        UserId = order.CustomerId,
+                        Scenario = Core.Enums.NotificationScenario.OrderPlaced,
+                        ScenarioId = orderId 
                     };
                     var res = await notificationService.Send(Custnotification);
 
@@ -719,11 +746,15 @@ namespace ECommerceAPI.Application.Features
             }
         }
 
-
+        /***
+         * Make order cancelaton request for Admins and CSR
+         * Author : Herath R P N M - IT21177828
+         ***/
         public async Task<string> MakeCancelOrderRequestAsync(CancelRequestDTO cancelRequestDTO)
         {
             try
             {
+                NotificationService notificationService = new(_notificationRepository);
                 var customerOrder = await _orderRepository.GetOrderAsync(cancelRequestDTO.OrderId);
 
                 if (customerOrder == null)
@@ -760,7 +791,18 @@ namespace ECommerceAPI.Application.Features
                 };
 
                 var resutl = await _orderRepository.CreateOrderCancelRequest(request);
-                if(resutl)
+
+                NotificationDTO notification = new()
+                {
+                    IsRead = false,
+                    Message = "Order cancellation request for " + customerOrder.OrderId,
+                    Scenario = Core.Enums.NotificationScenario.OrderCancelRequest,
+                    ScenarioId = customerOrder.OrderId,
+                    UserId = null,
+                };
+                await notificationService.Send(notification);
+
+                if (resutl)
                 {
                     return "Cancel request sent successfully";
                 }
@@ -812,7 +854,8 @@ namespace ECommerceAPI.Application.Features
                 {
                     {"status", cancelRequestDTO.Status },
                     {"responsedBy", cancelRequestDTO.ResponsedBy },
-                    {"responseNote", cancelRequestDTO.ResponseNote }
+                    {"responseNote", cancelRequestDTO.ResponseNote },
+                    {"resolvedAt", DateTime.UtcNow }
                 };
 
                 var response = await _orderRepository.ResponseToCancelOrderRequest(cancelRequestDTO.RequestId, updatedFields);
@@ -832,7 +875,10 @@ namespace ECommerceAPI.Application.Features
 
         }
 
-
+        /***
+         * Remove item from cart by item ID
+         * Author: Hansana K. T - IT21167850
+         ***/
         public async Task<string> RemoveItemFromCart(string orderId, string itemId)
         {
             var order = await _orderRepository.GetOrderAsync(orderId);
@@ -881,7 +927,7 @@ namespace ECommerceAPI.Application.Features
             return "Item not found in the cart";
 
         }
-        
+
 
 
         public async Task<string> ItemDeliverAsync(string itemId)

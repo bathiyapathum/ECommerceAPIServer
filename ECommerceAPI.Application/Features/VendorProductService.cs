@@ -5,15 +5,18 @@
 // Date: 06/10/2024
 // --------------------------------------------------------------------------------------------------------------------
 
+using ECommerceAPI.Application.DTOs.NotificationDTO;
 using ECommerceAPI.Application.DTOs.OrderDTO;
 using ECommerceAPI.Application.DTOs.ProductDTO;
 using ECommerceAPI.Application.Interfaces;
+using ECommerceAPI.Application.Interfaces.NotificationInterfaces;
 using ECommerceAPI.Core.Entities.OrderEntity;
 using ECommerceAPI.Core.Entities.ProductEntity;
 using ECommerceAPI.Infrastructure.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using static Google.Cloud.Firestore.V1.StructuredQuery.Types;
 
 namespace ECommerceAPI.Application.Features
 {
@@ -21,11 +24,14 @@ namespace ECommerceAPI.Application.Features
     {
         private readonly VendorProductRepository _productRepository;
         private readonly OrderRepository _orderRepository;
+        private readonly NotificationRepository _notificationRepository;
 
-        public VendorProductService(VendorProductRepository productRepository, OrderRepository orderRepository)
+
+        public VendorProductService(VendorProductRepository productRepository, OrderRepository orderRepository, NotificationRepository notificationRepository)
         {
             _productRepository = productRepository;
             _orderRepository = orderRepository;
+            _notificationRepository= notificationRepository;
         }
 
         // Create a new vendor product
@@ -210,12 +216,49 @@ namespace ECommerceAPI.Application.Features
         // Toggle product activation
         public async Task<bool> ToggleProductActivationAsync(string productId)
         {
+            NotificationService notificationService = new(_notificationRepository);
             var product = await _productRepository.GetVendorProductByIdAsync(productId);
             if (product != null)
             {
                 // Toggle the isActive value
                 product.IsActive = !product.IsActive;
                 await _productRepository.UpdateVendorProductAsync(product);
+
+                if (product.IsActive) {
+                
+                    NotificationDTO notification = new()
+                    {
+                        NotifyId = Guid.NewGuid().ToString(),
+                        IsRead = false,
+                        Message = $"Your product {product.Name} has been activated!",
+                        UserId = product.VendorId,
+                        CreatedDate = DateTime.UtcNow,
+                        ReadBy = null,
+                        RolesToNotify = null,
+                        Scenario = Core.Enums.NotificationScenario.ProductActivated,
+                        ScenarioId = product.ProductId
+
+                    };
+                    await notificationService.Send(notification);
+                }
+                else
+                {
+                    NotificationDTO notification = new()
+                    {
+                        NotifyId = Guid.NewGuid().ToString(),
+                        IsRead = false,
+                        Message = $"Your product {product.Name} has been deactivated!",
+                        UserId = product.VendorId,
+                        CreatedDate = DateTime.UtcNow,
+                        ReadBy = null,
+                        RolesToNotify = null,
+                        Scenario = Core.Enums.NotificationScenario.ProductDeactivated,
+                        ScenarioId = product.ProductId
+
+                    };
+                    await notificationService.Send(notification);
+                }
+
                 return true;
             }
 
@@ -273,17 +316,28 @@ namespace ECommerceAPI.Application.Features
         }
 
         // Get all active orders for vendor
-        public async Task<List<OrderItem>> GetAllAvailableOrdersAsync(string vendorId)
+        public async Task<List<VendorOrderDTO>> GetAllAvailableOrdersAsync(string vendorId)
         {
             try
             {
                 var result = await _orderRepository.GetVendorOrderAsync(vendorId);
+                var orderItems = new List<VendorOrderDTO>();
 
-                if (result == null)
+                foreach (var order in result)
+                {
+                    var orderDetails = await GetOrderDetailsAsync(order.ItemId);
+                    if (orderDetails != null)
+                    {
+                        orderItems.Add(orderDetails);
+                    }
+                }
+
+                if (orderItems == null || orderItems.Count == 0)
                 {
                     return null;
                 }
-                return result;
+
+                return orderItems;
             }
             catch (Exception ex)
             {

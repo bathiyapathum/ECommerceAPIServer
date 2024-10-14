@@ -109,15 +109,18 @@ namespace ECommerceAPI.Infrastructure.Repositories
                 .Collection("VendorProducts")
                 .GetSnapshotAsync();
 
-            var allProducts = new List<VendorProduct>();
+            List<VendorProduct> allProducts = [];
+
             foreach (var doc in productsQuery.Documents)
             {
                 allProducts.Add(doc.ConvertTo<VendorProduct>());
             }
 
+            // Return the list of all products
             return allProducts;
-        }  
-        
+        }
+
+
         public async Task<string> GetAvailableProductCounts()
         {
             try 

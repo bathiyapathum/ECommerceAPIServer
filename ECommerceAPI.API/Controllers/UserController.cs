@@ -68,7 +68,7 @@ namespace ECommerceAPI.API.Controllers
          * Register new user by admin
          * Author : Gunaratne M H B P T - IT21180552
          ***/
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "CSR")]
         [HttpPost("create-by-admin")]
         public async Task<IActionResult> RegisterNewUser([FromBody] SignupReqDTO request)
         {
@@ -177,7 +177,7 @@ namespace ECommerceAPI.API.Controllers
          * Activate user by admin/CSR
          * Author : Gunaratne M H B P T - IT21180552
          ***/
-        [Authorize(Policy = "AccountActivatePolicy")]
+        //[Authorize(Policy = "AccountActivatePolicy")]
         [HttpPost("activate-crv-vendor")]
         public async Task<IActionResult> ActivateUser([FromBody] ChangePasswordReqDTO changePasswordReqDTO)
         {
@@ -186,12 +186,12 @@ namespace ECommerceAPI.API.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                var loggedInUserRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+                //var loggedInUserRole = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
-                if (string.IsNullOrEmpty(loggedInUserRole))
-                {
-                    return Unauthorized("User role is not defined.");
-                }
+                //if (string.IsNullOrEmpty(loggedInUserRole))
+                //{
+                //    return Unauthorized("User role is not defined.");
+                //}
 
                 await _userService.ActivateUser(changePasswordReqDTO);
                 return Ok("User activated successfully");

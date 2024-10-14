@@ -50,11 +50,12 @@ namespace ECommerceAPI.Application.Features.NotificationServices
                     NotifyId = Guid.NewGuid().ToString(),
                     IsRead = false,
                     Message = notificationDTO.Message,
-                    Reason = notificationDTO.Reason,
-                    SentDate = DateTime.UtcNow,
                     UserId = notificationDTO.UserId,
+                    CreatedDate = DateTime.UtcNow,
+                    ReadBy = notificationDTO.ReadBy,
                     RolesToNotify = GetRolesForScenario(notificationDTO.Scenario),
-                    Scenario = notificationDTO.Scenario
+                    Scenario = notificationDTO.Scenario,
+                    ScenarioId = notificationDTO.ScenarioId
                 };
 
                 var result = await _notificationRepository.CreateAsync(notification);
@@ -72,11 +73,20 @@ namespace ECommerceAPI.Application.Features.NotificationServices
             {
                 case NotificationScenario.StockLow:
                     return new List<UserRole> { UserRole.Vendor };
+                
+                case NotificationScenario.OrderPlaced:
+                    return new List<UserRole> { UserRole.Customer };
 
-                case NotificationScenario.OrderCancel:
+                case NotificationScenario.OrderCancelRequest:
                     return new List<UserRole> { UserRole.Admin, UserRole.CSR };
 
-                case NotificationScenario.OrderShipped:
+                case NotificationScenario.OrderDelivered:
+                    return new List<UserRole> { UserRole.Customer };
+                
+                case NotificationScenario.OrderCancelled:
+                    return new List<UserRole> { UserRole.Customer, UserRole.Vendor };
+
+                case NotificationScenario.PaymentFailed:
                     return new List<UserRole> { UserRole.Customer };
 
                 default:

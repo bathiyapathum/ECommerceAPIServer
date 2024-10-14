@@ -130,12 +130,12 @@ namespace ECommerceAPI.Application.Features
                     throw new DataException(string.Join(",", inputErrors));
                 }
 
-                List<string> roleErrors = _validations.ValidateUserRole(signupReqDTO, role);
+                //List<string> roleErrors = _validations.ValidateUserRole(signupReqDTO, role);
 
-                if (roleErrors.Count > 0)
-                {
-                    throw new DataException(string.Join(",", roleErrors));
-                }
+                //if (roleErrors.Count > 0)
+                //{
+                //    throw new DataException(string.Join(",", roleErrors));
+                //}
 
                 var user = new User
                 {

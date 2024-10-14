@@ -26,7 +26,7 @@ namespace ECommerceAPI.Application.Interfaces
         Task ManageVendorStockLevelsAsync(string productId, int quantityChange);
         Task NotifyVendorLowStockAsync(string productId);
         Task<VendorOrderDTO> GetOrderDetailsAsync(string orderId);
-        Task<List<OrderItem>> GetAllAvailableOrdersAsync(string vendorId);
+        Task<List<VendorOrderDTO>> GetAllAvailableOrdersAsync(string vendorId);
         Task<bool> ToggleProductActivationAsync(string productId); // Toggle product activation status
     }
 }

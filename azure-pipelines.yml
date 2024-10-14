@@ -76,7 +76,7 @@ steps:
 #   displayName: 'Replace appsettings.json'
 
 
-- script: |
-    echo "Replacing firebase credentials file"
-    copy /Y "$(Agent.TempDirectory)/$(firebaseCredentials.secureFilePath)" "$(System.DefaultWorkingDirectory)/ECommerceAPI.API/ecommerceead-c19d4-firebase-adminsdk-rb67u-08dd4d782c.json"  
-  displayName: 'Replace Firebase credentials'
+# - script: |
+#     echo "Replacing firebase credentials file"
+#     copy /Y "$(Agent.TempDirectory)/$(firebaseCredentials.secureFilePath)" "$(System.DefaultWorkingDirectory)/ECommerceAPI.API/ecommerceead-c19d4-firebase-adminsdk-rb67u-08dd4d782c.json"  
+#   displayName: 'Replace Firebase credentials'
